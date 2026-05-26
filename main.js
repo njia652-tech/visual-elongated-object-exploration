@@ -2,13 +2,14 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
 
-
+// npm run dev to start the frontend, make sure the server (Flask) is also running to handle API requests
 // === Heatmap ===
 function toDegNorm(rad) {
   const deg = THREE.MathUtils.radToDeg(rad);
   return (deg % 360 + 360) % 360; // 0..360
 }
-function wrap180(deg) { // 350 -> -10, 91 -> -179, etc.
+function wrap180(deg) { // 3
+// 0 -> -10, 91 -> -179, etc.
   return ((deg + 180) % 360 + 360) % 360 - 180;
 }
 // World-frame yaw/pitch (Euler order YXZ)

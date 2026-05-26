@@ -5,10 +5,13 @@ import os
 import csv
 import time
 
+#python server.py
+
 app = Flask(__name__)
 
-# ✅ 启用 CORS 支持
-CORS(app)
+# ✅ 启用 CORS 支持 — 配置允许的来源
+ALLOWED_ORIGIN = 'http://localhost:5180'
+CORS(app, resources={r"/*": {"origins": ALLOWED_ORIGIN}})
 
 os.makedirs('screenshots', exist_ok=True)
 CSV_FILE = 'record.csv'
@@ -34,7 +37,8 @@ def record():
     # ✅ 手动处理预检请求（关键）
     if request.method == 'OPTIONS':
         response = make_response()
-        response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173'
+        response.headers['Access-Control-Allow-Origin'] = ALLOWED_ORIGIN
+    
         response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
         response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
         return response
@@ -84,7 +88,7 @@ def record():
 
     # ✅ 必须添加跨域头
     response = make_response(jsonify({'status': 'ok'}))
-    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Origin'] = ALLOWED_ORIGIN
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
     response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
     return response
@@ -120,4 +124,4 @@ def memory_result():
     return jsonify({'status': 'success'}), 200
 
 if __name__ == '__main__':
-    app.run(port=5000)
+    app.run(port=5001)
