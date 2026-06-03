@@ -9,8 +9,10 @@ __pycache__/
 .venv/
 venv/
 
-# Large assets: glb files, backgroud image exr., quiz images
-public/
+# Large assets: background image exr., quiz images
+public/hdrs/
+public/models/
+public/output_pngs/
 hdrs/.hdr
 
 # Local data / outputs
