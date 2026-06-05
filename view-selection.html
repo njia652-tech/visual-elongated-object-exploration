@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>View Selection Experiment</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: sans-serif; overflow: hidden; background: #000; color: #fff; }
+    canvas { display: block; position: fixed; top: 0; left: 0; z-index: 0; }
+
+    button {
+      padding: 10px 22px; font-size: 16px;
+      background: #444; color: #fff; border: none;
+      cursor: pointer; border-radius: 6px; margin: 6px;
+    }
+    button:hover { background: #666; }
+
+    /* ── Full-screen overlay modules ─────────────────────────────── */
+    .module {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      display: none; justify-content: center; align-items: center;
+      flex-direction: column; z-index: 10;
+      background: radial-gradient(ellipse at center, #1a1a2e, #000);
+    }
+
+    /* ── Persistent trial overlays (transparent bg) ──────────────── */
+    #instruction-banner {
+      position: fixed; top: 0; left: 0; right: 0;
+      background: rgba(0,0,0,0.60); color: #eee;
+      text-align: center; padding: 10px 40px;
+      font-size: 15px; z-index: 5; display: none;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+    }
+
+    #timer-display {
+      position: fixed; top: 14px; right: 14px;
+      background: rgba(255,255,255,0.88); color: #111;
+      font-size: 22px; font-family: monospace;
+      padding: 6px 16px; border-radius: 6px; z-index: 15;
+      display: none; min-width: 60px; text-align: center;
+    }
+
+    #trial-counter {
+      position: fixed; top: 14px; left: 14px;
+      background: rgba(255,255,255,0.88); color: #111;
+      font-size: 14px; font-family: monospace;
+      padding: 5px 12px; border-radius: 6px; z-index: 15;
+      display: none;
+    }
+
+    #confirm-prompt {
+      position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,0.82); color: #fff;
+      padding: 16px 32px; border-radius: 10px;
+      font-size: 18px; text-align: center; z-index: 15;
+      display: none; white-space: nowrap;
+    }
+    #confirm-prompt small { display: block; margin-top: 6px; color: #aaa; font-size: 13px; }
+
+    /* ── Welcome ─────────────────────────────────────────────────── */
+    #module-welcome .card {
+      max-width: 720px; padding: 2.5rem; text-align: center;
+    }
+    #module-welcome h1 { font-size: 2rem; margin-bottom: 1rem; }
+    #module-welcome p { font-size: 1.05rem; line-height: 1.7; margin: 0.8rem 0; }
+    .controls-box {
+      background: #1a1a2e; border-radius: 8px;
+      padding: 14px 24px; text-align: left; margin: 1rem 0;
+    }
+    .controls-box li { margin: 6px 0; }
+    #participant-id {
+      padding: 10px 14px; font-size: 16px; width: 280px;
+      border-radius: 6px; border: 1px solid #555;
+      background: #222; color: #fff; margin-top: 0.5rem;
+    }
+
+    /* ── Instruction ─────────────────────────────────────────────── */
+    #module-instruction .card { max-width: 740px; padding: 2.5rem; text-align: center; }
+    #instruction-title { font-size: 1.6rem; margin-bottom: 1rem; }
+    #instruction-text {
+      font-size: 1.15rem; line-height: 1.85;
+      margin: 1.2rem 0 2rem; color: #ddd;
+    }
+
+    /* ── Probe ───────────────────────────────────────────────────── */
+    #module-probe .card { max-width: 660px; padding: 2.5rem; text-align: center; }
+    #module-probe p { font-size: 1.15rem; line-height: 1.8; margin-bottom: 2rem; }
+    .probe-btn {
+      min-width: 170px; font-size: 17px;
+      padding: 14px 24px; margin: 8px;
+      background: #1e2a4a; border: 2px solid #4466cc;
+      border-radius: 8px; color: #fff;
+    }
+    .probe-btn:hover { background: #2b3d6b; }
+
+    /* ── End ─────────────────────────────────────────────────────── */
+    #module-end .card { text-align: center; }
+    #module-end h1 { font-size: 2.2rem; margin-bottom: 0.8rem; }
+    #module-end p { font-size: 1.1rem; color: #ccc; }
+  </style>
+</head>
+<body>
+
+  <!-- ── Welcome ───────────────────────────────────────────────── -->
+  <div id="module-welcome" class="module" style="display:flex;">
+    <div class="card">
+      <h1>View Selection Experiment</h1>
+      <p>
+        You will explore <strong>30 three-dimensional objects</strong> twice, under two different tasks.<br>
+        Use the arrow keys to rotate each object and confirm your chosen view.
+      </p>
+      <div class="controls-box">
+        <strong>Controls</strong>
+        <ul>
+          <li>← → &nbsp; Rotate left / right (unlimited)</li>
+          <li>↑ ↓ &nbsp; Tilt up / down (max ±45°)</li>
+          <li>Enter &nbsp; Confirm view (available after 25 s)</li>
+        </ul>
+      </div>
+      <input id="participant-id" placeholder="Participant ID (e.g., P001)" /><br>
+      <button id="btn-start" style="margin-top:1.2rem; font-size:1.05rem; padding:12px 28px;">
+        Start
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Instruction (shown at start of each block) ────────────── -->
+  <div id="module-instruction" class="module">
+    <div class="card">
+      <h2 id="instruction-title"></h2>
+      <p id="instruction-text"></p>
+      <button id="btn-begin-block" style="font-size:1.05rem; padding:12px 32px;">
+        Begin Block
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Probe ─────────────────────────────────────────────────── -->
+  <div id="module-probe" class="module">
+    <div class="card">
+      <p>
+        Please briefly think back to the views you selected in the previous few trials.<br>
+        <strong>How clearly can you remember the views you chose?</strong>
+      </p>
+      <div>
+        <button class="probe-btn" data-answer="Not clearly">Not clearly</button>
+        <button class="probe-btn" data-answer="Somewhat clearly">Somewhat clearly</button>
+        <button class="probe-btn" data-answer="Clearly">Clearly</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── End ───────────────────────────────────────────────────── -->
+  <div id="module-end" class="module">
+    <div class="card">
+      <h1>Thank you!</h1>
+      <p>You have completed the experiment.</p>
+    </div>
+  </div>
+
+  <!-- ── Persistent trial overlays ─────────────────────────────── -->
+  <div id="instruction-banner"></div>
+  <div id="timer-display">25</div>
+  <div id="trial-counter"></div>
+  <div id="confirm-prompt">
+    Click Confirm when you are satisfied with your selection.
+    <small>Press Enter to confirm</small>
+  </div>
+
+  <script type="module" src="./view-selection.js"></script>
+</body>
+</html>

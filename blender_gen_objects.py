@@ -79,23 +79,20 @@ def make_grey_material(name):
 
 
 # ==============================================================
-#  ELLIPSOID BODY
+#  BOX BODY
 # ==============================================================
 
-def create_ellipsoid(semi_x, semi_z, name, mat):
-    bpy.ops.mesh.primitive_uv_sphere_add(
-        radius=MINOR_RADIUS, segments=32, ring_count=16, location=(0, 0, 0))
+def create_box(semi_x, semi_z, name, mat):
+    # primitive_cube_add(size=2) → vertices at ±1 on each axis
+    # after scaling: X = ±semi_x, Y = ±MINOR_RADIUS, Z = ±semi_z
+    bpy.ops.mesh.primitive_cube_add(size=2.0, location=(0, 0, 0))
     obj = bpy.context.active_object
     obj.name = name
 
-    obj.scale.x = semi_x / MINOR_RADIUS   # elongation (varies by level)
-    obj.scale.z = semi_z / MINOR_RADIUS   # flatness (fixed for all objects)
+    obj.scale.x = semi_x        # elongation (varies by level)
+    obj.scale.y = MINOR_RADIUS  # short horizontal axis (fixed)
+    obj.scale.z = semi_z        # flatness (fixed for all objects)
     bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
-
-    # shade smooth via mesh data (avoids operator context issues)
-    for poly in obj.data.polygons:
-        poly.use_smooth = True
-    obj.data.update()
 
     obj.data.materials.clear()
     obj.data.materials.append(mat)
@@ -106,24 +103,32 @@ def create_ellipsoid(semi_x, semi_z, name, mat):
 #  SURFACE GEOMETRY
 # ==============================================================
 
-def ellipsoid_point_and_normal(theta, phi, a, b, c):
+def box_point_and_normal(theta, phi, a, b, c):
     """
-    Parametric point and outward unit normal for ellipsoid (a, b, c):
-        x = a·sinθ·cosφ,  y = b·sinθ·sinφ,  z = c·cosθ
-    Normal = ∇(x²/a² + y²/b² + z²/c²), normalised.
+    Cast a ray from the origin in direction (theta, phi) and find
+    where it first intersects the box surface ±(a, b, c).
+    Returns (surface_point, outward_face_normal).
     """
     st, ct = math.sin(theta), math.cos(theta)
     sp, cp = math.sin(phi),   math.cos(phi)
+    dx, dy, dz = st * cp, st * sp, ct
 
-    px = a * st * cp
-    py = b * st * sp
-    pz = c * ct
+    tx = a / abs(dx) if dx != 0 else float('inf')
+    ty = b / abs(dy) if dy != 0 else float('inf')
+    tz = c / abs(dz) if dz != 0 else float('inf')
+    t  = min(tx, ty, tz)
 
-    nx = px / a**2
-    ny = py / b**2
-    nz = pz / c**2
-    length = math.sqrt(nx**2 + ny**2 + nz**2)
-    return (px, py, pz), (nx/length, ny/length, nz/length)
+    px, py, pz = dx * t, dy * t, dz * t
+
+    tol = 1e-8
+    if abs(abs(px) - a) < tol:
+        normal = (math.copysign(1.0, px), 0.0, 0.0)
+    elif abs(abs(py) - b) < tol:
+        normal = (0.0, math.copysign(1.0, py), 0.0)
+    else:
+        normal = (0.0, 0.0, math.copysign(1.0, pz))
+
+    return (px, py, pz), normal
 
 
 # ==============================================================
@@ -225,11 +230,11 @@ def run():
 
             try:
                 mat  = make_grey_material(f"Mat_{full_name}")
-                body = create_ellipsoid(semi_x, semi_z, full_name, mat)
+                body = create_box(semi_x, semi_z, full_name, mat)
 
                 att_objects = []
                 for cfg in configs:
-                    pos, norm = ellipsoid_point_and_normal(
+                    pos, norm = box_point_and_normal(
                         cfg['theta'], cfg['phi'], semi_x, semi_y, semi_z)
                     att = place_attachment(pos, norm, cfg['type'], cfg['scale'], mat)
                     att_objects.append(att)

@@ -123,5 +123,82 @@ def memory_result():
 
     return jsonify({'status': 'success'}), 200
 
+VIEW_CSV   = 'view_record.csv'
+PROBE_CSV  = 'view_probe.csv'
+
+VIEW_HEADERS = [
+    'participantId', 'task', 'block', 'trialNumber',
+    'objectName', 'baseId', 'level',
+    'finalAzimuth', 'finalElevation',
+    'upDownCount', 'leftRightCount', 'upDownRatio', 'leftRightRatio',
+    'timestamp',
+]
+PROBE_HEADERS = ['participantId', 'afterTrial', 'answer', 'timestamp']
+
+def _init_csv(path, headers):
+    if not os.path.exists(path):
+        with open(path, 'w', newline='') as f:
+            csv.writer(f).writerow(headers)
+
+_init_csv(VIEW_CSV,  VIEW_HEADERS)
+_init_csv(PROBE_CSV, PROBE_HEADERS)
+
+
+@app.route('/record_view', methods=['POST', 'OPTIONS'])
+def record_view():
+    if request.method == 'OPTIONS':
+        resp = make_response()
+        resp.headers['Access-Control-Allow-Origin']  = ALLOWED_ORIGIN
+        resp.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+        resp.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
+        return resp
+
+    d = request.get_json()
+    with open(VIEW_CSV, 'a', newline='') as f:
+        csv.writer(f).writerow([
+            d.get('participantId'),
+            d.get('task'),
+            d.get('block'),
+            d.get('trialNumber'),
+            d.get('objectName'),
+            d.get('baseId'),
+            d.get('level'),
+            d.get('finalAzimuth'),
+            d.get('finalElevation'),
+            d.get('upDownCount'),
+            d.get('leftRightCount'),
+            d.get('upDownRatio'),
+            d.get('leftRightRatio'),
+            d.get('timestamp'),
+        ])
+
+    resp = make_response(jsonify({'status': 'ok'}))
+    resp.headers['Access-Control-Allow-Origin'] = ALLOWED_ORIGIN
+    return resp
+
+
+@app.route('/probe_result', methods=['POST', 'OPTIONS'])
+def probe_result():
+    if request.method == 'OPTIONS':
+        resp = make_response()
+        resp.headers['Access-Control-Allow-Origin']  = ALLOWED_ORIGIN
+        resp.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+        resp.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
+        return resp
+
+    d = request.get_json()
+    with open(PROBE_CSV, 'a', newline='') as f:
+        csv.writer(f).writerow([
+            d.get('participantId'),
+            d.get('afterTrial'),
+            d.get('answer'),
+            d.get('timestamp'),
+        ])
+
+    resp = make_response(jsonify({'status': 'ok'}))
+    resp.headers['Access-Control-Allow-Origin'] = ALLOWED_ORIGIN
+    return resp
+
+
 if __name__ == '__main__':
     app.run(port=5001)
