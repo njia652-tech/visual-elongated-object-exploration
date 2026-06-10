@@ -16,8 +16,7 @@
 - `index.html` + `main.js` 原样保留 → 旧实验，通过 `/` 访问。
 - 新增一个入口，例如 `view-selection.html` + `view-selection.js`，作为新实验，通过
   `/view-selection.html` 访问。（Vite 开发服务器会自动同时提供两个页面；`vite build`
-  时需在 `vite.config.js` 的 `build.rollupOptions.input` 中加入两个 HTML 文件。）
-- Flask 服务器新增**新的**路由（如 `/record_view`、`/probe`），写入**新的** CSV 文件；
+  时需在 `vite.config.js` 的 `build.rollupOptions.input` 中加入两个 HTML 
   旧的 `/record` 和 `/memory_result` 路由及其 CSV 保持不变。
 
 **备选架构（可自行选择）：**
@@ -79,34 +78,38 @@
 
 ---
 
-## C. 需要自己做的设计决策
+## C. 设计决策（已确定）
 
-这些会实质性地影响实现，也是很好的设计练习：
+0. **扩展架构** ✅ 方案 1：独立页面（`view-selection.html` + `view-selection.js`），旧实验保持不变。
 
-0. **扩展架构** —— 选择上面的方案 1 / 2 / 3（独立页面、共享核心模块、或单页面模式
-   切换）。推荐方案 1。
-1. **25 秒计时语义** —— 硬性截止 vs. 软性提示；若到 0 秒仍未确认时的行为（自动提交当前
-   视角，还是继续等待）。25秒探索 时间后，出现提示词 “Click Confirm when you are satisfied with your selection.” 然后按回车确认
-2. **任务 block 顺序** —— 平衡方案（按参与者）一半先T1，一半先T2
-3. **确认方式** —— 按键、屏幕按钮，或两者皆可。
-4. **30 个 Blender 输出文件的命名规范**（决定元数据解析器怎么写）。
-obj01_low.glb
-obj01_medium.glb
-obj01_high.glb
-obj02_low.glb
-...
-obj10_high.glb
-5. **Probe 范围** —— 全局每 10 个 trial vs. 每个 block 内；是否/如何记录 probe 反应时。出现提示框，让参与者Probe 的文字是：“Please briefly think back to the views you selected in the previous few trials. How clearly can you remember the views you chose?”
-下面显示三个选择按键 clickable response buttons：
-Not clearly
-Somewhat clearly
-Clearly
+1. **25 秒计时语义** ✅ 软性提示：25 秒探索时间结束后，出现提示文字
+   “Click Confirm when you are satisfied with your selection.”
+   参与者按 **Enter** 键确认，提交当前视角。
 
-6. **指导语展示** —— 每个 trial 都显示 vs. 每个 block 显示一次；是否加入注视点/trial 间
-   间隔。
-7. **Azimuth/elevation 零点标定** —— 确认模型导入后的朝向，使 0° 真正落在短边视角。
-8. **视角类别计算** —— 在记录时计算还是在分析阶段计算。
-9. **轨迹格式** —— 逐步行（per-step rows）vs. 在最终记录上序列化为一个数组。这里不用记轨迹，记录参与者操作（上下操作，和左右操作次数）最后我需要得到分别两类操作占总操作的比例.
+2. **任务 block 顺序** ✅ 平衡方案：一半参与者先 T1 后 T2，另一半先 T2 后 T1。
+
+3. **确认方式** ✅ 按 **Enter** 键确认。
+
+4. **文件命名规范** ✅ 按实际生成格式：
+   `object01_low.glb` / `object01_medium.glb` / `object01_high.glb`
+   `object02_low.glb` … `object10_high.glb`
+   元数据解析：文件名以 `_` 分割，倒数第一段为拉伸程度，其余为 base object ID。
+
+5. **Probe** ✅ 全局每完成 10 个 trial 插入一次 probe 界面。
+   提示文字：”Please briefly think back to the views you selected in the previous few trials. How clearly can you remember the views you chose?”
+   三个按钮（鼠标左键点击）：Not clearly / Somewhat clearly / Clearly
+
+6. **指导语展示** ✅ 每个 block 内持续展示对应指导语（不每个 trial 单独显示）。
+
+7. **Azimuth/elevation 零点标定** —— 待实现时参照 `blender_gen_objects.py`：
+   物体长轴 = **X 轴**，短横轴 = Y 轴，高度 = Z 轴（压扁）。
+   Three.js 加载后需旋转物体或调整初始相机，使 azimuth 0° 对应”从长轴端部看”（短边视角）。
+
+8. **视角类别计算** ✅ **分析阶段计算**：CSV 只存原始 azimuth / elevation 角度，
+   类别（short/long/oblique ±22.5°）留到后期 Python/R 脚本中计算，保持数据灵活性。
+
+9. **操作记录** ✅ 记录参与者的上下操作次数（elevation 方向）和左右操作次数（azimuth 方向），
+   以及各自占总操作次数的比例（up_down_ratio, left_right_ratio）。
 
 ---
 ## D. 建议的构建顺序

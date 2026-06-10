@@ -184,16 +184,13 @@ const elConfirm = document.getElementById('confirm-prompt');
 function startTimer() {
   timeLeft     = TRIAL_SEC;
   confirmReady = false;
-  elTimer.textContent    = timeLeft;
-  elTimer.style.display  = 'block';
+  elTimer.style.display  = 'none';
   elConfirm.style.display = 'none';
   clearInterval(timerInterval);
   timerInterval = setInterval(() => {
     timeLeft--;
-    elTimer.textContent = timeLeft;
     if (timeLeft <= 0) {
       clearInterval(timerInterval);
-      elTimer.style.display   = 'none';
       elConfirm.style.display = 'block';
       confirmReady = true;
     }
