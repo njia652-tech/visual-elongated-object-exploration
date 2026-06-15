@@ -22,8 +22,8 @@ print("=== blender_gen_objects.py starting ===", flush=True)
 OUTPUT_DIR = "C:/Users/lenovo/Documents/GitHub/visual-elongated-object-exploration/public/Objects"
 
 RANDOM_SEED     = 42
-NUM_OBJECTS     = 10
-NUM_ATTACHMENTS = 10
+NUM_OBJECTS     = 6
+NUM_ATTACHMENTS = 8
 
 ELONGATION_LEVELS = [
     ('low',    1.3),   # long axis = 1.3× short axis
@@ -83,8 +83,8 @@ def make_grey_material(name):
 # ==============================================================
 
 def create_box(semi_x, semi_z, name, mat):
-    # primitive_cube_add(size=2) → vertices at ±1 on each axis
-    # after scaling: X = ±semi_x, Y = ±MINOR_RADIUS, Z = ±semi_z
+    # Unit cube (size=2) scaled to (semi_x, MINOR_RADIUS, semi_z)
+    # Long axis = X; short horizontal = Y (MINOR_RADIUS); height = Z (semi_z)
     bpy.ops.mesh.primitive_cube_add(size=2.0, location=(0, 0, 0))
     obj = bpy.context.active_object
     obj.name = name
@@ -103,32 +103,33 @@ def create_box(semi_x, semi_z, name, mat):
 #  SURFACE GEOMETRY
 # ==============================================================
 
-def box_point_and_normal(theta, phi, a, b, c):
+def box_point_and_normal(u, v, w, a, b, c):
     """
-    Cast a ray from the origin in direction (theta, phi) and find
-    where it first intersects the box surface ±(a, b, c).
-    Returns (surface_point, outward_face_normal).
+    Area-weighted random point on box surface with half-extents (a, b, c).
+      u — selects face weighted by face area (uniform over surface)
+      v — position along first axis of the chosen face  [0, 1)
+      w — position along second axis of the chosen face [0, 1)
+    Attachments distributed across the entire surface with no filtering.
     """
-    st, ct = math.sin(theta), math.cos(theta)
-    sp, cp = math.sin(phi),   math.cos(phi)
-    dx, dy, dz = st * cp, st * sp, ct
+    # Face areas: ±X = 2bc, ±Y = 2ac, ±Z = 2ab
+    areas = [2*b*c, 2*b*c, 2*a*c, 2*a*c, 2*a*b, 2*a*b]
+    total = sum(areas)
+    r = u * total
+    face, cumul = 5, 0
+    for i, area in enumerate(areas):
+        cumul += area
+        if r < cumul:
+            face = i
+            break
 
-    tx = a / abs(dx) if dx != 0 else float('inf')
-    ty = b / abs(dy) if dy != 0 else float('inf')
-    tz = c / abs(dz) if dz != 0 else float('inf')
-    t  = min(tx, ty, tz)
-
-    px, py, pz = dx * t, dy * t, dz * t
-
-    tol = 1e-8
-    if abs(abs(px) - a) < tol:
-        normal = (math.copysign(1.0, px), 0.0, 0.0)
-    elif abs(abs(py) - b) < tol:
-        normal = (0.0, math.copysign(1.0, py), 0.0)
-    else:
-        normal = (0.0, 0.0, math.copysign(1.0, pz))
-
-    return (px, py, pz), normal
+    sv = 2 * v - 1   # remap [0, 1) → (−1, 1)
+    sw = 2 * w - 1
+    if   face == 0: return ( a, sv*b, sw*c), ( 1, 0, 0)
+    elif face == 1: return (-a, sv*b, sw*c), (-1, 0, 0)
+    elif face == 2: return (sv*a,  b, sw*c), ( 0, 1, 0)
+    elif face == 3: return (sv*a, -b, sw*c), ( 0,-1, 0)
+    elif face == 4: return (sv*a, sw*b,  c), ( 0, 0, 1)
+    else:           return (sv*a, sw*b, -c), ( 0, 0,-1)
 
 
 # ==============================================================
@@ -137,16 +138,18 @@ def box_point_and_normal(theta, phi, a, b, c):
 
 def generate_attachment_configs(rng):
     """
-    Sample NUM_ATTACHMENTS (theta, phi, type, scale) tuples.
+    Sample NUM_ATTACHMENTS (u, v, w, type, scale) tuples.
     Stored once per base object and re-used for all three elongation levels.
+    u/v/w are three independent uniform [0,1) values for box surface sampling.
     """
     att_types = ['CYLINDER', 'CUBE', 'CONE', 'SPHERE']
     configs = []
     for _ in range(NUM_ATTACHMENTS):
         configs.append({
-            'theta': rng.uniform(0.20, math.pi - 0.20),
-            'phi':   rng.uniform(0.0, 2 * math.pi),
-            'type':  rng.choice(att_types),
+            'u':    rng.random(),
+            'v':    rng.random(),
+            'w':    rng.random(),
+            'type': rng.choice(att_types),
             'scale': rng.uniform(ATTACH_SCALE_MIN, ATTACH_SCALE_MAX) * MINOR_RADIUS,
         })
     return configs
@@ -235,7 +238,7 @@ def run():
                 att_objects = []
                 for cfg in configs:
                     pos, norm = box_point_and_normal(
-                        cfg['theta'], cfg['phi'], semi_x, semi_y, semi_z)
+                        cfg['u'], cfg['v'], cfg['w'], semi_x, semi_y, semi_z)
                     att = place_attachment(pos, norm, cfg['type'], cfg['scale'], mat)
                     att_objects.append(att)
 

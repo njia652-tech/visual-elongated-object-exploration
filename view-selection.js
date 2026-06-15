@@ -3,13 +3,15 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
 
 // http://localhost:5180/view-selection.html 
-
+// 前端：npm run dev
+// 后端：python server.py
 
 // ── CONSTANTS ────────────────────────────────────────────────────────
 const STEP_DEG    = 5;
-const ELEV_MAX    = 45;
-const TRIAL_SEC   = 25;
-const PROBE_EVERY = 10;
+const ELEV_MAX    = 30;
+const EXPLORE_SEC = 50;
+const CONFIRM_SEC = 10;
+const PROBE_EVERY = 6;
 // Long axis of objects is Blender X → Three.js X after GLTF export.
 // Rotate -90° around world Y so the long axis points toward the camera (+Z) at azimuth 0°
 // → azimuth 0° = short-side view, 90°/270° = long-side view
@@ -29,17 +31,16 @@ const TASKS = {
 };
 
 // ── OBJECT DISCOVERY ─────────────────────────────────────────────────
-const glbModules = import.meta.glob('/public/Objects/*.glb', { as: 'url', eager: true });
-const allObjects = Object.entries(glbModules)
-  .map(([path, url]) => {
-    const filename = path.split('/').pop();
-    const name     = filename.replace('.glb', '');
-    const parts    = name.split('_');
-    const level    = parts[parts.length - 1];         // 'low' | 'medium' | 'high'
-    const baseId   = parts.slice(0, -1).join('_');    // 'object01' … 'object10'
-    return { filename, name, url, baseId, level };
-  })
-  .sort((a, b) => a.name.localeCompare(b.name));
+// public/ files are served at root — URLs must be /Objects/... not /public/Objects/...
+const allObjects = [];
+for (let i = 1; i <= 6; i++) {
+  for (const level of ['low', 'medium', 'high']) {
+    const name   = `object0${i}_${level}`;
+    const baseId = `object0${i}`;
+    allObjects.push({ filename: `${name}.glb`, name, url: `/Objects/${name}.glb`, baseId, level });
+  }
+}
+allObjects.sort((a, b) => a.name.localeCompare(b.name));
 
 // ── THREE.JS SETUP ────────────────────────────────────────────────────
 const scene    = new THREE.Scene();
@@ -93,12 +94,17 @@ let pendingProbeAfter = 0;
 
 let model       = null;
 let azimuth     = 0;   // degrees 0–360
-let elevation   = 0;   // degrees −45…+45
+let elevation   = 0;   // degrees −30…+30
+let startAzimuth   = 0;
 let upDownCount    = 0;
 let leftRightCount = 0;
 
+// azimuth zone dwell tracking (sampled every 100 ms during 50-s explore phase)
+let zoneSamples     = { short: 0, long: 0, oblique: 0 };
+let zoneInterval    = null;
+
 let timerInterval   = null;
-let timeLeft        = TRIAL_SEC;
+let timeLeft        = EXPLORE_SEC;
 let confirmReady    = false;
 let inTrial         = false;
 let isProcessing    = false;
@@ -162,8 +168,6 @@ function loadTrialModel(trial) {
     model.userData.isModel = true;
     model.scale.setScalar(1.0);
     scene.add(model);
-    azimuth   = 0;
-    elevation = 0;
     applyRotation();
   });
 }
@@ -181,18 +185,53 @@ function applyRotation() {
 const elTimer   = document.getElementById('timer-display');
 const elConfirm = document.getElementById('confirm-prompt');
 
+function azimuthZone(az) {
+  const a = ((az % 360) + 360) % 360;
+  if ((a <= 22.5 || a >= 337.5) || (a >= 157.5 && a <= 202.5)) return 'short';
+  if ((a >= 67.5 && a <= 112.5) || (a >= 247.5 && a <= 292.5)) return 'long';
+  return 'oblique';
+}
+
+function stopZoneSampling() {
+  clearInterval(zoneInterval);
+  zoneInterval = null;
+}
+
 function startTimer() {
-  timeLeft     = TRIAL_SEC;
-  confirmReady = false;
-  elTimer.style.display  = 'none';
+  timeLeft        = EXPLORE_SEC;
+  confirmReady    = false;
+  zoneSamples     = { short: 0, long: 0, oblique: 0 };
+  elTimer.textContent     = timeLeft;
+  elTimer.style.display   = 'block';
   elConfirm.style.display = 'none';
   clearInterval(timerInterval);
+  stopZoneSampling();
+
+  // Zone sampling every 100 ms during exploration
+  zoneInterval = setInterval(() => { zoneSamples[azimuthZone(azimuth)]++; }, 100);
+
   timerInterval = setInterval(() => {
     timeLeft--;
+    elTimer.textContent = timeLeft;
     if (timeLeft <= 0) {
       clearInterval(timerInterval);
-      elConfirm.style.display = 'block';
-      confirmReady = true;
+      stopZoneSampling();
+      startConfirmPhase();
+    }
+  }, 1000);
+}
+
+function startConfirmPhase() {
+  confirmReady = true;
+  elConfirm.style.display = 'block';
+  let confirmTimeLeft = CONFIRM_SEC;
+  elTimer.textContent = confirmTimeLeft;
+  timerInterval = setInterval(() => {
+    confirmTimeLeft--;
+    elTimer.textContent = confirmTimeLeft;
+    if (confirmTimeLeft <= 0) {
+      clearInterval(timerInterval);
+      confirmTrial();
     }
   }, 1000);
 }
@@ -210,6 +249,7 @@ function showModule(name) {
   elCounter.style.display = active ? 'block' : 'none';
   if (!active) {
     clearInterval(timerInterval);
+    stopZoneSampling();
     elTimer.style.display   = 'none';
     elConfirm.style.display = 'none';
   }
@@ -235,6 +275,10 @@ function startTrial(idx) {
   const trial = trialSequence[idx];
   const task  = trial.task;
 
+  startAzimuth = Math.random() < 0.5 ? 30 : 330;
+  azimuth      = startAzimuth;
+  elevation    = 0;
+
   elBanner.textContent  = TASKS[task].banner;
   elCounter.textContent = `Trial ${idx + 1} / ${trialSequence.length}`;
   showModule('trial');
@@ -248,8 +292,10 @@ function confirmTrial() {
   inTrial      = false;
   clearInterval(timerInterval);
 
-  const trial  = trialSequence[currentTrialIdx];
-  const total  = upDownCount + leftRightCount;
+  const trial      = trialSequence[currentTrialIdx];
+  const total      = upDownCount + leftRightCount;
+  const totalZone  = zoneSamples.short + zoneSamples.long + zoneSamples.oblique;
+  const msPerSample = 100;
 
   fetch('/api/record_view', {
     method: 'POST',
@@ -263,12 +309,19 @@ function confirmTrial() {
       objectName:     trial.name,
       baseId:         trial.baseId,
       level:          trial.level,
+      startAzimuth,
       finalAzimuth:   azimuth,
       finalElevation: elevation,
       upDownCount,
       leftRightCount,
       upDownRatio:    total > 0 ? +(upDownCount    / total).toFixed(4) : 0,
       leftRightRatio: total > 0 ? +(leftRightCount / total).toFixed(4) : 0,
+      timeShortSide:  zoneSamples.short   * msPerSample,
+      timeLongSide:   zoneSamples.long    * msPerSample,
+      timeOblique:    zoneSamples.oblique * msPerSample,
+      ratioShortSide: totalZone > 0 ? +(zoneSamples.short   / totalZone).toFixed(4) : 0,
+      ratioLongSide:  totalZone > 0 ? +(zoneSamples.long    / totalZone).toFixed(4) : 0,
+      ratioOblique:   totalZone > 0 ? +(zoneSamples.oblique / totalZone).toFixed(4) : 0,
       timestamp:      Date.now(),
     }),
   }).catch(() => {});
@@ -295,9 +348,8 @@ function nextStep() {
 // ── KEY HANDLING ──────────────────────────────────────────────────────
 document.addEventListener('keydown', e => {
   if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
-});
+  if (e.repeat) return;   // ignore OS key-repeat; each physical press = one step
 
-document.addEventListener('keyup', e => {
   if (e.key === 'Enter') { confirmTrial(); return; }
   if (!inTrial || isProcessing) return;
 

@@ -129,8 +129,10 @@ PROBE_CSV  = 'view_probe.csv'
 VIEW_HEADERS = [
     'participantId', 'task', 'block', 'trialNumber',
     'objectName', 'baseId', 'level',
-    'finalAzimuth', 'finalElevation',
+    'startAzimuth', 'finalAzimuth', 'finalElevation',
     'upDownCount', 'leftRightCount', 'upDownRatio', 'leftRightRatio',
+    'timeShortSide', 'timeLongSide', 'timeOblique',
+    'ratioShortSide', 'ratioLongSide', 'ratioOblique',
     'timestamp',
 ]
 PROBE_HEADERS = ['participantId', 'afterTrial', 'answer', 'timestamp']
@@ -163,12 +165,19 @@ def record_view():
             d.get('objectName'),
             d.get('baseId'),
             d.get('level'),
+            d.get('startAzimuth'),
             d.get('finalAzimuth'),
             d.get('finalElevation'),
             d.get('upDownCount'),
             d.get('leftRightCount'),
             d.get('upDownRatio'),
             d.get('leftRightRatio'),
+            d.get('timeShortSide'),
+            d.get('timeLongSide'),
+            d.get('timeOblique'),
+            d.get('ratioShortSide'),
+            d.get('ratioLongSide'),
+            d.get('ratioOblique'),
             d.get('timestamp'),
         ])
 
@@ -201,4 +210,4 @@ def probe_result():
 
 
 if __name__ == '__main__':
-    app.run(port=5001)
+    app.run(port=5006)
