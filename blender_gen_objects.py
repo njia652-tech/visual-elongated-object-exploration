@@ -23,7 +23,7 @@ OUTPUT_DIR = "C:/Users/lenovo/Documents/GitHub/visual-elongated-object-explorati
 
 RANDOM_SEED     = 42
 NUM_OBJECTS     = 6
-NUM_ATTACHMENTS = 8
+NUM_ATTACHMENTS = 12
 
 ELONGATION_LEVELS = [
     ('low',    1.3),   # long axis = 1.3× short axis
@@ -35,8 +35,9 @@ MINOR_RADIUS     = 1.0
 FLAT_RATIO       = 0.5   # Z height = 50% of MINOR_RADIUS (same for all objects)
 ATTACH_SCALE_MIN = 0.08
 ATTACH_SCALE_MAX = 0.14
+SIDE_BOOST       = 4.0   # weight multiplier for ±Y long-side faces vs. area-based default
 BODY_COLOR       = (0.78, 0.78, 0.78, 1.0)
-BODY_ROUGHNESS   = 0.85
+BODY_ROUGHNESS   = 1.0
 
 # ==============================================================
 #  SCENE HELPERS
@@ -72,7 +73,7 @@ def make_grey_material(name):
     # "Specular" was renamed to "Specular IOR Level" in Blender 4.0
     for key in ("Specular IOR Level", "Specular"):
         if key in bsdf.inputs:
-            bsdf.inputs[key].default_value = 0.05
+            bsdf.inputs[key].default_value = 0.0
             break
 
     return mat
@@ -105,31 +106,40 @@ def create_box(semi_x, semi_z, name, mat):
 
 def box_point_and_normal(u, v, w, a, b, c):
     """
-    Area-weighted random point on box surface with half-extents (a, b, c).
-      u — selects face weighted by face area (uniform over surface)
+    Weighted random point on box surface with half-extents (a, b, c).
+      u — selects face by cumulative weight
       v — position along first axis of the chosen face  [0, 1)
       w — position along second axis of the chosen face [0, 1)
-    Attachments distributed across the entire surface with no filtering.
+    All 6 faces are eligible; ±Y long-side faces are up-weighted by SIDE_BOOST
+    so most attachments appear there while end faces and top/bottom still occur.
     """
-    # Face areas: ±X = 2bc, ±Y = 2ac, ±Z = 2ab
-    areas = [2*b*c, 2*b*c, 2*a*c, 2*a*c, 2*a*b, 2*a*b]
-    total = sum(areas)
+    # Natural area weights, with ±Y boosted
+    # ±X end faces: 2bc  |  ±Y long sides: 2ac × SIDE_BOOST  |  ±Z top/bottom: 2ab
+    weights = [
+        2*b*c,              # face 0: +X end
+        2*b*c,              # face 1: -X end
+        2*a*c * SIDE_BOOST, # face 2: +Y long side (boosted)
+        2*a*c * SIDE_BOOST, # face 3: -Y long side (boosted)
+        2*a*b,              # face 4: +Z top
+        2*a*b,              # face 5: -Z bottom
+    ]
+    total = sum(weights)
     r = u * total
     face, cumul = 5, 0
-    for i, area in enumerate(areas):
-        cumul += area
+    for i, w_ in enumerate(weights):
+        cumul += w_
         if r < cumul:
             face = i
             break
 
     sv = 2 * v - 1   # remap [0, 1) → (−1, 1)
     sw = 2 * w - 1
-    if   face == 0: return ( a, sv*b, sw*c), ( 1, 0, 0)
-    elif face == 1: return (-a, sv*b, sw*c), (-1, 0, 0)
-    elif face == 2: return (sv*a,  b, sw*c), ( 0, 1, 0)
-    elif face == 3: return (sv*a, -b, sw*c), ( 0,-1, 0)
-    elif face == 4: return (sv*a, sw*b,  c), ( 0, 0, 1)
-    else:           return (sv*a, sw*b, -c), ( 0, 0,-1)
+    if   face == 0: return ( a, sv*b, sw*c), ( 1, 0, 0)   # +X end
+    elif face == 1: return (-a, sv*b, sw*c), (-1, 0, 0)   # -X end
+    elif face == 2: return (sv*a,  b, sw*c), ( 0, 1, 0)   # +Y long side
+    elif face == 3: return (sv*a, -b, sw*c), ( 0,-1, 0)   # -Y long side
+    elif face == 4: return (sv*a, sw*b,  c), ( 0, 0, 1)   # +Z top
+    else:           return (sv*a, sw*b, -c), ( 0, 0,-1)   # -Z bottom
 
 
 # ==============================================================

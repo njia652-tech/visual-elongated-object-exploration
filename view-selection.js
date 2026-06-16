@@ -52,17 +52,26 @@ renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace    = THREE.SRGBColorSpace;
 renderer.toneMapping         = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
+renderer.shadowMap.enabled   = true;
+renderer.shadowMap.type      = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
-// Lights
-scene.add(new THREE.HemisphereLight(0xffffff, 0xe0e0e0, 0.8));
-function addLight(x, y, z, intensity) {
-  const l = new THREE.DirectionalLight(0xffffff, intensity);
-  l.position.set(x, y, z);
-  scene.add(l);
-}
-addLight(-5, 4, 3, 2.0);
-addLight( 3, 2, 2, 1.0);
+// Lights — AmbientLight fill + single key DirectionalLight with soft shadow
+scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+
+const keyLight = new THREE.DirectionalLight(0xffffff, 1.8);
+keyLight.position.set(-5, 8, 5);
+keyLight.castShadow                  = true;
+keyLight.shadow.mapSize.width        = 2048;
+keyLight.shadow.mapSize.height       = 2048;
+keyLight.shadow.camera.near          = 0.5;
+keyLight.shadow.camera.far           = 50;
+keyLight.shadow.camera.left          = -8;
+keyLight.shadow.camera.right         = 8;
+keyLight.shadow.camera.top           = 8;
+keyLight.shadow.camera.bottom        = -8;
+keyLight.shadow.radius               = 4;
+scene.add(keyLight);
 
 // HDR — background + environment reflections
 const pmrem = new THREE.PMREMGenerator(renderer);
@@ -72,8 +81,8 @@ new EXRLoader()
   .setPath('/hdrs/')
   .load('table_mountain_1_puresky_4k.exr', (tex) => {
     const envMap = pmrem.fromEquirectangular(tex).texture;
-    scene.background  = envMap;
-    scene.environment = envMap;
+    scene.background  = envMap;   // sky panorama backdrop
+    scene.environment = null;     // no IBL — lighting handled by AmbientLight + keyLight
     tex.dispose();
   });
 
@@ -167,6 +176,12 @@ function loadTrialModel(trial) {
     model = gltf.scene;
     model.userData.isModel = true;
     model.scale.setScalar(1.0);
+    model.traverse(child => {
+      if (child.isMesh) {
+        child.castShadow    = true;
+        child.receiveShadow = true;
+      }
+    });
     scene.add(model);
     applyRotation();
   });

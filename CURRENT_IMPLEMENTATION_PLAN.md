@@ -53,9 +53,10 @@ project/
 | 长轴 | X 轴，半长 = `MINOR_RADIUS × ratio` |
 | 短横轴 | Y 轴，半长 = `MINOR_RADIUS = 1.0` |
 | 高度轴 | Z 轴，半长 = `MINOR_RADIUS × FLAT_RATIO = 0.5` |
-| 附件数量 | 每个物体 **8 个**，分布于整个长方体表面（面积加权随机，不过滤） |
+| 附件数量 | 每个物体 **12 个** |
+| 附件分布 | 全部 6 个面均可放置；**±Y 长侧面权重 × `SIDE_BOOST = 4.0`**，其余面按自然面积加权；预期约 60% 的附件落在长侧面，端面和顶/底面各占少数 |
 | 附件类型 | CYLINDER / CUBE / CONE / SPHERE（等概率随机） |
-| 颜色 | 中性灰（BODY_COLOR = 0.78, 0.78, 0.78；BODY_ROUGHNESS = 0.85） |
+| 颜色与材质 | 中性灰 matte（BODY_COLOR = 0.78, 0.78, 0.78；BODY_ROUGHNESS = 1.0；Specular IOR Level = 0.0）— 全漫反射、无高光，呈哑光石膏质感 |
 | 随机种子 | `RANDOM_SEED = 42`（三种拉伸共用同一套附件角度配置） |
 
 ### 命名规范
@@ -76,6 +77,20 @@ Blender → Scripting 工作区 → Open blender_gen_objects.py → Alt+P
 ```
 
 输出目录：`public/Objects/`，共 18 个 GLB，覆盖旧文件。
+
+### 三维渲染（Three.js）
+
+增强物体立体感的渲染配置：
+
+| 项目 | 设置 |
+|------|------|
+| 相机 | `PerspectiveCamera(60°, aspect, 0.1, 100)`，位置 `(0, 0.3, 7)` |
+| 材质 | Blender 导出的 grey `MeshStandardMaterial`（roughness=1.0, specular=0，无金属感） |
+| 环境光 | `AmbientLight(0xffffff, 0.5)`，均匀漫反射填充，替代原 HemisphereLight |
+| 主光 | `DirectionalLight(0xffffff, 1.8)`，位置 `(−5, 8, 5)`，投射软阴影 |
+| 软阴影 | `renderer.shadowMap.type = PCFSoftShadowMap`，mapSize 2048×2048，`radius=4` |
+| HDR 背景 | 保留为场景背景（`scene.background = envMap`）；不作为 IBL（`scene.environment = null`），避免叠加额外高光 |
+| 阴影接收 | 每次 GLB 加载后 traverse 所有 Mesh，设 `castShadow = true`、`receiveShadow = true` |
 
 ### Azimuth 零点
 
