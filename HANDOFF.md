@@ -40,7 +40,7 @@ project root/
 ├── HANDOFF.md                  This file
 │
 ├── public/
-│   ├── Objects/                ⚠️  GLBs present but need regeneration — attachment types changed 2026-06-18
+│   ├── Objects/                18 GLBs present (regenerated 2026-06-18 with HEMISPHERE/OCTAHEDRON)
 │   └── hdrs/
 │       └── table_mountain_1_puresky_4k.exr   HDR environment map
 │
@@ -279,15 +279,8 @@ Both CSVs are **append-only** files in the project root. They are **not tracked 
 - **T1 instruction updated**: new text — *"Imagine that you are taking a photograph of this object for a promotional brochure. Rotate the object and stop at the viewpoint that would best represent the object to potential customers."*
 - **Exploration timer hidden**: `startTimer()` sets `elTimer.style.display = 'none'`; timer reappears only when `startConfirmPhase()` is called
 
-### ⚠️ Outstanding — GLB files
-
-- `public/Objects/` has GLBs from a previous run, but **attachment types have changed** (2026-06-18)
-- Must regenerate all 18 GLBs with the new `place_attachment` logic (HEMISPHERE / OCTAHEDRON) before running the experiment
-- Parameters are finalised — see configuration block in Section 7
-
 ### What is NOT yet done
 
-- GLBs not yet regenerated with new attachment types — run Blender script (Section 7, Step 1)
 - No end-to-end test with a real participant ID (only auto-generated test IDs used)
 - Old experiment at `/` not re-verified since recent changes (low risk — those files were untouched)
 
@@ -295,9 +288,8 @@ Both CSVs are **append-only** files in the project root. They are **not tracked 
 
 ## 7. Immediate Next Steps
 
-### 1. Regenerate GLBs with finalised parameters (`blender_gen_objects.py`)
-
-Parameters are finalised — do **not** adjust without review. Current configuration:
+> GLB 已于 2026-06-18 重新生成并提交（commit `e961434` 脚本 + 后续 GLB commit）。
+> 当前配置（勿改）：
 
 ```python
 RANDOM_SEED      = 42
@@ -305,30 +297,17 @@ NUM_OBJECTS      = 6
 NUM_ATTACHMENTS  = 12
 ELONGATION_LEVELS = [('low', 1.3), ('medium', 1.7), ('high', 2.5)]
 MINOR_RADIUS     = 1.0
-FLAT_RATIO       = 0.5        # Z height = 50% of MINOR_RADIUS
+FLAT_RATIO       = 0.5
 ATTACH_SCALE_MIN = 0.08
 ATTACH_SCALE_MAX = 0.14
-SIDE_BOOST       = 4.0        # ±Y long-side face weight multiplier
+SIDE_BOOST       = 4.0
 BODY_COLOR       = (0.45, 0.28, 0.04, 1.0)   # dark gold — body and attachments share this
-BODY_ROUGHNESS   = 0.6        # semi-matte
+BODY_ROUGHNESS   = 0.6
 # Specular IOR Level = 0.5   (set inside make_grey_material)
 # att_types = ['CYLINDER', 'CONE', 'HEMISPHERE', 'OCTAHEDRON']  (face-to-face contact)
 ```
 
-### 2. Regenerate GLBs in Blender
-
-```
-Blender → Scripting workspace → Open blender_gen_objects.py → Alt+P
-```
-
-Expected output in System Console:
-```
-=== Done: 18/18 objects exported ===
-```
-
-Then use `blender_preview.py` to visually inspect the result.
-
-### 3. Verify objects in the browser
+### 1. Verify objects in the browser
 
 Start both servers and open `http://localhost:5180/view-selection.html`. Confirm:
 - Object loads at start of trial (no 404 in browser console)
@@ -336,14 +315,7 @@ Start both servers and open `http://localhost:5180/view-selection.html`. Confirm
 - Arrow keys rotate correctly
 - Timer counts down
 
-### 4. Commit final GLBs
-
-```powershell
-git add public/Objects/
-git commit -m "Regenerate GLB stimuli with final geometry"
-```
-
-### 5. Run a complete test session
+### 2. Run a complete test session
 
 Use a proper participant ID (e.g. `P001`). Verify:
 - All 36 trials complete
@@ -352,7 +324,7 @@ Use a proper participant ID (e.g. `P001`). Verify:
 - `view_record.csv` has 36 rows + header
 - `view_probe.csv` has 6 rows + header
 
-### 6. Verify old experiment is unaffected
+### 3. Verify old experiment is unaffected
 
 Open `http://localhost:5180/` and confirm the original experiment loads without errors.
 
@@ -439,8 +411,8 @@ Key files:
 
 Current situation (as of 2026-06-18):
 - Experiment JS/HTML/server code is fully working and end-to-end tested (commit 824699f)
-- public/Objects/ has GLBs from a previous run, but must be regenerated — attachment types
-  changed to CYLINDER/CONE/HEMISPHERE/OCTAHEDRON with face-to-face contact geometry
+- public/Objects/ has 18 GLBs, regenerated with CYLINDER/CONE/HEMISPHERE/OCTAHEDRON
+  face-to-face attachment geometry (committed 2026-06-18)
 - blender_gen_objects.py is finalised — do NOT change parameters without review
 - Do NOT change the GLB URL format (/Objects/...) — it was deliberately fixed earlier
 - Do NOT change INITIAL_Y, PROBE_EVERY, or the constrainedShuffle key function
