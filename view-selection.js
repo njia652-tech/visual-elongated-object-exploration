@@ -20,7 +20,7 @@ const INITIAL_Y = -Math.PI / 2;
 const TASKS = {
   T1: {
     title: 'Representation Task',
-    text:   'Suppose you were making a brochure and you tried to give your customers the best possible impression of the objects shown on the screen. Which views would you choose?',
+    text:   'Imagine that you are taking a photograph of this object for a promotional brochure. Rotate the object and stop at the viewpoint that would best represent the object to potential customers.',
     banner: 'Choose the view that best represents the object for a brochure.',
   },
   T2: {
@@ -52,25 +52,14 @@ renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace    = THREE.SRGBColorSpace;
 renderer.toneMapping         = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
-renderer.shadowMap.enabled   = true;
-renderer.shadowMap.type      = THREE.PCFSoftShadowMap;
+renderer.shadowMap.enabled   = false;
 document.body.appendChild(renderer.domElement);
 
-// Lights — AmbientLight fill + single key DirectionalLight with soft shadow
-scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+// Lights — AmbientLight fill + single key DirectionalLight
+scene.add(new THREE.AmbientLight(0xffffff, 1.4));
 
-const keyLight = new THREE.DirectionalLight(0xffffff, 1.8);
+const keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
 keyLight.position.set(-5, 8, 5);
-keyLight.castShadow                  = true;
-keyLight.shadow.mapSize.width        = 2048;
-keyLight.shadow.mapSize.height       = 2048;
-keyLight.shadow.camera.near          = 0.5;
-keyLight.shadow.camera.far           = 50;
-keyLight.shadow.camera.left          = -8;
-keyLight.shadow.camera.right         = 8;
-keyLight.shadow.camera.top           = 8;
-keyLight.shadow.camera.bottom        = -8;
-keyLight.shadow.radius               = 4;
 scene.add(keyLight);
 
 // HDR — background + environment reflections
@@ -81,8 +70,9 @@ new EXRLoader()
   .setPath('/hdrs/')
   .load('table_mountain_1_puresky_4k.exr', (tex) => {
     const envMap = pmrem.fromEquirectangular(tex).texture;
-    scene.background  = envMap;   // sky panorama backdrop
-    scene.environment = null;     // no IBL — lighting handled by AmbientLight + keyLight
+    scene.background          = envMap;
+    scene.backgroundIntensity = 0.5;   // dim background to contrast against lit object
+    scene.environment         = null;  // no IBL — lighting handled by AmbientLight + keyLight
     tex.dispose();
   });
 
@@ -176,12 +166,6 @@ function loadTrialModel(trial) {
     model = gltf.scene;
     model.userData.isModel = true;
     model.scale.setScalar(1.0);
-    model.traverse(child => {
-      if (child.isMesh) {
-        child.castShadow    = true;
-        child.receiveShadow = true;
-      }
-    });
     scene.add(model);
     applyRotation();
   });
@@ -217,7 +201,7 @@ function startTimer() {
   confirmReady    = false;
   zoneSamples     = { short: 0, long: 0, oblique: 0 };
   elTimer.textContent     = timeLeft;
-  elTimer.style.display   = 'block';
+  elTimer.style.display   = 'none';   // hidden during free-exploration phase
   elConfirm.style.display = 'none';
   clearInterval(timerInterval);
   stopZoneSampling();
@@ -239,6 +223,7 @@ function startTimer() {
 function startConfirmPhase() {
   confirmReady = true;
   elConfirm.style.display = 'block';
+  elTimer.style.display   = 'block';
   let confirmTimeLeft = CONFIRM_SEC;
   elTimer.textContent = confirmTimeLeft;
   timerInterval = setInterval(() => {

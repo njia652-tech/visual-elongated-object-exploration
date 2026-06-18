@@ -34,8 +34,8 @@ ELONGATION_LEVELS = [
 
 MINOR_RADIUS     = 1.0
 FLAT_RATIO       = 0.5   # Z height = 50% of MINOR_RADIUS (same for all objects)
-ATTACH_SCALE_MIN = 0.08
-ATTACH_SCALE_MAX = 0.14
+ATTACH_SCALE_MIN = 0.15
+ATTACH_SCALE_MAX = 0.22
 SIDE_BOOST       = 4.0   # weight multiplier for ±Y long-side faces vs. area-based default
 BODY_COLOR       = (0.45, 0.28, 0.04, 1.0)   # dark gold (linear RGB)
 BODY_ROUGHNESS   = 0.6
@@ -78,6 +78,55 @@ def make_grey_material(name):
             break
 
     return mat
+
+
+# ==============================================================
+#  BARREL MESH HELPER
+# ==============================================================
+
+def _make_curved_cylinder_mesh(scale, num_segs=8, num_rings=4, bulge=0.12):
+    """
+    Cylinder with gently curved sides: flat base at z=0, flat top at z=2*scale.
+    Sides follow r = scale * (1 + bulge * sin(π*t)) — a subtle 12% outward bow
+    that keeps the shape visible when viewed parallel to the attached face.
+    """
+    H  = 2.0 * scale
+    bm = bmesh.new()
+
+    rings = []
+    for i in range(num_rings + 1):
+        t = i / num_rings
+        z = t * H
+        r = scale * (1.0 + bulge * math.sin(math.pi * t))
+        ring = []
+        for j in range(num_segs):
+            angle = 2.0 * math.pi * j / num_segs
+            v = bm.verts.new((r * math.cos(angle), r * math.sin(angle), z))
+            ring.append(v)
+        rings.append(ring)
+
+    bm.verts.ensure_lookup_table()
+
+    # Side quads — outward normal (CCW from outside)
+    for i in range(num_rings):
+        for j in range(num_segs):
+            j1 = (j + 1) % num_segs
+            bm.faces.new([rings[i][j], rings[i][j1], rings[i+1][j1], rings[i+1][j]])
+
+    # Bottom cap (z = 0, normal = −Z)
+    bc = bm.verts.new((0.0, 0.0, 0.0))
+    for j in range(num_segs):
+        j1 = (j + 1) % num_segs
+        bm.faces.new([bc, rings[0][j1], rings[0][j]])
+
+    # Top cap (z = H, normal = +Z)
+    tc = bm.verts.new((0.0, 0.0, H))
+    for j in range(num_segs):
+        j1 = (j + 1) % num_segs
+        bm.faces.new([tc, rings[-1][j], rings[-1][j1]])
+
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    return bm
 
 
 # ==============================================================
@@ -173,22 +222,30 @@ def generate_attachment_configs(rng):
 def place_attachment(surface_pos, normal, att_type, scale, mat):
     """Create a small primitive at surface_pos with face-to-face contact.
 
-    All shapes have their flat base face lying exactly on the body surface:
-      CYLINDER / CONE  : base circle at local z = -scale  → translate pos + norm*scale
-      HEMISPHERE       : base circle at local z =  0      → translate pos
-      OCTAHEDRON       : base triangle centroid at z = 0  → translate pos
+    All shapes have their flat base lying exactly on the body surface:
+      CYLINDER (barrel): base at local z=0  → translate pos (no offset)
+      CONE             : base at local z=−scale → translate pos + norm*scale
+      HEMISPHERE       : base at local z=0  → translate pos
+      OCTAHEDRON       : base at local z=0  → translate pos
     """
     pos_vec  = mathutils.Vector(surface_pos)
     norm_vec = mathutils.Vector(normal).normalized()
     up       = mathutils.Vector((0.0, 0.0, 1.0))
 
     if att_type == 'CYLINDER':
-        # Flat circular base at local z = -scale (depth = 2*scale, centred at origin)
-        bpy.ops.mesh.primitive_cylinder_add(
-            radius=scale, depth=scale * 2, vertices=8, location=(0, 0, 0))
-        att = bpy.context.active_object
+        # Barrel-shaped cylinder: base at z=0, sides bulge 35% at mid-height.
+        # Remains visible from all angles including views parallel to the face.
+        # Base at local z=0 → same placement as HEMISPHERE (no normal offset).
+        mesh_data = bpy.data.meshes.new("barrel_mesh")
+        att = bpy.data.objects.new("barrel_obj", mesh_data)
+        bpy.context.collection.objects.link(att)
+        bpy.context.view_layer.objects.active = att
+        att.select_set(True)
+        bm = _make_curved_cylinder_mesh(scale)
+        bm.to_mesh(mesh_data)
+        bm.free()
         att.rotation_euler = up.rotation_difference(norm_vec).to_euler('XYZ')
-        att.location = pos_vec + norm_vec * scale
+        att.location = pos_vec  # base at z=0, no normal offset needed
 
     elif att_type == 'CONE':
         # Flat circular base at local z = -scale; apex at z = +scale

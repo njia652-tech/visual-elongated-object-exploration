@@ -140,7 +140,7 @@ PROBE_HEADERS = ['participantId', 'afterTrial', 'answer', 'timestamp']
 def _init_csv(path, headers):
     if not os.path.exists(path):
         with open(path, 'w', newline='') as f:
-            csv.writer(f).writerow(headers)
+            csv.DictWriter(f, fieldnames=headers).writeheader()
 
 _init_csv(VIEW_CSV,  VIEW_HEADERS)
 _init_csv(PROBE_CSV, PROBE_HEADERS)
@@ -157,29 +157,7 @@ def record_view():
 
     d = request.get_json()
     with open(VIEW_CSV, 'a', newline='') as f:
-        csv.writer(f).writerow([
-            d.get('participantId'),
-            d.get('task'),
-            d.get('block'),
-            d.get('trialNumber'),
-            d.get('objectName'),
-            d.get('baseId'),
-            d.get('level'),
-            d.get('startAzimuth'),
-            d.get('finalAzimuth'),
-            d.get('finalElevation'),
-            d.get('upDownCount'),
-            d.get('leftRightCount'),
-            d.get('upDownRatio'),
-            d.get('leftRightRatio'),
-            d.get('timeShortSide'),
-            d.get('timeLongSide'),
-            d.get('timeOblique'),
-            d.get('ratioShortSide'),
-            d.get('ratioLongSide'),
-            d.get('ratioOblique'),
-            d.get('timestamp'),
-        ])
+        csv.DictWriter(f, fieldnames=VIEW_HEADERS, extrasaction='ignore').writerow(d)
 
     resp = make_response(jsonify({'status': 'ok'}))
     resp.headers['Access-Control-Allow-Origin'] = ALLOWED_ORIGIN
@@ -197,12 +175,7 @@ def probe_result():
 
     d = request.get_json()
     with open(PROBE_CSV, 'a', newline='') as f:
-        csv.writer(f).writerow([
-            d.get('participantId'),
-            d.get('afterTrial'),
-            d.get('answer'),
-            d.get('timestamp'),
-        ])
+        csv.DictWriter(f, fieldnames=PROBE_HEADERS, extrasaction='ignore').writerow(d)
 
     resp = make_response(jsonify({'status': 'ok'}))
     resp.headers['Access-Control-Allow-Origin'] = ALLOWED_ORIGIN

@@ -57,8 +57,9 @@ project/
 | 高度轴 | Z 轴，半长 = `MINOR_RADIUS × FLAT_RATIO = 0.5` |
 | 附件数量 | 每个物体 **12 个** |
 | 附件分布 | 全部 6 个面均可放置；**±Y 长侧面权重 × `SIDE_BOOST = 4.0`**，其余面按自然面积加权；预期约 60% 的附件落在长侧面，端面和顶/底面各占少数 |
-| 附件类型 | CYLINDER / CONE / HEMISPHERE / OCTAHEDRON（等概率随机） |
-| 附件接触方式 | **Face-to-face（面接触）**：每种形状的平面底面与主体表面齐平，禁止 vertex-to-face 或 edge-to-face；CYLINDER/CONE 底面圆心在 local z=−scale，HEMISPHERE/OCTAHEDRON 底面形心在 local z=0，各自用不同平移量确保底面落在表面上 |
+| 附件类型 | **CURVED-CYLINDER** / CONE / HEMISPHERE / OCTAHEDRON（等概率随机）；CYLINDER 已替换为侧面微凸的圆柱（腰部凸出 12%），外观仍像圆柱，但视线平行于附着面时仍有轻微弧线轮廓 |
+| 附件大小 | `ATTACH_SCALE_MIN = 0.15`，`ATTACH_SCALE_MAX = 0.22`（× MINOR_RADIUS） |
+| 附件接触方式 | **Face-to-face（面接触）**：每种形状的平面底面与主体表面齐平；CONE 底面在 local z=−scale → 平移 pos+norm×scale；BARREL-CYLINDER / HEMISPHERE / OCTAHEDRON 底面在 local z=0 → 平移 pos（无法向偏移） |
 | 颜色与材质 | 主体与附件**统一**：暗金色半哑光（`BODY_COLOR = (0.45, 0.28, 0.04, 1.0)` 线性 RGB；`BODY_ROUGHNESS = 0.6`；`Specular IOR Level = 0.5`），主体与附件共用同一材质对象 |
 | 随机种子 | `RANDOM_SEED = 42`（三种拉伸共用同一套附件角度配置） |
 

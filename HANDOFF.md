@@ -279,6 +279,11 @@ Both CSVs are **append-only** files in the project root. They are **not tracked 
 - **T1 instruction updated**: new text — *"Imagine that you are taking a photograph of this object for a promotional brochure. Rotate the object and stop at the viewpoint that would best represent the object to potential customers."*
 - **Exploration timer hidden**: `startTimer()` sets `elTimer.style.display = 'none'`; timer reappears only when `startConfirmPhase()` is called
 
+### Changes made in 2026-06-19 session (blender_gen_objects.py)
+
+- **Attachment scale increased**: `ATTACH_SCALE_MIN` 0.08 → **0.15**；`ATTACH_SCALE_MAX` 0.14 → **0.22**（约 1.6× ，附件更明显）
+- **CYLINDER → curved cylinder**: 以自定义 bmesh `_make_curved_cylinder_mesh()` 替代 `primitive_cylinder_add`；侧面微凸 12%（`bulge=0.12`），外观仍像普通圆柱，视线平行于附着面时保留轻微弧线轮廓；底面 z=0，放置方式与 HEMISPHERE 相同（`att.location = pos_vec`，无法向偏移）
+
 ### What is NOT yet done
 
 - No end-to-end test with a real participant ID (only auto-generated test IDs used)
@@ -298,13 +303,14 @@ NUM_ATTACHMENTS  = 12
 ELONGATION_LEVELS = [('low', 1.3), ('medium', 1.7), ('high', 2.5)]
 MINOR_RADIUS     = 1.0
 FLAT_RATIO       = 0.5
-ATTACH_SCALE_MIN = 0.08
-ATTACH_SCALE_MAX = 0.14
+ATTACH_SCALE_MIN = 0.15   # was 0.08 — increased for visibility
+ATTACH_SCALE_MAX = 0.22   # was 0.14 — increased for visibility
 SIDE_BOOST       = 4.0
 BODY_COLOR       = (0.45, 0.28, 0.04, 1.0)   # dark gold — body and attachments share this
 BODY_ROUGHNESS   = 0.6
 # Specular IOR Level = 0.5   (set inside make_grey_material)
-# att_types = ['CYLINDER', 'CONE', 'HEMISPHERE', 'OCTAHEDRON']  (face-to-face contact)
+# att_types = ['CURVED-CYLINDER', 'CONE', 'HEMISPHERE', 'OCTAHEDRON']
+#   CYLINDER replaced by curved cylinder (base z=0, sides bulge 12% at mid-height)
 ```
 
 ### 1. Verify objects in the browser
