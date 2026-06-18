@@ -24,9 +24,9 @@ const TASKS = {
     banner: 'Choose the view that best represents the object for a brochure.',
   },
   T2: {
-    title: 'Recognition Task',
-    text:   'Please choose the view that you think would help you recognise this object best later.',
-    banner: 'Choose the view that would best help you recognise this object later.',
+    title: 'Memory Task',
+    text:   'Please choose the view that you think would help you memorise this object best.',
+    banner: 'Choose the view that would best help you memorise this object.',
   },
 };
 
@@ -333,7 +333,7 @@ function nextStep() {
   const next = currentTrialIdx + 1;
   const half = trialSequence.length / 2;
 
-  if (next % PROBE_EVERY === 0) {
+  if (next % PROBE_EVERY === 0 && next < trialSequence.length) {
     pendingProbeAfter = next;
     showModule('probe');
     return;

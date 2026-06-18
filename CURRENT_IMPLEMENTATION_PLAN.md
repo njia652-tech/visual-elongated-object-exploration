@@ -108,7 +108,7 @@ Blender → Scripting 工作区 → Open blender_gen_objects.py → Alt+P
 
 ### 被试内设计
 
-- **任务因素（2）：** T1（Representation）× T2（Recognition）
+- **任务因素（2）：** T1（Representation）× T2（Memory）
 - **拉伸因素（3）：** low / medium / high
 - **Trial 总数：** 2 block × 18 objects = **36 trial**
 
@@ -128,8 +128,8 @@ Blender → Scripting 工作区 → Open blender_gen_objects.py → Alt+P
 **T1 — Representation Task**
 > "Imagine that you are taking a photograph of this object for a promotional brochure. Rotate the object and stop at the viewpoint that would best represent the object to potential customers."
 
-**T2 — Recognition Task**
-> "Please choose the view that you think would help you recognise this object best later."
+**T2 — Memory Task**
+> "Please choose the view that you think would help you memorise this object best."
 
 ---
 
@@ -162,7 +162,7 @@ Blender → Scripting 工作区 → Open blender_gen_objects.py → Alt+P
 
 ### Probe 插入
 
-每完成 **6 个 trial** 后自动插入一次 probe，共 **6 次**（第 6、12、18、24、30、36 trial 后）。
+每完成 **6 个 trial** 后自动插入一次 probe，共 **5 次**（第 6、12、18、24、30 trial 后）；第 36 trial（最后一个）结束后**不插入 probe**，直接跳转结束页。
 
 Probe 文字：
 > "Please briefly think back to the views you selected in the previous few trials. How clearly can you remember the views you chose?"

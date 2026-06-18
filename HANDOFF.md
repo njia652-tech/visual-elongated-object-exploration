@@ -15,7 +15,7 @@ _Last updated: 2026-06-18. Use this as the starting point for any new Claude Cod
 2. Task instruction screen shown at the start of each block
 3. Each trial: object loads at random ±30° oblique azimuth → 50 s free rotation (arrow keys) → 10 s confirmation window (Enter to confirm, or auto-submit on timeout)
 4. Probe question every 6 trials (memory rating, 3-button)
-5. 36 trials total (2 blocks × 18 objects), 6 probes total
+5. 36 trials total (2 blocks × 18 objects), 5 probes total (after trials 6/12/18/24/30; no probe after trial 36)
 
 ---
 
@@ -241,7 +241,7 @@ Both CSVs are **append-only** files in the project root. They are **not tracked 
 
 ### What is fully working (verified this session)
 
-- Complete experiment flow: welcome → instruction → 36 trials → 6 probes → end screen
+- Complete experiment flow: welcome → instruction → 36 trials → 5 probes → end screen
 - Two-phase timer (50 s explore + 10 s confirm) with auto-submit
 - Zone dwell sampling, all 20 data fields recorded correctly
 - Flask `/record_view` and `/probe_result` endpoints, CSV write verified
@@ -391,7 +391,7 @@ Open browser DevTools → Console. No red errors during normal trial flow.
 |----------|-----------|
 | `INITIAL_Y = -π/2` | Makes azimuth 0° = short-side view; changing this invalidates all collected data labels |
 | `if (e.repeat) return` | Each physical press = one step; prevents inflated key counts from OS repeat |
-| `PROBE_EVERY = 6` | Divides evenly into 36 trials → 6 probes; changing breaks probe timing |
+| `PROBE_EVERY = 6` | Probe inserted every 6 trials, but skipped after the final trial (36); 5 probes total |
 | GLB URL = `/Objects/...` not `/public/Objects/...` | Vite's public dir is served at root, not at `/public/` |
 | Flask port 5006 | Must match in both `server.py` (`app.run`) and `vite.config.js` (`proxy.target`) |
 | CSV append-only | Multiple participants accumulate; filter by `participantId` in analysis |
