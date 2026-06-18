@@ -1,6 +1,6 @@
 # Developer Handoff — View Selection Experiment
 
-_Last updated: 2026-06-18. Use this as the starting point for any new Claude Code conversation._
+_Last updated: 2026-06-19. Use this as the starting point for any new Claude Code conversation._
 
 ---
 
@@ -8,7 +8,7 @@ _Last updated: 2026-06-18. Use this as the starting point for any new Claude Cod
 
 **What it is:** A Three.js psychophysics experiment where participants freely rotate novel 3D elongated objects and confirm a preferred viewpoint under two different task instructions.
 
-**Scientific goal:** Compare which viewpoints participants select when the task is (T1) representational ("brochure" impression) vs (T2) recognition-based ("remember later"). 2×3 within-subject design: 2 tasks × 3 elongation levels (low/medium/high).
+**Scientific goal:** Compare which viewpoints participants select when the task is (T1) representational ("brochure" impression) vs (T2) memory-based ("memorise the object"). 2×3 within-subject design: 2 tasks × 3 elongation levels (low/medium/high).
 
 **User-facing flow:**
 1. Participant enters an ID → clicks Start
@@ -40,7 +40,7 @@ project root/
 ├── HANDOFF.md                  This file
 │
 ├── public/
-│   ├── Objects/                18 GLBs present (regenerated 2026-06-18 with HEMISPHERE/OCTAHEDRON)
+│   ├── Objects/                18 GLBs present (regenerated 2026-06-19: CURVED-CYLINDER/CONE/HEMISPHERE/OCTAHEDRON, scale 0.15–0.22)
 │   └── hdrs/
 │       └── table_mountain_1_puresky_4k.exr   HDR environment map
 │
@@ -184,11 +184,12 @@ oblique: everything else
 ### Probe logic
 
 After `confirmTrial()` → `nextStep()`:
-- If `next % 6 === 0` → show probe screen
+- If `next % 6 === 0 && next < trialSequence.length` → show probe screen (skips trial 36)
 - After probe button click:
   - `next === 18` → `startBlock(2)` (instruction screen for block 2)
   - `next >= 36` → `showModule('end')`
   - else → `startTrial(next)`
+- After trial 36: no probe — `nextStep()` falls through directly to `showModule('end')`
 
 ---
 
@@ -227,7 +228,7 @@ Written by Flask `/record_view` endpoint. Fields:
 | Field | Description |
 |-------|-------------|
 | `participantId` | Participant ID |
-| `afterTrial` | Trial number after which probe appeared (6/12/18/24/30/36) |
+| `afterTrial` | Trial number after which probe appeared (6/12/18/24/30) |
 | `answer` | `Not clearly` / `Somewhat clearly` / `Clearly` |
 | `timestamp` | Unix ms |
 
@@ -255,34 +256,33 @@ Both CSVs are **append-only** files in the project root. They are **not tracked 
 - **Fixed port mismatch**: aligned Flask (`server.py`) and Vite proxy (`vite.config.js`) both to port **5006**
 - **Committed all code**: commit `824699f` includes view-selection.html/js, server.py, vite.config.js, blender scripts, documentation
 
-### Changes made in subsequent design iterations (blender_gen_objects.py)
+### Changes made in the 2026-06-18 session (blender_gen_objects.py)
 
 - **NUM_ATTACHMENTS**: 8 → **12**
-- **Attachment distribution**: all 6 faces eligible; ±Y long-side faces boosted by `SIDE_BOOST = 4.0` (≈60% of attachments land on long sides); ±X end faces and ±Z top/bottom receive the rest at natural area weights
-- **Material — fully matte**: `BODY_ROUGHNESS` 0.85 → **1.0**; `Specular IOR Level` 0.05 → **0.0** (zero specular, clay/plaster look)
+- **Attachment distribution**: all 6 faces eligible; ±Y long-side faces boosted by `SIDE_BOOST = 4.0` (≈60% land on long sides)
+- **Attachment types**: `CYLINDER / CUBE / CONE / SPHERE` → **`CYLINDER / CONE / HEMISPHERE / OCTAHEDRON`** with face-to-face contact:
+  - `HEMISPHERE`: UV sphere bisected at z = 0; flat base at z = 0; translation = `pos`
+  - `OCTAHEDRON`: custom bmesh triangular antiprism; base at z = 0; translation = `pos`
+- **Material**: semi-matte dark gold (`BODY_ROUGHNESS = 0.6`, `Specular IOR Level = 0.5`); body and attachments share one material
 
-### Changes made in 2026-06-18 session (blender_gen_objects.py)
+### Changes made in the 2026-06-18 session (view-selection.js)
 
-- **Attachment types**: `CYLINDER / CUBE / CONE / SPHERE` → **`CYLINDER / CONE / HEMISPHERE / OCTAHEDRON`**
-- **Face-to-face contact**: all four shapes now have their flat base face lying exactly on the body surface (no vertex-to-face or edge-to-face contact):
-  - `CYLINDER` / `CONE`: base circle at local z = −scale; translation = `pos + norm * scale` (unchanged)
-  - `HEMISPHERE`: UV sphere bisected at z = 0 (`mesh.bisect` with `use_fill=True`); flat base at local z = 0; translation = `pos` (no normal offset)
-  - `OCTAHEDRON`: custom bmesh triangular antiprism (6 verts, 8 faces); base triangle centroid at local z = 0; translation = `pos`
-- **Material unified**: body and attachments share the same material object; `ATTACH_COLOR` separate entry removed from plan doc (code was already using one material for both)
-- **Added `import bmesh`** at top of script
+- **Lighting**: `AmbientLight(0xffffff, 1.4)` + `DirectionalLight(0xffffff, 1.0)` at (−5, 8, 5); shadows disabled
+- **HDR**: `scene.background = envMap`; `scene.backgroundIntensity = 0.5`; `scene.environment = null` (no IBL)
+- **T1 instruction**: *"Imagine that you are taking a photograph of this object for a promotional brochure. Rotate the object and stop at the viewpoint that would best represent the object to potential customers."*
+- **Exploration timer hidden**: shown only during confirm phase
 
-### Changes made in subsequent design iterations (view-selection.js)
+### Changes made in the 2026-06-19 session (blender_gen_objects.py)
 
-- **Lighting replaced**: removed `HemisphereLight` + 2 × `DirectionalLight` → `AmbientLight(0xffffff, 0.5)` + single `keyLight` (`DirectionalLight`, intensity 1.8, position (−5, 8, 5))
-- **Shadow removed**: `renderer.shadowMap` disabled; `keyLight.castShadow` removed; GLB traverse block removed entirely
-- **HDR decoupled**: `scene.background = envMap` (sky panorama kept); `scene.environment = null` (no IBL on materials — manual lights only)
-- **T1 instruction updated**: new text — *"Imagine that you are taking a photograph of this object for a promotional brochure. Rotate the object and stop at the viewpoint that would best represent the object to potential customers."*
-- **Exploration timer hidden**: `startTimer()` sets `elTimer.style.display = 'none'`; timer reappears only when `startConfirmPhase()` is called
+- **Attachment scale**: `ATTACH_SCALE_MIN` 0.08 → **0.15**; `ATTACH_SCALE_MAX` 0.14 → **0.22** (≈1.6×, more visible)
+- **CYLINDER → curved cylinder**: replaced `primitive_cylinder_add` with `_make_curved_cylinder_mesh()` (bmesh, sides bulge 12% at mid-height); base at z=0; placement same as HEMISPHERE (`att.location = pos_vec`)
+- **GLBs regenerated**: all 18 GLBs committed (commit `206a105`)
 
-### Changes made in 2026-06-19 session (blender_gen_objects.py)
+### Changes made in the 2026-06-19 session (view-selection.js / server.py)
 
-- **Attachment scale increased**: `ATTACH_SCALE_MIN` 0.08 → **0.15**；`ATTACH_SCALE_MAX` 0.14 → **0.22**（约 1.6× ，附件更明显）
-- **CYLINDER → curved cylinder**: 以自定义 bmesh `_make_curved_cylinder_mesh()` 替代 `primitive_cylinder_add`；侧面微凸 12%（`bulge=0.12`），外观仍像普通圆柱，视线平行于附着面时保留轻微弧线轮廓；底面 z=0，放置方式与 HEMISPHERE 相同（`att.location = pos_vec`，无法向偏移）
+- **T2 renamed**: `Recognition Task` → **`Memory Task`**; instruction: *"Please choose the view that you think would help you memorise this object best."*
+- **Probe after trial 36 removed**: `nextStep()` condition changed to `next % PROBE_EVERY === 0 && next < trialSequence.length`; experiment now ends directly after trial 36 — **5 probes total** (after trials 6/12/18/24/30)
+- **server.py**: CSV writing refactored from positional `csv.writer` to `csv.DictWriter`
 
 ### What is NOT yet done
 
@@ -293,7 +293,7 @@ Both CSVs are **append-only** files in the project root. They are **not tracked 
 
 ## 7. Immediate Next Steps
 
-> GLB 已于 2026-06-18 重新生成并提交（commit `e961434` 脚本 + 后续 GLB commit）。
+> GLB 已于 2026-06-19 重新生成并提交（commit `206a105`）。
 > 当前配置（勿改）：
 
 ```python
@@ -325,10 +325,10 @@ Start both servers and open `http://localhost:5180/view-selection.html`. Confirm
 
 Use a proper participant ID (e.g. `P001`). Verify:
 - All 36 trials complete
-- 6 probe screens appear at trials 6, 12, 18, 24, 30, 36
+- **5** probe screens appear at trials 6, 12, 18, 24, 30 (no probe after trial 36)
 - Block 2 instruction screen appears after trial 18
 - `view_record.csv` has 36 rows + header
-- `view_probe.csv` has 6 rows + header
+- `view_probe.csv` has **5** rows + header
 
 ### 3. Verify old experiment is unaffected
 
@@ -415,10 +415,12 @@ Key files:
 - blender_gen_objects.py stimulus generation (run inside Blender, not from terminal)
 - vite.config.js         proxy config (port 5180 → 5006)
 
-Current situation (as of 2026-06-18):
-- Experiment JS/HTML/server code is fully working and end-to-end tested (commit 824699f)
-- public/Objects/ has 18 GLBs, regenerated with CYLINDER/CONE/HEMISPHERE/OCTAHEDRON
-  face-to-face attachment geometry (committed 2026-06-18)
+Current situation (as of 2026-06-19):
+- Experiment JS/HTML/server code is fully working (latest commits: 206a105, 2e744cb)
+- public/Objects/ has 18 GLBs regenerated with CURVED-CYLINDER/CONE/HEMISPHERE/OCTAHEDRON,
+  attachment scale 0.15–0.22 (committed 2026-06-19, commit 206a105)
+- T2 is "Memory Task" ("memorise this object best"), T1 is "Representation Task"
+- 5 probes total (after trials 6/12/18/24/30; no probe after trial 36)
 - blender_gen_objects.py is finalised — do NOT change parameters without review
 - Do NOT change the GLB URL format (/Objects/...) — it was deliberately fixed earlier
 - Do NOT change INITIAL_Y, PROBE_EVERY, or the constrainedShuffle key function
