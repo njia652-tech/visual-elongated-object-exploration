@@ -1,6 +1,6 @@
 # Developer Handoff — View Selection Experiment
 
-_Last updated: 2026-06-16. Use this as the starting point for any new Claude Code conversation._
+_Last updated: 2026-06-18. Use this as the starting point for any new Claude Code conversation._
 
 ---
 
@@ -40,7 +40,7 @@ project root/
 ├── HANDOFF.md                  This file
 │
 ├── public/
-│   ├── Objects/                ⚠️  CURRENTLY EMPTY — GLBs must be regenerated in Blender
+│   ├── Objects/                ⚠️  GLBs present but need regeneration — attachment types changed 2026-06-18
 │   └── hdrs/
 │       └── table_mountain_1_puresky_4k.exr   HDR environment map
 │
@@ -261,22 +261,33 @@ Both CSVs are **append-only** files in the project root. They are **not tracked 
 - **Attachment distribution**: all 6 faces eligible; ±Y long-side faces boosted by `SIDE_BOOST = 4.0` (≈60% of attachments land on long sides); ±X end faces and ±Z top/bottom receive the rest at natural area weights
 - **Material — fully matte**: `BODY_ROUGHNESS` 0.85 → **1.0**; `Specular IOR Level` 0.05 → **0.0** (zero specular, clay/plaster look)
 
+### Changes made in 2026-06-18 session (blender_gen_objects.py)
+
+- **Attachment types**: `CYLINDER / CUBE / CONE / SPHERE` → **`CYLINDER / CONE / HEMISPHERE / OCTAHEDRON`**
+- **Face-to-face contact**: all four shapes now have their flat base face lying exactly on the body surface (no vertex-to-face or edge-to-face contact):
+  - `CYLINDER` / `CONE`: base circle at local z = −scale; translation = `pos + norm * scale` (unchanged)
+  - `HEMISPHERE`: UV sphere bisected at z = 0 (`mesh.bisect` with `use_fill=True`); flat base at local z = 0; translation = `pos` (no normal offset)
+  - `OCTAHEDRON`: custom bmesh triangular antiprism (6 verts, 8 faces); base triangle centroid at local z = 0; translation = `pos`
+- **Material unified**: body and attachments share the same material object; `ATTACH_COLOR` separate entry removed from plan doc (code was already using one material for both)
+- **Added `import bmesh`** at top of script
+
 ### Changes made in subsequent design iterations (view-selection.js)
 
 - **Lighting replaced**: removed `HemisphereLight` + 2 × `DirectionalLight` → `AmbientLight(0xffffff, 0.5)` + single `keyLight` (`DirectionalLight`, intensity 1.8, position (−5, 8, 5))
-- **Soft shadow enabled**: `renderer.shadowMap.enabled = true`, `PCFSoftShadowMap`, mapSize 2048×2048, `radius = 4`
-- **GLB traverse**: on each model load, all `Mesh` children set `castShadow = true` / `receiveShadow = true`
+- **Shadow removed**: `renderer.shadowMap` disabled; `keyLight.castShadow` removed; GLB traverse block removed entirely
 - **HDR decoupled**: `scene.background = envMap` (sky panorama kept); `scene.environment = null` (no IBL on materials — manual lights only)
+- **T1 instruction updated**: new text — *"Imagine that you are taking a photograph of this object for a promotional brochure. Rotate the object and stop at the viewpoint that would best represent the object to potential customers."*
+- **Exploration timer hidden**: `startTimer()` sets `elTimer.style.display = 'none'`; timer reappears only when `startConfirmPhase()` is called
 
 ### ⚠️ Outstanding — GLB files
 
-- `public/Objects/` is **currently empty** on disk
-- Object geometry parameters are **now finalised** (see configuration block in Section 7)
-- Run `blender_gen_objects.py` in Blender to generate the 18 GLBs, then commit
+- `public/Objects/` has GLBs from a previous run, but **attachment types have changed** (2026-06-18)
+- Must regenerate all 18 GLBs with the new `place_attachment` logic (HEMISPHERE / OCTAHEDRON) before running the experiment
+- Parameters are finalised — see configuration block in Section 7
 
 ### What is NOT yet done
 
-- GLBs not yet regenerated — run Blender script with finalised parameters (Section 7, Step 1)
+- GLBs not yet regenerated with new attachment types — run Blender script (Section 7, Step 1)
 - No end-to-end test with a real participant ID (only auto-generated test IDs used)
 - Old experiment at `/` not re-verified since recent changes (low risk — those files were untouched)
 
@@ -298,9 +309,10 @@ FLAT_RATIO       = 0.5        # Z height = 50% of MINOR_RADIUS
 ATTACH_SCALE_MIN = 0.08
 ATTACH_SCALE_MAX = 0.14
 SIDE_BOOST       = 4.0        # ±Y long-side face weight multiplier
-BODY_COLOR       = (0.78, 0.78, 0.78, 1.0)
-BODY_ROUGHNESS   = 1.0        # fully matte
-# Specular IOR Level = 0.0   (set inside make_grey_material)
+BODY_COLOR       = (0.45, 0.28, 0.04, 1.0)   # dark gold — body and attachments share this
+BODY_ROUGHNESS   = 0.6        # semi-matte
+# Specular IOR Level = 0.5   (set inside make_grey_material)
+# att_types = ['CYLINDER', 'CONE', 'HEMISPHERE', 'OCTAHEDRON']  (face-to-face contact)
 ```
 
 ### 2. Regenerate GLBs in Blender
@@ -425,11 +437,12 @@ Key files:
 - blender_gen_objects.py stimulus generation (run inside Blender, not from terminal)
 - vite.config.js         proxy config (port 5180 → 5006)
 
-Current situation:
-- Code is fully working and end-to-end tested (commit 824699f)
-- public/Objects/ is EMPTY — GLB files are missing from disk
-- Object geometry still needs adjustment before final GLBs are generated
-- Do NOT change the GLB URL format (/Objects/...) — it was deliberately fixed this session
+Current situation (as of 2026-06-18):
+- Experiment JS/HTML/server code is fully working and end-to-end tested (commit 824699f)
+- public/Objects/ has GLBs from a previous run, but must be regenerated — attachment types
+  changed to CYLINDER/CONE/HEMISPHERE/OCTAHEDRON with face-to-face contact geometry
+- blender_gen_objects.py is finalised — do NOT change parameters without review
+- Do NOT change the GLB URL format (/Objects/...) — it was deliberately fixed earlier
 - Do NOT change INITIAL_Y, PROBE_EVERY, or the constrainedShuffle key function
 
 After reading HANDOFF.md, confirm what you understand the current state to be, then

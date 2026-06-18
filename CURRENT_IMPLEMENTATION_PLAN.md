@@ -2,6 +2,8 @@
 
 > 本文件为当前实验的唯一权威参考，整合自 PLAN.zh(1)、PLAN(2)、PLAN(3)。
 > 旧计划文件仅供追溯，以本文件为准。
+>
+> ⚠️ **工作流规则（必须始终执行）：任何实验调整，先更新本文件，询问用户确认后，再执行代码修改。**
 
 ---
 
@@ -55,8 +57,9 @@ project/
 | 高度轴 | Z 轴，半长 = `MINOR_RADIUS × FLAT_RATIO = 0.5` |
 | 附件数量 | 每个物体 **12 个** |
 | 附件分布 | 全部 6 个面均可放置；**±Y 长侧面权重 × `SIDE_BOOST = 4.0`**，其余面按自然面积加权；预期约 60% 的附件落在长侧面，端面和顶/底面各占少数 |
-| 附件类型 | CYLINDER / CUBE / CONE / SPHERE（等概率随机） |
-| 颜色与材质 | 中性灰 matte（BODY_COLOR = 0.78, 0.78, 0.78；BODY_ROUGHNESS = 1.0；Specular IOR Level = 0.0）— 全漫反射、无高光，呈哑光石膏质感 |
+| 附件类型 | CYLINDER / CONE / HEMISPHERE / OCTAHEDRON（等概率随机） |
+| 附件接触方式 | **Face-to-face（面接触）**：每种形状的平面底面与主体表面齐平，禁止 vertex-to-face 或 edge-to-face；CYLINDER/CONE 底面圆心在 local z=−scale，HEMISPHERE/OCTAHEDRON 底面形心在 local z=0，各自用不同平移量确保底面落在表面上 |
+| 颜色与材质 | 主体与附件**统一**：暗金色半哑光（`BODY_COLOR = (0.45, 0.28, 0.04, 1.0)` 线性 RGB；`BODY_ROUGHNESS = 0.6`；`Specular IOR Level = 0.5`），主体与附件共用同一材质对象 |
 | 随机种子 | `RANDOM_SEED = 42`（三种拉伸共用同一套附件角度配置） |
 
 ### 命名规范
@@ -85,12 +88,12 @@ Blender → Scripting 工作区 → Open blender_gen_objects.py → Alt+P
 | 项目 | 设置 |
 |------|------|
 | 相机 | `PerspectiveCamera(60°, aspect, 0.1, 100)`，位置 `(0, 0.3, 7)` |
-| 材质 | Blender 导出的 grey `MeshStandardMaterial`（roughness=1.0, specular=0，无金属感） |
-| 环境光 | `AmbientLight(0xffffff, 0.5)`，均匀漫反射填充，替代原 HemisphereLight |
-| 主光 | `DirectionalLight(0xffffff, 1.8)`，位置 `(−5, 8, 5)`，投射软阴影 |
-| 软阴影 | `renderer.shadowMap.type = PCFSoftShadowMap`，mapSize 2048×2048，`radius=4` |
-| HDR 背景 | 保留为场景背景（`scene.background = envMap`）；不作为 IBL（`scene.environment = null`），避免叠加额外高光 |
-| 阴影接收 | 每次 GLB 加载后 traverse 所有 Mesh，设 `castShadow = true`、`receiveShadow = true` |
+| 材质 | Blender 导出的 grey `MeshStandardMaterial`（roughness=0.6, Specular IOR Level=0.5，无金属感，半哑光光泽） |
+| 环境光 | `AmbientLight(0xffffff, 0.75)`，弱化填充，允许方向光产生可见明暗差 |
+| 主光 | `DirectionalLight(0xffffff, 1.0)`，位置 `(−5, 8, 5)` |
+| 补光 | `DirectionalLight(0xffffff, 0.4)`，位置 `(0, −3, 6)`，从正前下方补光，确保俯视时附件可见 |
+| 阴影 | **关闭**（`renderer.shadowMap.enabled = false`；物体不投影） |
+| HDR 背景 | 保留为场景背景（`scene.background = envMap`）；`scene.backgroundIntensity = 0.5`（压暗背景，增强物体与背景对比）；不作为 IBL（`scene.environment = null`），避免叠加额外高光 |
 
 ### Azimuth 零点
 
@@ -122,7 +125,7 @@ Blender → Scripting 工作区 → Open blender_gen_objects.py → Alt+P
 ### Task 指导语
 
 **T1 — Representation Task**
-> "Suppose you were making a brochure and you tried to give your customers the best possible impression of the objects shown on the screen. Which views would you choose?"
+> "Imagine that you are taking a photograph of this object for a promotional brochure. Rotate the object and stop at the viewpoint that would best represent the object to potential customers."
 
 **T2 — Recognition Task**
 > "Please choose the view that you think would help you recognise this object best later."
@@ -134,13 +137,14 @@ Blender → Scripting 工作区 → Open blender_gen_objects.py → Alt+P
 ### 单个 Trial 时序
 
 ```
-物体加载 → 随机起始视角 → 50 s 自由探索（计时显示）
+
+物体加载 → 随机起始视角 → 50 s 自由探索（计时隐藏）
          → 确认窗口出现（10 s）→ Enter 提前确认 或 超时自动提交
 ```
 
 | 阶段 | 时长 | 界面 |
 |------|------|------|
-| 自由探索 | 50 s | 计时器显示倒计时，无确认提示 |
+| 自由探索 | 50 s | 计时器**不显示**，无确认提示 |
 | 确认窗口 | 10 s | 出现提示语，可按 Enter 提前确认 |
 | 超时自动提交 | — | 10 s 内未按 Enter 则以当前视角自动提交 |
 

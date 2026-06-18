@@ -7,6 +7,7 @@ Output is printed to: Window → Toggle System Console
 """
 
 import bpy  # type: ignore  (Blender built-in)
+import bmesh  # type: ignore  (Blender built-in)
 import math
 import random
 import os
@@ -36,8 +37,8 @@ FLAT_RATIO       = 0.5   # Z height = 50% of MINOR_RADIUS (same for all objects)
 ATTACH_SCALE_MIN = 0.08
 ATTACH_SCALE_MAX = 0.14
 SIDE_BOOST       = 4.0   # weight multiplier for ±Y long-side faces vs. area-based default
-BODY_COLOR       = (0.78, 0.78, 0.78, 1.0)
-BODY_ROUGHNESS   = 1.0
+BODY_COLOR       = (0.45, 0.28, 0.04, 1.0)   # dark gold (linear RGB)
+BODY_ROUGHNESS   = 0.6
 
 # ==============================================================
 #  SCENE HELPERS
@@ -73,7 +74,7 @@ def make_grey_material(name):
     # "Specular" was renamed to "Specular IOR Level" in Blender 4.0
     for key in ("Specular IOR Level", "Specular"):
         if key in bsdf.inputs:
-            bsdf.inputs[key].default_value = 0.0
+            bsdf.inputs[key].default_value = 0.5
             break
 
     return mat
@@ -152,7 +153,7 @@ def generate_attachment_configs(rng):
     Stored once per base object and re-used for all three elongation levels.
     u/v/w are three independent uniform [0,1) values for box surface sampling.
     """
-    att_types = ['CYLINDER', 'CUBE', 'CONE', 'SPHERE']
+    att_types = ['CYLINDER', 'CONE', 'HEMISPHERE', 'OCTAHEDRON']
     configs = []
     for _ in range(NUM_ATTACHMENTS):
         configs.append({
@@ -170,31 +171,102 @@ def generate_attachment_configs(rng):
 # ==============================================================
 
 def place_attachment(surface_pos, normal, att_type, scale, mat):
-    """Create a small primitive at surface_pos, aligned to the surface normal."""
+    """Create a small primitive at surface_pos with face-to-face contact.
+
+    All shapes have their flat base face lying exactly on the body surface:
+      CYLINDER / CONE  : base circle at local z = -scale  → translate pos + norm*scale
+      HEMISPHERE       : base circle at local z =  0      → translate pos
+      OCTAHEDRON       : base triangle centroid at z = 0  → translate pos
+    """
     pos_vec  = mathutils.Vector(surface_pos)
     norm_vec = mathutils.Vector(normal).normalized()
+    up       = mathutils.Vector((0.0, 0.0, 1.0))
 
     if att_type == 'CYLINDER':
+        # Flat circular base at local z = -scale (depth = 2*scale, centred at origin)
         bpy.ops.mesh.primitive_cylinder_add(
-            radius=scale, depth=scale*2, vertices=8, location=(0, 0, 0))
-    elif att_type == 'CUBE':
-        bpy.ops.mesh.primitive_cube_add(size=scale*2, location=(0, 0, 0))
+            radius=scale, depth=scale * 2, vertices=8, location=(0, 0, 0))
+        att = bpy.context.active_object
+        att.rotation_euler = up.rotation_difference(norm_vec).to_euler('XYZ')
+        att.location = pos_vec + norm_vec * scale
+
     elif att_type == 'CONE':
+        # Flat circular base at local z = -scale; apex at z = +scale
         bpy.ops.mesh.primitive_cone_add(
-            radius1=scale, radius2=0.0, depth=scale*2, vertices=6, location=(0, 0, 0))
-    else:  # SPHERE
-        bpy.ops.mesh.primitive_ico_sphere_add(
-            radius=scale, subdivisions=1, location=(0, 0, 0))
+            radius1=scale, radius2=0.0, depth=scale * 2, vertices=6,
+            location=(0, 0, 0))
+        att = bpy.context.active_object
+        att.rotation_euler = up.rotation_difference(norm_vec).to_euler('XYZ')
+        att.location = pos_vec + norm_vec * scale
 
-    att = bpy.context.active_object
+    elif att_type == 'HEMISPHERE':
+        # Create UV sphere then bisect at z=0 to keep only the upper dome.
+        # Flat base at local z = 0 (equator); dome apex at z = +scale.
+        bpy.ops.mesh.primitive_uv_sphere_add(
+            radius=scale, segments=8, ring_count=6, location=(0, 0, 0))
+        att = bpy.context.active_object
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.mesh.bisect(
+            plane_co=(0.0, 0.0, 0.0),
+            plane_no=(0.0, 0.0, 1.0),
+            clear_inner=True,   # remove z < 0 half
+            clear_outer=False,
+            use_fill=True,      # cap the cut with a flat face
+        )
+        bpy.ops.object.mode_set(mode='OBJECT')
+        att.rotation_euler = up.rotation_difference(norm_vec).to_euler('XYZ')
+        att.location = pos_vec  # base centroid already at local z=0
 
-    up = mathutils.Vector((0.0, 0.0, 1.0))
-    att.rotation_euler = up.rotation_difference(norm_vec).to_euler('XYZ')
-    att.location = pos_vec + norm_vec * scale
-    bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+    else:  # OCTAHEDRON
+        # Regular octahedron as a triangular antiprism with the base face at z=0.
+        # Bottom triangle circumradius = scale; height H = scale * sqrt(2).
+        # All 12 edges have equal length scale*sqrt(3).
+        R   = scale
+        H   = scale * math.sqrt(2.0)
+        s3h = math.sqrt(3.0) * 0.5   # sin(60°)
+
+        verts = [
+            ( R,          0.0,       0.0),   # b0
+            (-R * 0.5,    R * s3h,   0.0),   # b1
+            (-R * 0.5,   -R * s3h,   0.0),   # b2
+            ( R * 0.5,    R * s3h,   H),     # t0
+            (-R,          0.0,       H),     # t1
+            ( R * 0.5,   -R * s3h,   H),     # t2
+        ]
+        # Winding: outward normals face away from the interior.
+        # Bottom face uses (b0, b2, b1) so its normal = (0, 0, -1) (into surface).
+        faces = [
+            (0, 2, 1),   # bottom — outward normal = -Z
+            (3, 4, 5),   # top    — outward normal = +Z
+            (0, 1, 3),   # lateral (6 faces)
+            (1, 4, 3),
+            (1, 2, 4),
+            (2, 5, 4),
+            (2, 0, 5),
+            (0, 3, 5),
+        ]
+
+        mesh_data = bpy.data.meshes.new("oct_mesh")
+        att = bpy.data.objects.new("oct_obj", mesh_data)
+        bpy.context.collection.objects.link(att)
+        bpy.context.view_layer.objects.active = att
+        att.select_set(True)
+
+        bm = bmesh.new()
+        bm_verts = [bm.verts.new(v) for v in verts]
+        bm.verts.ensure_lookup_table()
+        for f in faces:
+            bm.faces.new([bm_verts[i] for i in f])
+        bm.to_mesh(mesh_data)
+        bm.free()
+
+        att.rotation_euler = up.rotation_difference(norm_vec).to_euler('XYZ')
+        att.location = pos_vec  # base centroid already at local z=0
 
     att.data.materials.clear()
     att.data.materials.append(mat)
+    bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
     return att
 
 
