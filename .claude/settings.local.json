@@ -2,7 +2,34 @@
   "permissions": {
     "allow": [
       "Bash(git add *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(netstat -ano)",
+      "Bash(nohup npm run dev)",
+      "Bash(disown)",
+      "Bash(echo \"started, pid $!\")",
+      "Bash(curl -s -o /dev/null -w \"vite:%{http_code}\\\\n\" http://localhost:5180/view-selection.html)",
+      "Bash(curl -s -o /dev/null -w \"glb:%{http_code}\\\\n\" http://localhost:5180/Objects/exp1_ellipsoid_sym_01.glb)",
+      "Bash(rm -f pw_test_tmp.cjs)",
+      "Bash(rm -rf data/exp1/PTESTP*.csv)",
+      "Bash(git status *)",
+      "Bash(node pw_test_block.cjs)",
+      "Bash(rm -f pw_test_block.cjs data/exp1/PTESTBLK*.csv)",
+      "Bash(node pw_test_elevation2.cjs)",
+      "Bash(rm -f pw_test_elevation.cjs pw_test_elevation2.cjs)",
+      "Bash(rm -f data/exp1/PTESTELEV*.csv data/exp1/PTESTEUL*.csv)",
+      "Bash(rm -f data/exp1/PTEST00_*.csv)",
+      "Bash(find data *)",
+      "Bash(node pw_test_50steps.cjs)",
+      "Bash(rm -f pw_test_50steps.cjs)",
+      "Bash(rm -f data/exp1/PTEST50S*.csv)",
+      "Bash(\"/c/Program Files/Blender Foundation/Blender 5.1/blender.exe\" --background --python \"C:\\\\Users\\\\lenovo\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-lenovo-Documents-GitHub-visual-elongated-object-exploration\\\\83350795-ab71-4878-91c2-7935ce78673a\\\\scratchpad\\\\render_endon2.py\")",
+      "Bash(node pw_test_size.cjs)",
+      "Bash(rm -f pw_test_size.cjs)",
+      "Bash(rm -f data/exp1/PTESTSIZE*.csv)",
+      "Bash(node pw_test_alt.cjs)",
+      "Bash(rm -f pw_test_alt.cjs)",
+      "Bash(rm -f data/exp1/PTESTALT*.csv)",
+      "Bash(node pw_test_preview.cjs)"
     ]
   }
 }

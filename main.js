@@ -300,6 +300,7 @@ function loadModel(name) {
     const rotationsY = Math.floor(hashY % (360/5)*5);
     const angleRadY = THREE.MathUtils.degToRad(rotationsY);
 
+    model.rotation.order = 'YXZ';
     model.rotation.set(angleRadX, angleRadY, 0);
 
     // Cache initial Y/P and send a one-time init row (actionId = -1)
@@ -419,6 +420,21 @@ function getCameraRelativeAxes() {
   return { cameraRight, cameraUp };
 }
 
+function applyYawPitchStep(actionId) {
+  if (!model) return;
+  const step = THREE.MathUtils.degToRad(5);
+  model.rotation.order = 'YXZ';
+
+  switch (actionId) {
+    case 0: model.rotation.x += step; break; // Up: pitch/elevation up
+    case 1: model.rotation.x -= step; break; // Down: pitch/elevation down
+    case 2: model.rotation.y -= step; break; // Left: yaw/azimuth left
+    case 3: model.rotation.y += step; break; // Right: yaw/azimuth right
+  }
+
+  model.rotation.z = 0;
+}
+
 let isProcessing = false;
 
 async function recordStepAndAct(actionId) {
@@ -440,15 +456,8 @@ async function recordStepAndAct(actionId) {
   const imgData1 = "";//disable before image to save bandwidth (for human part only)
 
   
-  // rotate by a small step
-  const { cameraRight, cameraUp } = getCameraRelativeAxes();
-  const step = THREE.MathUtils.degToRad(5);
-  switch (actionId) {
-    case 0: model.rotateOnWorldAxis(cameraRight, -step); break; // Up
-    case 1: model.rotateOnWorldAxis(cameraRight, step); break;  // Down
-    case 2: model.rotateOnWorldAxis(cameraUp, -step); break;    // Left
-    case 3: model.rotateOnWorldAxis(cameraUp, step); break;     // Right
-  }
+  // rotate by a small step: Up/Down = pitch, Left/Right = yaw
+  applyYawPitchStep(actionId);
 
   await new Promise(resolve => setTimeout(resolve, 50));
 

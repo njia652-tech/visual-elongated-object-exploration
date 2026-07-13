@@ -1,21 +1,37 @@
 # Developer Handoff — View Selection Experiment
 
-_Last updated: 2026-06-19. Use this as the starting point for any new Claude Code conversation._
+_Last updated: 2026-07-10. Use this as the starting point for any new Claude Code conversation._
+
+---
+
+## 0. ⚠️ Two plan documents exist — read this first
+
+- **`EXP1_EXP2_IMPLEMENTATION_PLAN.md`** — the current authoritative plan for the **next** redesign (Exp1 = elongated bodies, Exp2 = non-elongated bodies; symmetry entirely feature-carried; 5 surfaces-of-revolution body types; rotation-criterion trial flow; rest/instruction pages; new CSV schema incl. `block_events.csv`). **This is NOT yet implemented in code.** `blender_gen_objects.py` still generates box bodies, `view-selection.js` still runs the old timer/probe logic described below, and none of the new config constants (`EXEMPLAR_ALLOC`, `MIN_ROTATION_STEPS`, `REST_MIN_SEC`, …) exist in the repo yet. See that file's §6 "工作量说明" for the full gap list.
+- **`CURRENT_IMPLEMENTATION_PLAN.md`** — describes the design that **is actually running today** (2×2 Set A/B, 40 objects, 50 s explore + 10 s confirm). Everything in §1–§10 below documents *this* live implementation. It still calls itself "唯一权威参考" in its own header, which is now stale — treat `EXP1_EXP2_IMPLEMENTATION_PLAN.md` as superseding it for any new design decisions, but treat *this HANDOFF's* description of the code as ground truth for what currently runs.
+
+**Workflow rule (from both plan files, still in force): before any experiment adjustment, update `EXP1_EXP2_IMPLEMENTATION_PLAN.md` and get user confirmation before touching code.**
 
 ---
 
 ## 1. Project Overview
 
-**What it is:** A Three.js psychophysics experiment where participants freely rotate novel 3D elongated objects and confirm a preferred viewpoint under two different task instructions.
+**What it is:** A Three.js psychophysics experiment where participants freely rotate novel 3D objects and confirm a preferred viewpoint under two different task instructions.
 
-**Scientific goal:** Compare which viewpoints participants select when the task is (T1) representational ("brochure" impression) vs (T2) memory-based ("memorise the object"). 2×3 within-subject design: 2 tasks × 3 elongation levels (low/medium/high).
+**Scientific goal:** Examine whether preferred viewpoints are jointly constrained by **Global Shape** (non-elongated vs elongated) and **Feature Arrangement** (symmetric vs asymmetric surface attachments), and whether these constraints differ between two task goals.
+
+**Design:** 2×2 within-task factorial (Global Shape × Feature Arrangement), run under two independent tasks on two matched but non-overlapping object sets.
+
+| Task | Instruction | Object Set |
+|------|------------|-----------|
+| T1 — Representation | Best brochure-photo viewpoint | Set A (20 objects) |
+| T2 — Memory-oriented | Viewpoint best for later recall | Set B (20 objects) |
 
 **User-facing flow:**
 1. Participant enters an ID → clicks Start
-2. Task instruction screen shown at the start of each block
+2. Task instruction screen at the start of each task block
 3. Each trial: object loads at random ±30° oblique azimuth → 50 s free rotation (arrow keys) → 10 s confirmation window (Enter to confirm, or auto-submit on timeout)
-4. Probe question every 6 trials (memory rating, 3-button)
-5. 36 trials total (2 blocks × 18 objects), 5 probes total (after trials 6/12/18/24/30; no probe after trial 36)
+4. Probe question every 5 trials within each task ("How easy was it to choose a viewpoint?", 3-button)
+5. **40 trials total** (20 per task), **6 probes total** (after trial 5/10/15 in each task; no probe after trial 20 of each task)
 
 ---
 
@@ -28,24 +44,28 @@ project root/
 │
 ├── view-selection.html         NEW experiment — UI, CSS, all static text
 ├── view-selection.js           NEW experiment — all JS logic (Three.js + experiment flow)
-├── server.py                   Flask backend — /record_view and /probe_result endpoints
+├── server.py                   Flask backend — /record_view, /probe_result, /sample_log
 ├── vite.config.js              Vite config: port 5180, proxy /api → :5006
 ├── package.json                npm deps: three, vite
 │
-├── blender_gen_objects.py      Blender script — generates 18 GLB stimuli (run inside Blender)
+├── blender_gen_objects.py      Blender script — generates 40 GLB stimuli (run inside Blender)
 ├── blender_preview.py          Blender script — imports GLBs for visual inspection
-├── blender_check.md            Blender usage reference notes
 │
-├── CURRENT_IMPLEMENTATION_PLAN.md   Authoritative design spec (read before editing)
+├── Experiment_Execution_Spec.md     Spec for the CURRENTLY LIVE 2×2 design (superseded for future work by EXP1_EXP2_IMPLEMENTATION_PLAN.md)
+├── CURRENT_IMPLEMENTATION_PLAN.md   Plan matching the live code (see §0 above)
+├── EXP1_EXP2_IMPLEMENTATION_PLAN.md Authoritative plan for the NEXT redesign — not yet implemented (see §0 above)
 ├── HANDOFF.md                  This file
 │
 ├── public/
-│   ├── Objects/                18 GLBs present (regenerated 2026-06-19: CURVED-CYLINDER/CONE/HEMISPHERE/OCTAHEDRON, scale 0.15–0.22)
+│   ├── Objects/                ← 40 GLBs + objects_metadata.json (generated by Blender)
+│   │     setA_NE_sym_01.glb … setB_E_asym_05.glb
+│   │     objects_metadata.json  (per-object axis/plane/feature metadata)
 │   └── hdrs/
 │       └── table_mountain_1_puresky_4k.exr   HDR environment map
 │
 ├── view_record.csv             Trial data output (append-only, NOT committed)
-└── view_probe.csv              Probe data output (append-only, NOT committed)
+├── view_probe.csv              Probe data output (append-only, NOT committed)
+└── view_trajectory.csv         Per-sample trajectory log (append-only, NOT committed)
 ```
 
 ### Files to ignore
@@ -94,7 +114,69 @@ All three must match. If Flask is on a different port, update both `server.py` a
 
 ---
 
-## 4. Experiment Logic (`view-selection.js`)
+## 4. Generating Stimuli (Blender)
+
+✅ **The 40 GLBs (old 2×2 Set A/B design) are already generated and present in `public/Objects/`**, along with `objects_metadata.json`. Re-run the script below only if you need to regenerate them (e.g. after editing `blender_gen_objects.py`).
+
+```
+Blender → Scripting workspace → Open blender_gen_objects.py → Run Script (Alt+P)
+```
+
+Expected console output:
+```
+[1/40] setA_NE_sym_01 ...  -> .../public/Objects/setA_NE_sym_01.glb
+...
+[40/40] setB_E_asym_05 ...
+Metadata written to: .../public/Objects/objects_metadata.json
+=== Done: 40/40 objects exported ===
+```
+
+### Object naming convention
+
+```
+set{Set}_{Shape}_{Arrangement}_{Exemplar}.glb
+
+Set:         A or B
+Shape:       NE (non-elongated) or E (elongated)
+Arrangement: sym (symmetric) or asym (asymmetric)
+Exemplar:    01–05
+
+Examples:  setA_NE_sym_01.glb   setB_E_asym_03.glb
+```
+
+### Stimulus design
+
+| Condition | Body | Features |
+|-----------|------|---------|
+| NE_sym | Roughly equidimensional (~1:1:0.5 half-extents) | 6 mirror pairs on ±Y faces (bilateral symmetric) |
+| NE_asym | Same body | 6 on +Y face + 3 on +Z top + 3 on +X end (no −Y features) |
+| E_sym | Elongated along X (~2.3–2.7:1:0.5) | 6 mirror pairs on ±Y faces |
+| E_asym | Same body | 6 on +Y face + 3 on +Z top + 3 on +X end |
+
+**Mirror plane = XZ plane (Y = 0).** Set A and Set B use different body proportions and attachment seeds; objects never repeat across sets.
+
+### objects_metadata.json
+
+Generated alongside the GLBs. Used by `view-selection.js` to classify final viewpoints:
+
+```json
+{
+  "setA_E_asym_01": {
+    "major_axis_vector": [1, 0, 0],
+    "mirror_plane_normal": [0, 1, 0],
+    "asymmetric_feature_positions": [[x, y, z], ...]
+  },
+  "setA_NE_sym_01": {
+    "major_axis_vector": null,
+    "mirror_plane_normal": [0, 1, 0],
+    "asymmetric_feature_positions": []
+  }
+}
+```
+
+---
+
+## 5. Experiment Logic (`view-selection.js`)
 
 ### Constants (top of file)
 
@@ -103,33 +185,36 @@ const STEP_DEG    = 5;       // degrees per keypress
 const ELEV_MAX    = 30;      // elevation hard limit ±30°
 const EXPLORE_SEC = 50;      // free exploration phase duration
 const CONFIRM_SEC = 10;      // confirmation window duration
-const PROBE_EVERY = 6;       // probe inserted after every N trials
-const INITIAL_Y   = -Math.PI / 2;  // rotates model so azimuth 0° = short-side view
+const PROBE_EVERY = 5;       // probe after every 5 trials within each task
+const TASK_SIZE   = 20;      // trials per task
+const INITIAL_Y   = -Math.PI / 2;  // azimuth 0° = end-on view for elongated objects
 ```
 
 ### Object loading
 
-GLB URLs are constructed statically (NOT via `import.meta.glob`) because Vite serves `public/` at root:
+GLB URLs constructed statically from the 40-item `allObjects` array (NOT `import.meta.glob`):
 
 ```js
-// /Objects/object01_low.glb ... /Objects/object06_high.glb
-for (let i = 1; i <= 6; i++) {
-  for (const level of ['low', 'medium', 'high']) {
-    allObjects.push({ name, url: `/Objects/${name}.glb`, baseId, level });
-  }
-}
+// 2 Sets × 2 Shapes × 2 Arrangements × 5 Exemplars = 40 objects
+for (const set of ['A', 'B'])
+  for (const shape of ['NE', 'E'])
+    for (const arr of ['sym', 'asym'])
+      for (let i = 1; i <= 5; i++)
+        allObjects.push({ name: `set${set}_${shape}_${arr}_${String(i).padStart(2,'0')}`, ... })
 ```
 
-⚠️ Do NOT change back to `import.meta.glob('/public/Objects/...')` — that path is wrong for Vite's public directory.
+⚠️ URL prefix is `/Objects/...` (not `/public/Objects/...`) — Vite serves `public/` at root.
 
 ### Trial sequence
 
 ```
 buildTrialSequence(taskOrder)
-  → constrainedShuffle(allObjects, o => o.baseId) × block 1   (18 trials, same-baseId non-adjacent)
-  → constrainedShuffle(allObjects, o => o.baseId) × block 2
-  → 36 trials [{name, url, baseId, level, task, block}, ...]
+  → T1T2: shuffle(SetA objects) → task=T1   [trials 0–19]
+          shuffle(SetB objects) → task=T2   [trials 20–39]
+  → T2T1: SetB first (task=T2), SetA second (task=T1)
 ```
+
+No adjacency constraint needed (all 20 objects in a task are unique exemplars).
 
 ### Task counterbalancing
 
@@ -139,10 +224,6 @@ const taskOrder = lastDigit % 2 === 1 ? 'T1T2' : 'T2T1';
 // Odd ID (P001, P003…) → T1 first; Even ID (P002, P004…) → T2 first
 ```
 
-### Starting azimuth
-
-Each trial starts at azimuth **30° or 330°** (50/50 random), elevation 0°.
-
 ### Rotation controls
 
 | Key | Effect |
@@ -151,251 +232,217 @@ Each trial starts at azimuth **30° or 330°** (50/50 random), elevation 0°.
 | ↑ ↓ | Elevation ±5°, hard-clamped to ±30° |
 | Enter | Confirm view (only active during confirm phase) |
 
-Key repeat is suppressed (`if (e.repeat) return`) — each physical keypress = one 5° step.
-
-Rotation applied as:
-```js
-model.rotation.order = 'YXZ';
-model.rotation.y = INITIAL_Y + THREE.MathUtils.degToRad(azimuth);
-model.rotation.x = THREE.MathUtils.degToRad(elevation);
-```
+Key repeat suppressed (`if (e.repeat) return`) — each physical keypress = one 5° step.
 
 ### Two-phase timer
 
 ```
-startTimer()          → 50 s countdown, zone sampling starts (100 ms interval)
+startTimer()          → 50 s countdown, trajectory sampling starts (100 ms interval)
   ↓ timeLeft === 0
-startConfirmPhase()   → confirmReady = true, confirm prompt appears, 10 s countdown
-  ↓ Enter pressed OR confirmTimeLeft === 0
-confirmTrial()        → guard: if (!confirmReady || isProcessing || !inTrial) return
-                      → POSTs data to /api/record_view → nextStep()
+startConfirmPhase()   → confirmReady = true, confirmPhaseStart = Date.now()
+                        confirm prompt appears, 10 s countdown, sampling continues
+  ↓ Enter pressed → confirmTrial('enter')
+  ↓ timeout      → confirmTrial('timeout')
+confirmTrial(source)  → guard: if (!confirmReady || isProcessing || !inTrial) return
+                      → POSTs trial data + trajectory batch → nextStep()
 ```
 
-### Zone dwell sampling
-
-During explore phase only, sampled every 100 ms:
-
-```
-short:   azimuth ≤ 22.5° OR ≥ 337.5° OR 157.5°–202.5°
-long:    67.5°–112.5° OR 247.5°–292.5°
-oblique: everything else
-```
+Rotation remains active during the 10 s confirmation window.
 
 ### Probe logic
 
 After `confirmTrial()` → `nextStep()`:
-- If `next % 6 === 0 && next < trialSequence.length` → show probe screen (skips trial 36)
-- After probe button click:
-  - `next === 18` → `startBlock(2)` (instruction screen for block 2)
-  - `next >= 36` → `showModule('end')`
-  - else → `startTrial(next)`
-- After trial 36: no probe — `nextStep()` falls through directly to `showModule('end')`
+
+```
+next = currentTrialIdx + 1
+
+next >= 40           → showModule('end')
+next % 20 === 0      → startBlock(2)   [end of task 1, show T2 instruction]
+next % 5  === 0      → showModule('probe')   [probe after trials 5/10/15 within each task]
+else                 → startTrial(next)
+```
+
+After probe button click → always `startTrial(pendingProbeAfter)`.
+
+### Viewpoint classification (from metadata)
+
+```js
+// axis_category (elongated objects only):
+//   end_on   — azimuth within ±22.5° of 0° or 180°
+//   side_on  — azimuth within ±22.5° of 90° or 270°
+//   oblique  — everything else
+//   N/A      — non-elongated objects
+
+// feature_category (asymmetric objects only):
+//   feature_revealing  — azimuth 30°–150°  (+Y features visible)
+//   feature_concealed  — azimuth 210°–330° (+Y features hidden)
+//   ambiguous          — other angles
+//   N/A                — symmetric objects
+```
 
 ---
 
-## 5. Data Logging
+## 6. Data Logging
 
 ### view_record.csv — one row per trial
 
-Written by Flask `/record_view` endpoint. Fields:
-
 | Field | Description |
 |-------|-------------|
-| `participantId` | Entered ID (uppercased), or `P-{timestamp}` if blank |
+| `participant_id` | Entered ID (uppercased), or `P-{timestamp}` if blank |
 | `task` | `T1` or `T2` |
-| `block` | `1` or `2` |
-| `trialNumber` | 1–36 |
-| `objectName` | e.g. `object03_medium` |
-| `baseId` | e.g. `object03` |
-| `level` | `low` / `medium` / `high` |
-| `startAzimuth` | 30 or 330 |
-| `finalAzimuth` | 0–360° at confirmation |
-| `finalElevation` | −30…+30° at confirmation |
-| `upDownCount` | Physical ↑↓ keypresses |
-| `leftRightCount` | Physical ←→ keypresses |
-| `upDownRatio` | upDownCount / total keypresses |
-| `leftRightRatio` | leftRightCount / total keypresses |
-| `timeShortSide` | ms spent in short-side zone (samples × 100) |
-| `timeLongSide` | ms spent in long-side zone |
-| `timeOblique` | ms spent in oblique zone |
-| `ratioShortSide` | timeShortSide / total zone time |
-| `ratioLongSide` | timeLongSide / total zone time |
-| `ratioOblique` | timeOblique / total zone time |
+| `object_set` | `A` or `B` |
+| `object_id` | e.g. `setA_E_asym_03` |
+| `global_shape` | `non_elongated` or `elongated` |
+| `feature_arrangement` | `symmetric` or `asymmetric` |
+| `condition` | e.g. `NE_sym`, `E_asym` |
+| `trial_index` | 1–20 within current task |
+| `task_order` | `T1T2` or `T2T1` |
+| `start_azimuth` | 30 or 330 |
+| `final_azimuth` | 0–360° at confirmation |
+| `final_elevation` | −30…+30° at confirmation |
+| `axis_category` | `end_on` / `side_on` / `oblique` / `N/A` |
+| `feature_category` | `feature_revealing` / `feature_concealed` / `ambiguous` / `N/A` |
+| `confirmation_latency` | seconds from confirm-phase onset to Enter (0–10 s; 10 if auto-submit) |
+| `enter_pressed` | `True` or `False` |
+| `up_down_count` | Physical ↑↓ keypresses |
+| `left_right_count` | Physical ←→ keypresses |
 | `timestamp` | Unix ms at confirmation |
 
 ### view_probe.csv — one row per probe
 
 | Field | Description |
 |-------|-------------|
-| `participantId` | Participant ID |
-| `afterTrial` | Trial number after which probe appeared (6/12/18/24/30) |
-| `answer` | `Not clearly` / `Somewhat clearly` / `Clearly` |
+| `participant_id` | Participant ID |
+| `task` | `T1` or `T2` |
+| `after_trial_index` | Local trial number after which probe appeared (5 / 10 / 15) |
+| `answer` | `Difficult` / `Somewhat easy` / `Easy` |
 | `timestamp` | Unix ms |
+
+### view_trajectory.csv — one row per 100 ms sample
+
+| Field | Description |
+|-------|-------------|
+| `participant_id` | Participant ID |
+| `task` | `T1` or `T2` |
+| `object_id` | Object ID |
+| `trial_index` | Local trial index (1–20) |
+| `timestamp_ms` | ms since trial start |
+| `azimuth` | Current azimuth (0–360°) |
+| `elevation` | Current elevation (−30…+30°) |
+
+Trajectory is sampled throughout the full 60 s (50 s explore + 10 s confirm), sent as one batch POST to `/api/sample_log` at trial end.
 
 ### Storage
 
-Both CSVs are **append-only** files in the project root. They are **not tracked by git** (not in .gitignore by default — do not commit test data). Back up after each participant by copying with a date/ID suffix.
+All CSVs are **append-only** in the project root. Not tracked by git. Back up after each participant by copying with a date/ID suffix.
 
 ---
 
-## 6. Current Implementation Status
+## 7. Current Implementation Status (as of 2026-07-10)
 
-### What is fully working (verified this session)
+### What is live and working (the 2×2 Set A/B design, §1–§6 above)
 
-- Complete experiment flow: welcome → instruction → 36 trials → 5 probes → end screen
-- Two-phase timer (50 s explore + 10 s confirm) with auto-submit
-- Zone dwell sampling, all 20 data fields recorded correctly
-- Flask `/record_view` and `/probe_result` endpoints, CSV write verified
-- Task counterbalancing by participant ID last digit
-- Constrained shuffle (same baseId non-adjacent) with greedy fallback
-- `view_record.csv` and `view_probe.csv` both write and accumulate correctly
+- 40 GLBs + `objects_metadata.json` generated and present in `public/Objects/` (verified: `Get-ChildItem public/Objects/*.glb | Measure-Object` → 40).
+- `view-selection.js` / `view-selection.html` / `server.py` run the full 40-trial, 2-task, 50 s-explore + 10 s-confirm flow described above.
+- Since the 06-26 handoff, `blender_gen_objects.py` and `view-selection.js` picked up incremental tweaks (larger attachments, curved-cylinder replacing the plain cylinder attachment, T2 label copy, skip-probe-after-final-trial guard) — these are refinements to the *same* live 2×2 design, not the new Exp1/Exp2 redesign.
 
-### Changes made in the 2026-06-16 session
+### What is NOT done — the new redesign in EXP1_EXP2_IMPLEMENTATION_PLAN.md
 
-- **Fixed GLB URL path**: replaced `import.meta.glob('/public/Objects/...')` with static URL construction using `/Objects/` prefix (Vite serves `public/` at root, not `/public/`)
-- **Fixed port mismatch**: aligned Flask (`server.py`) and Vite proxy (`vite.config.js`) both to port **5006**
-- **Committed all code**: commit `824699f` includes view-selection.html/js, server.py, vite.config.js, blender scripts, documentation
+All design decisions in that plan are locked (its §8.1), but **none of the implementation exists yet**:
 
-### Changes made in the 2026-06-18 session (blender_gen_objects.py)
+- `blender_gen_objects.py` still only builds box bodies (`create_box`, ~L114) — the five surfaces-of-revolution body types (ellipsoid/capsule/barrel/spindle/ovoid-cylinder), cylindrical-coordinate feature placement, and ripple profiles are all unwritten.
+- `view-selection.js` has none of the new trial logic: no rotation-criterion unlock (azimuth-only 36-step gate), no 40 s cap, no rest/instruction pages, no probe jitter, no `TEST_MODE`/`beforeunload` anti-interruption guards, no `EXPERIMENT` config switch.
+- `server.py` has no `block_events.csv` endpoint and the CSV schema hasn't been updated (`condition` field removal, `symmetry` rename, etc.).
+- Per-participant file layout (`data/exp1/P001_*.csv`) doesn't exist — output is still the shared root-level `view_record.csv` / `view_probe.csv` / `view_trajectory.csv` described in §6.
 
-- **NUM_ATTACHMENTS**: 8 → **12**
-- **Attachment distribution**: all 6 faces eligible; ±Y long-side faces boosted by `SIDE_BOOST = 4.0` (≈60% land on long sides)
-- **Attachment types**: `CYLINDER / CUBE / CONE / SPHERE` → **`CYLINDER / CONE / HEMISPHERE / OCTAHEDRON`** with face-to-face contact:
-  - `HEMISPHERE`: UV sphere bisected at z = 0; flat base at z = 0; translation = `pos`
-  - `OCTAHEDRON`: custom bmesh triangular antiprism; base at z = 0; translation = `pos`
-- **Material**: semi-matte dark gold (`BODY_ROUGHNESS = 0.6`, `Specular IOR Level = 0.5`); body and attachments share one material
-
-### Changes made in the 2026-06-18 session (view-selection.js)
-
-- **Lighting**: `AmbientLight(0xffffff, 1.4)` + `DirectionalLight(0xffffff, 1.0)` at (−5, 8, 5); shadows disabled
-- **HDR**: `scene.background = envMap`; `scene.backgroundIntensity = 0.5`; `scene.environment = null` (no IBL)
-- **T1 instruction**: *"Imagine that you are taking a photograph of this object for a promotional brochure. Rotate the object and stop at the viewpoint that would best represent the object to potential customers."*
-- **Exploration timer hidden**: shown only during confirm phase
-
-### Changes made in the 2026-06-19 session (blender_gen_objects.py)
-
-- **Attachment scale**: `ATTACH_SCALE_MIN` 0.08 → **0.15**; `ATTACH_SCALE_MAX` 0.14 → **0.22** (≈1.6×, more visible)
-- **CYLINDER → curved cylinder**: replaced `primitive_cylinder_add` with `_make_curved_cylinder_mesh()` (bmesh, sides bulge 12% at mid-height); base at z=0; placement same as HEMISPHERE (`att.location = pos_vec`)
-- **GLBs regenerated**: all 18 GLBs committed (commit `206a105`)
-
-### Changes made in the 2026-06-19 session (view-selection.js / server.py)
-
-- **T2 renamed**: `Recognition Task` → **`Memory Task`**; instruction: *"Please choose the view that you think would help you memorise this object best."*
-- **Probe after trial 36 removed**: `nextStep()` condition changed to `next % PROBE_EVERY === 0 && next < trialSequence.length`; experiment now ends directly after trial 36 — **5 probes total** (after trials 6/12/18/24/30)
-- **server.py**: CSV writing refactored from positional `csv.writer` to `csv.DictWriter`
-
-### What is NOT yet done
-
-- No end-to-end test with a real participant ID (only auto-generated test IDs used)
-- Old experiment at `/` not re-verified since recent changes (low risk — those files were untouched)
+Treat the redesign as a from-scratch build (see `EXP1_EXP2_IMPLEMENTATION_PLAN.md` §6 for the itemized workload), not an edit of the current files.
 
 ---
 
-## 7. Immediate Next Steps
+## 8. Immediate Next Steps
 
-> GLB 已于 2026-06-19 重新生成并提交（commit `206a105`）。
-> 当前配置（勿改）：
+Next work is implementing `EXP1_EXP2_IMPLEMENTATION_PLAN.md` (all design decisions locked, §8.1) — start with the Blender rewrite (plan §5), since nothing downstream (metadata schema, viewpoint classification, JS trial logic) can be tested without the new stimuli. The steps below (GLB check, test session, field verification) describe validating the *current live* 2×2 design and remain useful for regression-testing it, but are not next-steps for the redesign.
 
-```python
-RANDOM_SEED      = 42
-NUM_OBJECTS      = 6
-NUM_ATTACHMENTS  = 12
-ELONGATION_LEVELS = [('low', 1.3), ('medium', 1.7), ('high', 2.5)]
-MINOR_RADIUS     = 1.0
-FLAT_RATIO       = 0.5
-ATTACH_SCALE_MIN = 0.15   # was 0.08 — increased for visibility
-ATTACH_SCALE_MAX = 0.22   # was 0.14 — increased for visibility
-SIDE_BOOST       = 4.0
-BODY_COLOR       = (0.45, 0.28, 0.04, 1.0)   # dark gold — body and attachments share this
-BODY_ROUGHNESS   = 0.6
-# Specular IOR Level = 0.5   (set inside make_grey_material)
-# att_types = ['CURVED-CYLINDER', 'CONE', 'HEMISPHERE', 'OCTAHEDRON']
-#   CYLINDER replaced by curved cylinder (base z=0, sides bulge 12% at mid-height)
+### Step 1 — Confirm current GLBs are present (already done, re-check if regenerating)
+
+```
+Blender → Scripting workspace → Open blender_gen_objects.py → Alt+P
 ```
 
-### 1. Verify objects in the browser
+Verify console says `Done: 40/40` and `public/Objects/` contains 40 GLBs + `objects_metadata.json`.
 
-Start both servers and open `http://localhost:5180/view-selection.html`. Confirm:
-- Object loads at start of trial (no 404 in browser console)
-- Shape looks correct (cuboid with attachments)
-- Arrow keys rotate correctly
-- Timer counts down
-
-### 2. Run a complete test session
-
-Use a proper participant ID (e.g. `P001`). Verify:
-- All 36 trials complete
-- **5** probe screens appear at trials 6, 12, 18, 24, 30 (no probe after trial 36)
-- Block 2 instruction screen appears after trial 18
-- `view_record.csv` has 36 rows + header
-- `view_probe.csv` has **5** rows + header
-
-### 3. Verify old experiment is unaffected
-
-Open `http://localhost:5180/` and confirm the original experiment loads without errors.
-
----
-
-## 8. Verification Checklist
-
-### Servers start correctly
+### Step 2 — Run a complete test session (regression check on the live 2×2 design)
 
 ```powershell
-python server.py
-# → "Running on http://127.0.0.1:5006"
-
-npm run dev
-# → "Local: http://localhost:5180/"
+python server.py   # Terminal A
+npm run dev        # Terminal B
 ```
 
-### GLB files are present
+Open `http://localhost:5180/view-selection.html`, enter `P001`, and verify:
+- Trial counter shows `Task 1 — Trial X / 20`
+- Objects load (no 404 errors)
+- 3 probes appear within Task 1 (after trials 5, 10, 15)
+- Task 2 instruction screen appears after trial 20
+- 3 probes appear within Task 2 (after trials 25, 30, 35 globally = 5, 10, 15 locally)
+- Experiment ends after trial 40 with no probe
+- `view_record.csv` → 40 rows + header
+- `view_probe.csv` → 6 rows + header
+- `view_trajectory.csv` → ~600 rows per trial × 40 trials (≈ 24 000 rows)
+
+### Step 3 — Verify data fields
+
+```powershell
+Get-Content view_record.csv | Select-Object -First 3
+# Should show: participant_id, task, object_set, object_id, global_shape, ...
+```
+
+---
+
+## 9. Verification Checklist
+
+### GLB files present
 
 ```powershell
 (Get-ChildItem "public\Objects\*.glb" | Measure-Object).Count
-# → 18
+# → 40
+
+Test-Path "public\Objects\objects_metadata.json"
+# → True
 ```
 
 ### One trial works end to end
 
 1. Open `http://localhost:5180/view-selection.html`
 2. Enter `P001`, click Start
-3. Instruction screen should say **Representation Task** (odd ID → T1 first)
-4. Click Begin Block — object loads, 50-second timer starts
-5. Rotate with arrow keys — object rotates
-6. Wait for confirm prompt (or wait full 60 s) — confirm phase appears
-7. Press Enter — trial ends, trial 2 begins
+3. Instruction screen: **Representation Task** (odd ID → T1 first)
+4. Click Begin Block — `setA_NE_sym_01` (or similar) loads
+5. Counter shows `Task 1 — Trial 1 / 20`
+6. Rotate with arrow keys → object rotates; elevation stops at ±30°
+7. After 50 s: confirm prompt appears, 10 s countdown
+8. Press Enter → trial ends; trial 2 begins
 
-### Data is logged
+### Probe fires at correct intervals
 
-After trial 1:
-```powershell
-Get-Content "view_record.csv"
-# Row 2 should have: P001, T1, 1, 1, object??_???, ...
-```
-
-After trial 6 + probe:
-```powershell
-Get-Content "view_probe.csv"
-# Row 2 should have: P001, 6, <answer>, <timestamp>
-```
-
-### No console errors
-
-Open browser DevTools → Console. No red errors during normal trial flow.
+- After trial 5 of Task 1 → probe appears
+- After probe → Trial 6 starts
+- After trial 20 of Task 1 → Task 2 instruction (no probe)
+- After trial 5 of Task 2 (= global trial 25) → probe appears
 
 ---
 
-## 9. Design Decisions — Do Not Change Without Review
+## 10. Design Decisions — Do Not Change Without Review
 
 | Decision | Rationale |
 |----------|-----------|
-| `INITIAL_Y = -π/2` | Makes azimuth 0° = short-side view; changing this invalidates all collected data labels |
-| `if (e.repeat) return` | Each physical press = one step; prevents inflated key counts from OS repeat |
-| `PROBE_EVERY = 6` | Probe inserted every 6 trials, but skipped after the final trial (36); 5 probes total |
-| GLB URL = `/Objects/...` not `/public/Objects/...` | Vite's public dir is served at root, not at `/public/` |
-| Flask port 5006 | Must match in both `server.py` (`app.run`) and `vite.config.js` (`proxy.target`) |
-| CSV append-only | Multiple participants accumulate; filter by `participantId` in analysis |
-| `constrainedShuffle` key = `o => o.baseId` | Ensures same-object variants (low/medium/high) don't appear consecutively |
+| `INITIAL_Y = -π/2` | Azimuth 0° = end-on view for elongated objects; changing invalidates data labels |
+| `if (e.repeat) return` | Each physical press = one step; prevents inflated key counts |
+| `PROBE_EVERY = 5, TASK_SIZE = 20` | 3 probes per task, none after the final trial of each task |
+| `next % TASK_SIZE === 0` checked before `next % PROBE_EVERY === 0` | Prevents spurious probe at task boundary (20 % 5 = 0) |
+| GLB URL = `/Objects/...` | Vite serves `public/` at root, not `/public/` |
+| Flask port 5006 | Must match in both `server.py` and `vite.config.js` |
+| Set A → T1 only, Set B → T2 only | No object seen in both tasks; eliminates carry-over effects |
+| `feature_revealing` = azimuth 30°–150° | Asymmetric features are on +Y face; this range covers the +Y hemisphere |
+| CSV append-only | Multiple participants accumulate; filter by `participant_id` in analysis |
 
 ---
 
@@ -406,24 +453,42 @@ I am continuing a Three.js psychophysics experiment called "View Selection Exper
 C:\Users\lenovo\Documents\GitHub\visual-elongated-object-exploration
 
 Please read HANDOFF.md first — it has the full project state, file map, and next steps.
-Then read CURRENT_IMPLEMENTATION_PLAN.md for the authoritative experiment spec.
+Then read EXP1_EXP2_IMPLEMENTATION_PLAN.md — this is the AUTHORITATIVE plan for the next
+redesign; workflow rule: any experiment adjustment must update this file and get user
+confirmation before touching code.
+CURRENT_IMPLEMENTATION_PLAN.md / Experiment_Execution_Spec.md describe the OLD 2×2 design
+that is still what actually runs today — read these to understand the live code, not as a
+guide for new work.
 
 Key files:
-- view-selection.js      all experiment logic
+- view-selection.js      LIVE experiment logic — still the old 2×2 Set A/B design
 - view-selection.html    UI structure
 - server.py              Flask backend (port 5006), CSV recording
-- blender_gen_objects.py stimulus generation (run inside Blender, not from terminal)
+- blender_gen_objects.py stimulus generation — run inside Blender, not from terminal;
+                         still box bodies only, not yet the 5 revolution-body types
 - vite.config.js         proxy config (port 5180 → 5006)
 
-Current situation (as of 2026-06-19):
-- Experiment JS/HTML/server code is fully working (latest commits: 206a105, 2e744cb)
-- public/Objects/ has 18 GLBs regenerated with CURVED-CYLINDER/CONE/HEMISPHERE/OCTAHEDRON,
-  attachment scale 0.15–0.22 (committed 2026-06-19, commit 206a105)
-- T2 is "Memory Task" ("memorise this object best"), T1 is "Representation Task"
-- 5 probes total (after trials 6/12/18/24/30; no probe after trial 36)
-- blender_gen_objects.py is finalised — do NOT change parameters without review
-- Do NOT change the GLB URL format (/Objects/...) — it was deliberately fixed earlier
-- Do NOT change INITIAL_Y, PROBE_EVERY, or the constrainedShuffle key function
+Current situation (as of 2026-07-10):
+- The live code (JS/HTML/server/Blender) implements the OLD 2×2 design end-to-end,
+  GLBs already generated (40 present in public/Objects/).
+- EXP1_EXP2_IMPLEMENTATION_PLAN.md defines a full redesign (Exp1 = elongated / Exp2 =
+  non-elongated, 5 surfaces-of-revolution body types, symmetry entirely feature-carried,
+  azimuth-only rotation-criterion trial flow, rest/instruction pages, new CSV schema
+  incl. block_events.csv) — ALL design decisions are locked (plan §8.1), but NONE of it
+  is implemented yet. This is a from-scratch build, not a config tweak — see plan §6.
+
+IMPORTANT constraints on the LIVE code (do NOT change without reason):
+- INITIAL_Y = -π/2, ELEV_MAX = 30, PROBE_EVERY = 5, TASK_SIZE = 20
+- GLB URL prefix: /Objects/ (NOT /public/Objects/)
+- Flask port 5006 must match in server.py and vite.config.js
+- Set A ↔ T1, Set B ↔ T2 binding is fixed
+
+IMPORTANT constraints on the NEW plan (locked decisions, EXP1_EXP2_IMPLEMENTATION_PLAN.md §8.1):
+- 18 objects/condition (36 total, 72 trials), exemplar allocation (4,4,4,3,3) across 5 body types
+- Rotation-unlock criterion counts azimuth (left/right) steps ONLY — elevation steps must not
+  count, or the criterion can be satisfied by up/down oscillation without ever orbiting the object
+- symmetry field replaces feature_arrangement; condition field is dropped (redundant)
+- rest/instruction timestamps go in a separate block_events.csv, not view_record.csv
 
 After reading HANDOFF.md, confirm what you understand the current state to be, then
 [describe your specific task here].

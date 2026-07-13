@@ -1,0 +1,2882 @@
+{
+  "exp1_capsule_sym_01": {
+    "body_type": "capsule",
+    "aspect_ratio": 2.641,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "symmetric",
+    "yoked_pair_id": "capsule_01",
+    "feature_positions": [
+      {
+        "u": -0.3993,
+        "theta_deg": 77.92,
+        "type": "CYLINDER",
+        "scale": 0.1952
+      },
+      {
+        "u": -0.3993,
+        "theta_deg": 282.08,
+        "type": "CYLINDER",
+        "scale": 0.1952
+      },
+      {
+        "u": 0.1504,
+        "theta_deg": 74.1,
+        "type": "OCTAHEDRON",
+        "scale": 0.2163
+      },
+      {
+        "u": 0.1504,
+        "theta_deg": 285.9,
+        "type": "OCTAHEDRON",
+        "scale": 0.2163
+      },
+      {
+        "u": 0.3788,
+        "theta_deg": 43.43,
+        "type": "CYLINDER",
+        "scale": 0.176
+      },
+      {
+        "u": 0.3788,
+        "theta_deg": 316.57,
+        "type": "CYLINDER",
+        "scale": 0.176
+      },
+      {
+        "u": -0.1995,
+        "theta_deg": 30.3,
+        "type": "OCTAHEDRON",
+        "scale": 0.1899
+      },
+      {
+        "u": -0.1995,
+        "theta_deg": 329.7,
+        "type": "OCTAHEDRON",
+        "scale": 0.1899
+      },
+      {
+        "u": -0.5408,
+        "theta_deg": 95.81,
+        "type": "CYLINDER",
+        "scale": 0.1768
+      },
+      {
+        "u": -0.5408,
+        "theta_deg": 264.19,
+        "type": "CYLINDER",
+        "scale": 0.1768
+      },
+      {
+        "u": 0.6362,
+        "theta_deg": 61.72,
+        "type": "CYLINDER",
+        "scale": 0.153
+      },
+      {
+        "u": 0.6362,
+        "theta_deg": 298.28,
+        "type": "CYLINDER",
+        "scale": 0.153
+      }
+    ]
+  },
+  "exp1_capsule_asym_01": {
+    "body_type": "capsule",
+    "aspect_ratio": 2.641,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "asymmetric",
+    "yoked_pair_id": "capsule_01",
+    "feature_positions": [
+      {
+        "u": -0.109,
+        "theta_deg": 242.48,
+        "type": "CYLINDER",
+        "scale": 0.1952
+      },
+      {
+        "u": -0.3422,
+        "theta_deg": 198.88,
+        "type": "OCTAHEDRON",
+        "scale": 0.2163
+      },
+      {
+        "u": -0.3637,
+        "theta_deg": 292.34,
+        "type": "CYLINDER",
+        "scale": 0.176
+      },
+      {
+        "u": 0.3196,
+        "theta_deg": 154.58,
+        "type": "OCTAHEDRON",
+        "scale": 0.1899
+      },
+      {
+        "u": -0.4922,
+        "theta_deg": 100.4,
+        "type": "CYLINDER",
+        "scale": 0.1768
+      },
+      {
+        "u": 0.4442,
+        "theta_deg": 39.91,
+        "type": "CYLINDER",
+        "scale": 0.153
+      },
+      {
+        "u": 0.6855,
+        "theta_deg": 157.37,
+        "type": "CYLINDER",
+        "scale": 0.1952
+      },
+      {
+        "u": -0.1694,
+        "theta_deg": 180.59,
+        "type": "OCTAHEDRON",
+        "scale": 0.2163
+      },
+      {
+        "u": -0.6645,
+        "theta_deg": 311.63,
+        "type": "CYLINDER",
+        "scale": 0.176
+      },
+      {
+        "u": 0.5475,
+        "theta_deg": 165.11,
+        "type": "OCTAHEDRON",
+        "scale": 0.1899
+      },
+      {
+        "u": 0.1673,
+        "theta_deg": 56.87,
+        "type": "CYLINDER",
+        "scale": 0.1768
+      },
+      {
+        "u": 0.0739,
+        "theta_deg": 118.09,
+        "type": "CYLINDER",
+        "scale": 0.153
+      }
+    ]
+  },
+  "exp1_capsule_sym_02": {
+    "body_type": "capsule",
+    "aspect_ratio": 2.5763,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "symmetric",
+    "yoked_pair_id": "capsule_02",
+    "feature_positions": [
+      {
+        "u": -0.2555,
+        "theta_deg": 65.79,
+        "type": "CYLINDER",
+        "scale": 0.2165
+      },
+      {
+        "u": -0.2555,
+        "theta_deg": 294.21,
+        "type": "CYLINDER",
+        "scale": 0.2165
+      },
+      {
+        "u": -0.1176,
+        "theta_deg": 93.18,
+        "type": "CYLINDER",
+        "scale": 0.1576
+      },
+      {
+        "u": -0.1176,
+        "theta_deg": 266.82,
+        "type": "CYLINDER",
+        "scale": 0.1576
+      },
+      {
+        "u": -0.5926,
+        "theta_deg": 75.07,
+        "type": "CYLINDER",
+        "scale": 0.2124
+      },
+      {
+        "u": -0.5926,
+        "theta_deg": 284.93,
+        "type": "CYLINDER",
+        "scale": 0.2124
+      },
+      {
+        "u": 0.2478,
+        "theta_deg": 99.34,
+        "type": "CONE",
+        "scale": 0.1741
+      },
+      {
+        "u": 0.2478,
+        "theta_deg": 260.66,
+        "type": "CONE",
+        "scale": 0.1741
+      },
+      {
+        "u": 0.1927,
+        "theta_deg": 129.03,
+        "type": "HEMISPHERE",
+        "scale": 0.217
+      },
+      {
+        "u": 0.1927,
+        "theta_deg": 230.97,
+        "type": "HEMISPHERE",
+        "scale": 0.217
+      },
+      {
+        "u": 0.587,
+        "theta_deg": 137.9,
+        "type": "HEMISPHERE",
+        "scale": 0.1804
+      },
+      {
+        "u": 0.587,
+        "theta_deg": 222.1,
+        "type": "HEMISPHERE",
+        "scale": 0.1804
+      }
+    ]
+  },
+  "exp1_capsule_asym_02": {
+    "body_type": "capsule",
+    "aspect_ratio": 2.5763,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "asymmetric",
+    "yoked_pair_id": "capsule_02",
+    "feature_positions": [
+      {
+        "u": -0.24,
+        "theta_deg": 223.52,
+        "type": "CYLINDER",
+        "scale": 0.2165
+      },
+      {
+        "u": 0.1443,
+        "theta_deg": 251.74,
+        "type": "CYLINDER",
+        "scale": 0.1576
+      },
+      {
+        "u": -0.6541,
+        "theta_deg": 212.9,
+        "type": "CYLINDER",
+        "scale": 0.2124
+      },
+      {
+        "u": 0.5673,
+        "theta_deg": 140.56,
+        "type": "CONE",
+        "scale": 0.1741
+      },
+      {
+        "u": -0.1978,
+        "theta_deg": 78.63,
+        "type": "HEMISPHERE",
+        "scale": 0.217
+      },
+      {
+        "u": 0.6969,
+        "theta_deg": 88.64,
+        "type": "HEMISPHERE",
+        "scale": 0.1804
+      },
+      {
+        "u": 0.3416,
+        "theta_deg": 215.97,
+        "type": "CYLINDER",
+        "scale": 0.2165
+      },
+      {
+        "u": 0.433,
+        "theta_deg": 235.97,
+        "type": "CYLINDER",
+        "scale": 0.1576
+      },
+      {
+        "u": -0.4681,
+        "theta_deg": 166.78,
+        "type": "CYLINDER",
+        "scale": 0.2124
+      },
+      {
+        "u": -0.0897,
+        "theta_deg": 145.96,
+        "type": "CONE",
+        "scale": 0.1741
+      },
+      {
+        "u": -0.4102,
+        "theta_deg": 175.89,
+        "type": "HEMISPHERE",
+        "scale": 0.217
+      },
+      {
+        "u": 0.109,
+        "theta_deg": 45.66,
+        "type": "HEMISPHERE",
+        "scale": 0.1804
+      }
+    ]
+  },
+  "exp1_capsule_sym_03": {
+    "body_type": "capsule",
+    "aspect_ratio": 2.6776,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "symmetric",
+    "yoked_pair_id": "capsule_03",
+    "feature_positions": [
+      {
+        "u": -0.5786,
+        "theta_deg": 78.93,
+        "type": "CONE",
+        "scale": 0.1802
+      },
+      {
+        "u": -0.5786,
+        "theta_deg": 281.07,
+        "type": "CONE",
+        "scale": 0.1802
+      },
+      {
+        "u": 0.2397,
+        "theta_deg": 139.17,
+        "type": "OCTAHEDRON",
+        "scale": 0.1737
+      },
+      {
+        "u": 0.2397,
+        "theta_deg": 220.83,
+        "type": "OCTAHEDRON",
+        "scale": 0.1737
+      },
+      {
+        "u": 0.2198,
+        "theta_deg": 83.7,
+        "type": "CYLINDER",
+        "scale": 0.1622
+      },
+      {
+        "u": 0.2198,
+        "theta_deg": 276.3,
+        "type": "CYLINDER",
+        "scale": 0.1622
+      },
+      {
+        "u": -0.2349,
+        "theta_deg": 78.66,
+        "type": "OCTAHEDRON",
+        "scale": 0.1605
+      },
+      {
+        "u": -0.2349,
+        "theta_deg": 281.34,
+        "type": "OCTAHEDRON",
+        "scale": 0.1605
+      },
+      {
+        "u": -0.1571,
+        "theta_deg": 117.7,
+        "type": "CONE",
+        "scale": 0.2155
+      },
+      {
+        "u": -0.1571,
+        "theta_deg": 242.3,
+        "type": "CONE",
+        "scale": 0.2155
+      },
+      {
+        "u": 0.4961,
+        "theta_deg": 132.67,
+        "type": "CYLINDER",
+        "scale": 0.1821
+      },
+      {
+        "u": 0.4961,
+        "theta_deg": 227.33,
+        "type": "CYLINDER",
+        "scale": 0.1821
+      }
+    ]
+  },
+  "exp1_capsule_asym_03": {
+    "body_type": "capsule",
+    "aspect_ratio": 2.6776,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "asymmetric",
+    "yoked_pair_id": "capsule_03",
+    "feature_positions": [
+      {
+        "u": -0.0929,
+        "theta_deg": 161.68,
+        "type": "CONE",
+        "scale": 0.1802
+      },
+      {
+        "u": -0.6265,
+        "theta_deg": 58.92,
+        "type": "OCTAHEDRON",
+        "scale": 0.1737
+      },
+      {
+        "u": -0.1397,
+        "theta_deg": 292.31,
+        "type": "CYLINDER",
+        "scale": 0.1622
+      },
+      {
+        "u": 0.1907,
+        "theta_deg": 54.99,
+        "type": "OCTAHEDRON",
+        "scale": 0.1605
+      },
+      {
+        "u": 0.4996,
+        "theta_deg": 353.64,
+        "type": "CONE",
+        "scale": 0.2155
+      },
+      {
+        "u": -0.4895,
+        "theta_deg": 48.33,
+        "type": "CYLINDER",
+        "scale": 0.1821
+      },
+      {
+        "u": 0.6677,
+        "theta_deg": 190.57,
+        "type": "CONE",
+        "scale": 0.1802
+      },
+      {
+        "u": -0.2479,
+        "theta_deg": 139.58,
+        "type": "OCTAHEDRON",
+        "scale": 0.1737
+      },
+      {
+        "u": -0.4319,
+        "theta_deg": 138.44,
+        "type": "CYLINDER",
+        "scale": 0.1622
+      },
+      {
+        "u": 0.2735,
+        "theta_deg": 3.33,
+        "type": "OCTAHEDRON",
+        "scale": 0.1605
+      },
+      {
+        "u": 0.4222,
+        "theta_deg": 325.72,
+        "type": "CONE",
+        "scale": 0.2155
+      },
+      {
+        "u": 0.0196,
+        "theta_deg": 245.04,
+        "type": "CYLINDER",
+        "scale": 0.1821
+      }
+    ]
+  },
+  "exp1_capsule_sym_04": {
+    "body_type": "capsule",
+    "aspect_ratio": 2.7507,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "symmetric",
+    "yoked_pair_id": "capsule_04",
+    "feature_positions": [
+      {
+        "u": 0.366,
+        "theta_deg": 30.27,
+        "type": "HEMISPHERE",
+        "scale": 0.196
+      },
+      {
+        "u": 0.366,
+        "theta_deg": 329.73,
+        "type": "HEMISPHERE",
+        "scale": 0.196
+      },
+      {
+        "u": -0.5018,
+        "theta_deg": 58.12,
+        "type": "CYLINDER",
+        "scale": 0.1818
+      },
+      {
+        "u": -0.5018,
+        "theta_deg": 301.88,
+        "type": "CYLINDER",
+        "scale": 0.1818
+      },
+      {
+        "u": 0.6395,
+        "theta_deg": 120.24,
+        "type": "HEMISPHERE",
+        "scale": 0.204
+      },
+      {
+        "u": 0.6395,
+        "theta_deg": 239.76,
+        "type": "HEMISPHERE",
+        "scale": 0.204
+      },
+      {
+        "u": 0.0655,
+        "theta_deg": 115.79,
+        "type": "OCTAHEDRON",
+        "scale": 0.1542
+      },
+      {
+        "u": 0.0655,
+        "theta_deg": 244.21,
+        "type": "OCTAHEDRON",
+        "scale": 0.1542
+      },
+      {
+        "u": -0.3352,
+        "theta_deg": 108.26,
+        "type": "CONE",
+        "scale": 0.1707
+      },
+      {
+        "u": -0.3352,
+        "theta_deg": 251.74,
+        "type": "CONE",
+        "scale": 0.1707
+      },
+      {
+        "u": -0.0898,
+        "theta_deg": 136.93,
+        "type": "CONE",
+        "scale": 0.172
+      },
+      {
+        "u": -0.0898,
+        "theta_deg": 223.07,
+        "type": "CONE",
+        "scale": 0.172
+      }
+    ]
+  },
+  "exp1_capsule_asym_04": {
+    "body_type": "capsule",
+    "aspect_ratio": 2.7507,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "asymmetric",
+    "yoked_pair_id": "capsule_04",
+    "feature_positions": [
+      {
+        "u": -0.5678,
+        "theta_deg": 32.89,
+        "type": "HEMISPHERE",
+        "scale": 0.196
+      },
+      {
+        "u": -0.0857,
+        "theta_deg": 285.41,
+        "type": "CYLINDER",
+        "scale": 0.1818
+      },
+      {
+        "u": -0.3135,
+        "theta_deg": 175.61,
+        "type": "HEMISPHERE",
+        "scale": 0.204
+      },
+      {
+        "u": -0.3936,
+        "theta_deg": 190.44,
+        "type": "OCTAHEDRON",
+        "scale": 0.1542
+      },
+      {
+        "u": 0.5456,
+        "theta_deg": 70.81,
+        "type": "CONE",
+        "scale": 0.1707
+      },
+      {
+        "u": 0.1,
+        "theta_deg": 106.63,
+        "type": "CONE",
+        "scale": 0.172
+      },
+      {
+        "u": -0.6536,
+        "theta_deg": 228.68,
+        "type": "HEMISPHERE",
+        "scale": 0.196
+      },
+      {
+        "u": 0.3153,
+        "theta_deg": 117.36,
+        "type": "CYLINDER",
+        "scale": 0.1818
+      },
+      {
+        "u": 0.642,
+        "theta_deg": 200.38,
+        "type": "HEMISPHERE",
+        "scale": 0.204
+      },
+      {
+        "u": -0.22,
+        "theta_deg": 272.32,
+        "type": "OCTAHEDRON",
+        "scale": 0.1542
+      },
+      {
+        "u": 0.1678,
+        "theta_deg": 352.01,
+        "type": "CONE",
+        "scale": 0.1707
+      },
+      {
+        "u": 0.4624,
+        "theta_deg": 27.49,
+        "type": "CONE",
+        "scale": 0.172
+      }
+    ]
+  },
+  "exp1_barrel_sym_01": {
+    "body_type": "barrel",
+    "aspect_ratio": 2.5431,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "symmetric",
+    "yoked_pair_id": "barrel_01",
+    "feature_positions": [
+      {
+        "u": -0.1232,
+        "theta_deg": 34.17,
+        "type": "CYLINDER",
+        "scale": 0.1889
+      },
+      {
+        "u": -0.1232,
+        "theta_deg": 325.83,
+        "type": "CYLINDER",
+        "scale": 0.1889
+      },
+      {
+        "u": 0.3046,
+        "theta_deg": 99.22,
+        "type": "HEMISPHERE",
+        "scale": 0.2042
+      },
+      {
+        "u": 0.3046,
+        "theta_deg": 260.78,
+        "type": "HEMISPHERE",
+        "scale": 0.2042
+      },
+      {
+        "u": -0.3605,
+        "theta_deg": 77.7,
+        "type": "CONE",
+        "scale": 0.1879
+      },
+      {
+        "u": -0.3605,
+        "theta_deg": 282.3,
+        "type": "CONE",
+        "scale": 0.1879
+      },
+      {
+        "u": 0.1512,
+        "theta_deg": 75.42,
+        "type": "OCTAHEDRON",
+        "scale": 0.2057
+      },
+      {
+        "u": 0.1512,
+        "theta_deg": 284.58,
+        "type": "OCTAHEDRON",
+        "scale": 0.2057
+      },
+      {
+        "u": 0.4701,
+        "theta_deg": 118.51,
+        "type": "HEMISPHERE",
+        "scale": 0.1862
+      },
+      {
+        "u": 0.4701,
+        "theta_deg": 241.49,
+        "type": "HEMISPHERE",
+        "scale": 0.1862
+      },
+      {
+        "u": -0.6304,
+        "theta_deg": 77.81,
+        "type": "HEMISPHERE",
+        "scale": 0.154
+      },
+      {
+        "u": -0.6304,
+        "theta_deg": 282.19,
+        "type": "HEMISPHERE",
+        "scale": 0.154
+      }
+    ]
+  },
+  "exp1_barrel_asym_01": {
+    "body_type": "barrel",
+    "aspect_ratio": 2.5431,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "asymmetric",
+    "yoked_pair_id": "barrel_01",
+    "feature_positions": [
+      {
+        "u": -0.4616,
+        "theta_deg": 78.19,
+        "type": "CYLINDER",
+        "scale": 0.1889
+      },
+      {
+        "u": 0.4953,
+        "theta_deg": 51.02,
+        "type": "HEMISPHERE",
+        "scale": 0.2042
+      },
+      {
+        "u": -0.4984,
+        "theta_deg": 150.76,
+        "type": "CONE",
+        "scale": 0.1879
+      },
+      {
+        "u": 0.303,
+        "theta_deg": 204.08,
+        "type": "OCTAHEDRON",
+        "scale": 0.2057
+      },
+      {
+        "u": 0.6931,
+        "theta_deg": 320.65,
+        "type": "HEMISPHERE",
+        "scale": 0.1862
+      },
+      {
+        "u": 0.3737,
+        "theta_deg": 330.75,
+        "type": "HEMISPHERE",
+        "scale": 0.154
+      },
+      {
+        "u": -0.2649,
+        "theta_deg": 268.15,
+        "type": "CYLINDER",
+        "scale": 0.1889
+      },
+      {
+        "u": 0.0673,
+        "theta_deg": 12.13,
+        "type": "HEMISPHERE",
+        "scale": 0.2042
+      },
+      {
+        "u": -0.6193,
+        "theta_deg": 18.84,
+        "type": "CONE",
+        "scale": 0.1879
+      },
+      {
+        "u": -0.1569,
+        "theta_deg": 84.48,
+        "type": "OCTAHEDRON",
+        "scale": 0.2057
+      },
+      {
+        "u": 0.1921,
+        "theta_deg": 178.85,
+        "type": "HEMISPHERE",
+        "scale": 0.1862
+      },
+      {
+        "u": -0.0598,
+        "theta_deg": 11.13,
+        "type": "HEMISPHERE",
+        "scale": 0.154
+      }
+    ]
+  },
+  "exp1_barrel_sym_02": {
+    "body_type": "barrel",
+    "aspect_ratio": 2.6886,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "symmetric",
+    "yoked_pair_id": "barrel_02",
+    "feature_positions": [
+      {
+        "u": 0.4088,
+        "theta_deg": 137.52,
+        "type": "CONE",
+        "scale": 0.1559
+      },
+      {
+        "u": 0.4088,
+        "theta_deg": 222.48,
+        "type": "CONE",
+        "scale": 0.1559
+      },
+      {
+        "u": 0.1294,
+        "theta_deg": 64.51,
+        "type": "CYLINDER",
+        "scale": 0.2149
+      },
+      {
+        "u": 0.1294,
+        "theta_deg": 295.49,
+        "type": "CYLINDER",
+        "scale": 0.2149
+      },
+      {
+        "u": -0.4941,
+        "theta_deg": 131.34,
+        "type": "CONE",
+        "scale": 0.1697
+      },
+      {
+        "u": -0.4941,
+        "theta_deg": 228.66,
+        "type": "CONE",
+        "scale": 0.1697
+      },
+      {
+        "u": -0.1647,
+        "theta_deg": 144.82,
+        "type": "HEMISPHERE",
+        "scale": 0.1925
+      },
+      {
+        "u": -0.1647,
+        "theta_deg": 215.18,
+        "type": "HEMISPHERE",
+        "scale": 0.1925
+      },
+      {
+        "u": 0.5551,
+        "theta_deg": 130.22,
+        "type": "CYLINDER",
+        "scale": 0.2196
+      },
+      {
+        "u": 0.5551,
+        "theta_deg": 229.78,
+        "type": "CYLINDER",
+        "scale": 0.2196
+      },
+      {
+        "u": -0.3685,
+        "theta_deg": 65.03,
+        "type": "HEMISPHERE",
+        "scale": 0.2158
+      },
+      {
+        "u": -0.3685,
+        "theta_deg": 294.97,
+        "type": "HEMISPHERE",
+        "scale": 0.2158
+      }
+    ]
+  },
+  "exp1_barrel_asym_02": {
+    "body_type": "barrel",
+    "aspect_ratio": 2.6886,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "asymmetric",
+    "yoked_pair_id": "barrel_02",
+    "feature_positions": [
+      {
+        "u": -0.0174,
+        "theta_deg": 348.04,
+        "type": "CONE",
+        "scale": 0.1559
+      },
+      {
+        "u": -0.5188,
+        "theta_deg": 349.32,
+        "type": "CYLINDER",
+        "scale": 0.2149
+      },
+      {
+        "u": -0.4598,
+        "theta_deg": 108.52,
+        "type": "CONE",
+        "scale": 0.1697
+      },
+      {
+        "u": 0.4789,
+        "theta_deg": 349.7,
+        "type": "HEMISPHERE",
+        "scale": 0.1925
+      },
+      {
+        "u": 0.6822,
+        "theta_deg": 116.98,
+        "type": "CYLINDER",
+        "scale": 0.2196
+      },
+      {
+        "u": 0.096,
+        "theta_deg": 7.35,
+        "type": "HEMISPHERE",
+        "scale": 0.2158
+      },
+      {
+        "u": -0.6285,
+        "theta_deg": 274.04,
+        "type": "CONE",
+        "scale": 0.1559
+      },
+      {
+        "u": 0.2723,
+        "theta_deg": 330.79,
+        "type": "CYLINDER",
+        "scale": 0.2149
+      },
+      {
+        "u": 0.3799,
+        "theta_deg": 30.58,
+        "type": "CONE",
+        "scale": 0.1697
+      },
+      {
+        "u": 0.2187,
+        "theta_deg": 350.73,
+        "type": "HEMISPHERE",
+        "scale": 0.1925
+      },
+      {
+        "u": -0.182,
+        "theta_deg": 165.06,
+        "type": "CYLINDER",
+        "scale": 0.2196
+      },
+      {
+        "u": -0.2378,
+        "theta_deg": 15.04,
+        "type": "HEMISPHERE",
+        "scale": 0.2158
+      }
+    ]
+  },
+  "exp1_barrel_sym_03": {
+    "body_type": "barrel",
+    "aspect_ratio": 2.6505,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "symmetric",
+    "yoked_pair_id": "barrel_03",
+    "feature_positions": [
+      {
+        "u": -0.3415,
+        "theta_deg": 43.68,
+        "type": "CYLINDER",
+        "scale": 0.1961
+      },
+      {
+        "u": -0.3415,
+        "theta_deg": 316.32,
+        "type": "CYLINDER",
+        "scale": 0.1961
+      },
+      {
+        "u": -0.6375,
+        "theta_deg": 48.13,
+        "type": "CONE",
+        "scale": 0.1851
+      },
+      {
+        "u": -0.6375,
+        "theta_deg": 311.87,
+        "type": "CONE",
+        "scale": 0.1851
+      },
+      {
+        "u": 0.0981,
+        "theta_deg": 34.49,
+        "type": "CYLINDER",
+        "scale": 0.1555
+      },
+      {
+        "u": 0.0981,
+        "theta_deg": 325.51,
+        "type": "CYLINDER",
+        "scale": 0.1555
+      },
+      {
+        "u": -0.0063,
+        "theta_deg": 47.58,
+        "type": "CYLINDER",
+        "scale": 0.2058
+      },
+      {
+        "u": -0.0063,
+        "theta_deg": 312.42,
+        "type": "CYLINDER",
+        "scale": 0.2058
+      },
+      {
+        "u": 0.5001,
+        "theta_deg": 89.78,
+        "type": "CONE",
+        "scale": 0.161
+      },
+      {
+        "u": 0.5001,
+        "theta_deg": 270.22,
+        "type": "CONE",
+        "scale": 0.161
+      },
+      {
+        "u": 0.3917,
+        "theta_deg": 73.12,
+        "type": "HEMISPHERE",
+        "scale": 0.2181
+      },
+      {
+        "u": 0.3917,
+        "theta_deg": 286.88,
+        "type": "HEMISPHERE",
+        "scale": 0.2181
+      }
+    ]
+  },
+  "exp1_barrel_asym_03": {
+    "body_type": "barrel",
+    "aspect_ratio": 2.6505,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "asymmetric",
+    "yoked_pair_id": "barrel_03",
+    "feature_positions": [
+      {
+        "u": 0.0809,
+        "theta_deg": 111.7,
+        "type": "CYLINDER",
+        "scale": 0.1961
+      },
+      {
+        "u": -0.5345,
+        "theta_deg": 38.42,
+        "type": "CONE",
+        "scale": 0.1851
+      },
+      {
+        "u": 0.4143,
+        "theta_deg": 123.86,
+        "type": "CYLINDER",
+        "scale": 0.1555
+      },
+      {
+        "u": -0.3271,
+        "theta_deg": 25.93,
+        "type": "CYLINDER",
+        "scale": 0.2058
+      },
+      {
+        "u": 0.6292,
+        "theta_deg": 272.43,
+        "type": "CONE",
+        "scale": 0.161
+      },
+      {
+        "u": -0.0502,
+        "theta_deg": 234.94,
+        "type": "HEMISPHERE",
+        "scale": 0.2181
+      },
+      {
+        "u": -0.2214,
+        "theta_deg": 47.54,
+        "type": "CYLINDER",
+        "scale": 0.1961
+      },
+      {
+        "u": -0.6697,
+        "theta_deg": 109.82,
+        "type": "CONE",
+        "scale": 0.1851
+      },
+      {
+        "u": 0.4946,
+        "theta_deg": 240.33,
+        "type": "CYLINDER",
+        "scale": 0.1555
+      },
+      {
+        "u": 0.2574,
+        "theta_deg": 41.23,
+        "type": "CYLINDER",
+        "scale": 0.2058
+      },
+      {
+        "u": 0.1322,
+        "theta_deg": 340.67,
+        "type": "CONE",
+        "scale": 0.161
+      },
+      {
+        "u": -0.4578,
+        "theta_deg": 230.81,
+        "type": "HEMISPHERE",
+        "scale": 0.2181
+      }
+    ]
+  },
+  "exp1_barrel_sym_04": {
+    "body_type": "barrel",
+    "aspect_ratio": 2.5824,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "symmetric",
+    "yoked_pair_id": "barrel_04",
+    "feature_positions": [
+      {
+        "u": 0.5317,
+        "theta_deg": 88.87,
+        "type": "CONE",
+        "scale": 0.1633
+      },
+      {
+        "u": 0.5317,
+        "theta_deg": 271.13,
+        "type": "CONE",
+        "scale": 0.1633
+      },
+      {
+        "u": 0.3705,
+        "theta_deg": 111.98,
+        "type": "CONE",
+        "scale": 0.1875
+      },
+      {
+        "u": 0.3705,
+        "theta_deg": 248.02,
+        "type": "CONE",
+        "scale": 0.1875
+      },
+      {
+        "u": -0.6984,
+        "theta_deg": 143.5,
+        "type": "HEMISPHERE",
+        "scale": 0.2188
+      },
+      {
+        "u": -0.6984,
+        "theta_deg": 216.5,
+        "type": "HEMISPHERE",
+        "scale": 0.2188
+      },
+      {
+        "u": -0.0671,
+        "theta_deg": 143.51,
+        "type": "CYLINDER",
+        "scale": 0.1555
+      },
+      {
+        "u": -0.0671,
+        "theta_deg": 216.49,
+        "type": "CYLINDER",
+        "scale": 0.1555
+      },
+      {
+        "u": -0.3756,
+        "theta_deg": 116.17,
+        "type": "HEMISPHERE",
+        "scale": 0.2146
+      },
+      {
+        "u": -0.3756,
+        "theta_deg": 243.83,
+        "type": "HEMISPHERE",
+        "scale": 0.2146
+      },
+      {
+        "u": 0.001,
+        "theta_deg": 100.88,
+        "type": "OCTAHEDRON",
+        "scale": 0.1882
+      },
+      {
+        "u": 0.001,
+        "theta_deg": 259.12,
+        "type": "OCTAHEDRON",
+        "scale": 0.1882
+      }
+    ]
+  },
+  "exp1_barrel_asym_04": {
+    "body_type": "barrel",
+    "aspect_ratio": 2.5824,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "asymmetric",
+    "yoked_pair_id": "barrel_04",
+    "feature_positions": [
+      {
+        "u": 0.1254,
+        "theta_deg": 23.06,
+        "type": "CONE",
+        "scale": 0.1633
+      },
+      {
+        "u": 0.5714,
+        "theta_deg": 302.34,
+        "type": "CONE",
+        "scale": 0.1875
+      },
+      {
+        "u": -0.2876,
+        "theta_deg": 4.49,
+        "type": "HEMISPHERE",
+        "scale": 0.2188
+      },
+      {
+        "u": -0.6894,
+        "theta_deg": 201.22,
+        "type": "CYLINDER",
+        "scale": 0.1555
+      },
+      {
+        "u": -0.1721,
+        "theta_deg": 143.1,
+        "type": "HEMISPHERE",
+        "scale": 0.2146
+      },
+      {
+        "u": 0.2656,
+        "theta_deg": 239.26,
+        "type": "OCTAHEDRON",
+        "scale": 0.1882
+      },
+      {
+        "u": 0.0712,
+        "theta_deg": 297.8,
+        "type": "CONE",
+        "scale": 0.1633
+      },
+      {
+        "u": -0.3934,
+        "theta_deg": 278.31,
+        "type": "CONE",
+        "scale": 0.1875
+      },
+      {
+        "u": -0.006,
+        "theta_deg": 318.52,
+        "type": "HEMISPHERE",
+        "scale": 0.2188
+      },
+      {
+        "u": 0.4056,
+        "theta_deg": 284.12,
+        "type": "CYLINDER",
+        "scale": 0.1555
+      },
+      {
+        "u": 0.6915,
+        "theta_deg": 223.55,
+        "type": "HEMISPHERE",
+        "scale": 0.2146
+      },
+      {
+        "u": -0.4756,
+        "theta_deg": 325.69,
+        "type": "OCTAHEDRON",
+        "scale": 0.1882
+      }
+    ]
+  },
+  "exp1_spindle_sym_01": {
+    "body_type": "spindle",
+    "aspect_ratio": 2.604,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "symmetric",
+    "yoked_pair_id": "spindle_01",
+    "feature_positions": [
+      {
+        "u": -0.0498,
+        "theta_deg": 141.37,
+        "type": "CONE",
+        "scale": 0.1711
+      },
+      {
+        "u": -0.0498,
+        "theta_deg": 218.63,
+        "type": "CONE",
+        "scale": 0.1711
+      },
+      {
+        "u": -0.5979,
+        "theta_deg": 139.96,
+        "type": "OCTAHEDRON",
+        "scale": 0.2092
+      },
+      {
+        "u": -0.5979,
+        "theta_deg": 220.04,
+        "type": "OCTAHEDRON",
+        "scale": 0.2092
+      },
+      {
+        "u": -0.3236,
+        "theta_deg": 104.57,
+        "type": "OCTAHEDRON",
+        "scale": 0.2134
+      },
+      {
+        "u": -0.3236,
+        "theta_deg": 255.43,
+        "type": "OCTAHEDRON",
+        "scale": 0.2134
+      },
+      {
+        "u": 0.4735,
+        "theta_deg": 90.84,
+        "type": "HEMISPHERE",
+        "scale": 0.1669
+      },
+      {
+        "u": 0.4735,
+        "theta_deg": 269.16,
+        "type": "HEMISPHERE",
+        "scale": 0.1669
+      },
+      {
+        "u": 0.0025,
+        "theta_deg": 77.06,
+        "type": "CYLINDER",
+        "scale": 0.1826
+      },
+      {
+        "u": 0.0025,
+        "theta_deg": 282.94,
+        "type": "CYLINDER",
+        "scale": 0.1826
+      },
+      {
+        "u": 0.3049,
+        "theta_deg": 135.74,
+        "type": "CYLINDER",
+        "scale": 0.1885
+      },
+      {
+        "u": 0.3049,
+        "theta_deg": 224.26,
+        "type": "CYLINDER",
+        "scale": 0.1885
+      }
+    ]
+  },
+  "exp1_spindle_asym_01": {
+    "body_type": "spindle",
+    "aspect_ratio": 2.604,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "asymmetric",
+    "yoked_pair_id": "spindle_01",
+    "feature_positions": [
+      {
+        "u": 0.4744,
+        "theta_deg": 118.28,
+        "type": "CONE",
+        "scale": 0.1711
+      },
+      {
+        "u": -0.6986,
+        "theta_deg": 291.66,
+        "type": "OCTAHEDRON",
+        "scale": 0.2092
+      },
+      {
+        "u": -0.1478,
+        "theta_deg": 212.9,
+        "type": "OCTAHEDRON",
+        "scale": 0.2134
+      },
+      {
+        "u": 0.0093,
+        "theta_deg": 198.23,
+        "type": "HEMISPHERE",
+        "scale": 0.1669
+      },
+      {
+        "u": -0.3365,
+        "theta_deg": 323.87,
+        "type": "CYLINDER",
+        "scale": 0.1826
+      },
+      {
+        "u": 0.6998,
+        "theta_deg": 243.15,
+        "type": "CYLINDER",
+        "scale": 0.1885
+      },
+      {
+        "u": -0.4315,
+        "theta_deg": 166.58,
+        "type": "CONE",
+        "scale": 0.1711
+      },
+      {
+        "u": 0.2543,
+        "theta_deg": 201.32,
+        "type": "OCTAHEDRON",
+        "scale": 0.2092
+      },
+      {
+        "u": 0.1444,
+        "theta_deg": 52.11,
+        "type": "OCTAHEDRON",
+        "scale": 0.2134
+      },
+      {
+        "u": -0.0433,
+        "theta_deg": 38.59,
+        "type": "HEMISPHERE",
+        "scale": 0.1669
+      },
+      {
+        "u": -0.575,
+        "theta_deg": 196.33,
+        "type": "CYLINDER",
+        "scale": 0.1826
+      },
+      {
+        "u": 0.3554,
+        "theta_deg": 65.26,
+        "type": "CYLINDER",
+        "scale": 0.1885
+      }
+    ]
+  },
+  "exp1_spindle_sym_02": {
+    "body_type": "spindle",
+    "aspect_ratio": 2.6734,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "symmetric",
+    "yoked_pair_id": "spindle_02",
+    "feature_positions": [
+      {
+        "u": -0.4602,
+        "theta_deg": 141.64,
+        "type": "HEMISPHERE",
+        "scale": 0.2191
+      },
+      {
+        "u": -0.4602,
+        "theta_deg": 218.36,
+        "type": "HEMISPHERE",
+        "scale": 0.2191
+      },
+      {
+        "u": -0.697,
+        "theta_deg": 34.06,
+        "type": "CONE",
+        "scale": 0.1635
+      },
+      {
+        "u": -0.697,
+        "theta_deg": 325.94,
+        "type": "CONE",
+        "scale": 0.1635
+      },
+      {
+        "u": 0.2821,
+        "theta_deg": 135.85,
+        "type": "CONE",
+        "scale": 0.2193
+      },
+      {
+        "u": 0.2821,
+        "theta_deg": 224.15,
+        "type": "CONE",
+        "scale": 0.2193
+      },
+      {
+        "u": 0.0543,
+        "theta_deg": 64.49,
+        "type": "CONE",
+        "scale": 0.1622
+      },
+      {
+        "u": 0.0543,
+        "theta_deg": 295.51,
+        "type": "CONE",
+        "scale": 0.1622
+      },
+      {
+        "u": 0.6851,
+        "theta_deg": 128.14,
+        "type": "OCTAHEDRON",
+        "scale": 0.1971
+      },
+      {
+        "u": 0.6851,
+        "theta_deg": 231.86,
+        "type": "OCTAHEDRON",
+        "scale": 0.1971
+      },
+      {
+        "u": -0.1927,
+        "theta_deg": 145.75,
+        "type": "CYLINDER",
+        "scale": 0.198
+      },
+      {
+        "u": -0.1927,
+        "theta_deg": 214.25,
+        "type": "CYLINDER",
+        "scale": 0.198
+      }
+    ]
+  },
+  "exp1_spindle_asym_02": {
+    "body_type": "spindle",
+    "aspect_ratio": 2.6734,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "asymmetric",
+    "yoked_pair_id": "spindle_02",
+    "feature_positions": [
+      {
+        "u": -0.0364,
+        "theta_deg": 325.99,
+        "type": "HEMISPHERE",
+        "scale": 0.2191
+      },
+      {
+        "u": -0.5178,
+        "theta_deg": 62.42,
+        "type": "CONE",
+        "scale": 0.1635
+      },
+      {
+        "u": 0.1604,
+        "theta_deg": 162.3,
+        "type": "CONE",
+        "scale": 0.2193
+      },
+      {
+        "u": 0.6568,
+        "theta_deg": 71.44,
+        "type": "CONE",
+        "scale": 0.1622
+      },
+      {
+        "u": -0.4488,
+        "theta_deg": 299.96,
+        "type": "OCTAHEDRON",
+        "scale": 0.1971
+      },
+      {
+        "u": -0.2192,
+        "theta_deg": 317.85,
+        "type": "CYLINDER",
+        "scale": 0.198
+      },
+      {
+        "u": 0.4117,
+        "theta_deg": 316.03,
+        "type": "HEMISPHERE",
+        "scale": 0.2191
+      },
+      {
+        "u": -0.2365,
+        "theta_deg": 228.06,
+        "type": "CONE",
+        "scale": 0.1635
+      },
+      {
+        "u": 0.2583,
+        "theta_deg": 206.5,
+        "type": "CONE",
+        "scale": 0.2193
+      },
+      {
+        "u": 0.0377,
+        "theta_deg": 353.77,
+        "type": "CONE",
+        "scale": 0.1622
+      },
+      {
+        "u": -0.6682,
+        "theta_deg": 203.59,
+        "type": "OCTAHEDRON",
+        "scale": 0.1971
+      },
+      {
+        "u": 0.4881,
+        "theta_deg": 298.14,
+        "type": "CYLINDER",
+        "scale": 0.198
+      }
+    ]
+  },
+  "exp1_spindle_sym_03": {
+    "body_type": "spindle",
+    "aspect_ratio": 2.6393,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "symmetric",
+    "yoked_pair_id": "spindle_03",
+    "feature_positions": [
+      {
+        "u": 0.1336,
+        "theta_deg": 141.08,
+        "type": "CYLINDER",
+        "scale": 0.174
+      },
+      {
+        "u": 0.1336,
+        "theta_deg": 218.92,
+        "type": "CYLINDER",
+        "scale": 0.174
+      },
+      {
+        "u": 0.3127,
+        "theta_deg": 33.32,
+        "type": "CYLINDER",
+        "scale": 0.1512
+      },
+      {
+        "u": 0.3127,
+        "theta_deg": 326.68,
+        "type": "CYLINDER",
+        "scale": 0.1512
+      },
+      {
+        "u": 0.4713,
+        "theta_deg": 76.12,
+        "type": "OCTAHEDRON",
+        "scale": 0.1836
+      },
+      {
+        "u": 0.4713,
+        "theta_deg": 283.88,
+        "type": "OCTAHEDRON",
+        "scale": 0.1836
+      },
+      {
+        "u": -0.0287,
+        "theta_deg": 45.65,
+        "type": "CONE",
+        "scale": 0.1597
+      },
+      {
+        "u": -0.0287,
+        "theta_deg": 314.35,
+        "type": "CONE",
+        "scale": 0.1597
+      },
+      {
+        "u": -0.5572,
+        "theta_deg": 34.52,
+        "type": "OCTAHEDRON",
+        "scale": 0.2018
+      },
+      {
+        "u": -0.5572,
+        "theta_deg": 325.48,
+        "type": "OCTAHEDRON",
+        "scale": 0.2018
+      },
+      {
+        "u": -0.3547,
+        "theta_deg": 66.33,
+        "type": "CONE",
+        "scale": 0.2191
+      },
+      {
+        "u": -0.3547,
+        "theta_deg": 293.67,
+        "type": "CONE",
+        "scale": 0.2191
+      }
+    ]
+  },
+  "exp1_spindle_asym_03": {
+    "body_type": "spindle",
+    "aspect_ratio": 2.6393,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "asymmetric",
+    "yoked_pair_id": "spindle_03",
+    "feature_positions": [
+      {
+        "u": 0.5909,
+        "theta_deg": 69.03,
+        "type": "CYLINDER",
+        "scale": 0.174
+      },
+      {
+        "u": 0.1629,
+        "theta_deg": 317.58,
+        "type": "CYLINDER",
+        "scale": 0.1512
+      },
+      {
+        "u": -0.0164,
+        "theta_deg": 71.27,
+        "type": "OCTAHEDRON",
+        "scale": 0.1836
+      },
+      {
+        "u": -0.6108,
+        "theta_deg": 154.51,
+        "type": "CONE",
+        "scale": 0.1597
+      },
+      {
+        "u": -0.4266,
+        "theta_deg": 80.45,
+        "type": "OCTAHEDRON",
+        "scale": 0.2018
+      },
+      {
+        "u": -0.2648,
+        "theta_deg": 59.45,
+        "type": "CONE",
+        "scale": 0.2191
+      },
+      {
+        "u": 0.4876,
+        "theta_deg": 221.13,
+        "type": "CYLINDER",
+        "scale": 0.174
+      },
+      {
+        "u": -0.5074,
+        "theta_deg": 52.23,
+        "type": "CYLINDER",
+        "scale": 0.1512
+      },
+      {
+        "u": 0.3771,
+        "theta_deg": 282.11,
+        "type": "OCTAHEDRON",
+        "scale": 0.1836
+      },
+      {
+        "u": 0.0124,
+        "theta_deg": 230.3,
+        "type": "CONE",
+        "scale": 0.1597
+      },
+      {
+        "u": -0.2078,
+        "theta_deg": 94.28,
+        "type": "OCTAHEDRON",
+        "scale": 0.2018
+      },
+      {
+        "u": 0.3003,
+        "theta_deg": 97.86,
+        "type": "CONE",
+        "scale": 0.2191
+      }
+    ]
+  },
+  "exp1_spindle_sym_04": {
+    "body_type": "spindle",
+    "aspect_ratio": 2.7867,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "symmetric",
+    "yoked_pair_id": "spindle_04",
+    "feature_positions": [
+      {
+        "u": -0.5168,
+        "theta_deg": 71.22,
+        "type": "CYLINDER",
+        "scale": 0.1694
+      },
+      {
+        "u": -0.5168,
+        "theta_deg": 288.78,
+        "type": "CYLINDER",
+        "scale": 0.1694
+      },
+      {
+        "u": 0.0107,
+        "theta_deg": 135.43,
+        "type": "CONE",
+        "scale": 0.2123
+      },
+      {
+        "u": 0.0107,
+        "theta_deg": 224.57,
+        "type": "CONE",
+        "scale": 0.2123
+      },
+      {
+        "u": 0.557,
+        "theta_deg": 140.69,
+        "type": "CONE",
+        "scale": 0.1921
+      },
+      {
+        "u": 0.557,
+        "theta_deg": 219.31,
+        "type": "CONE",
+        "scale": 0.1921
+      },
+      {
+        "u": -0.0452,
+        "theta_deg": 97.21,
+        "type": "CONE",
+        "scale": 0.2018
+      },
+      {
+        "u": -0.0452,
+        "theta_deg": 262.79,
+        "type": "CONE",
+        "scale": 0.2018
+      },
+      {
+        "u": -0.2412,
+        "theta_deg": 85.03,
+        "type": "CONE",
+        "scale": 0.1759
+      },
+      {
+        "u": -0.2412,
+        "theta_deg": 274.97,
+        "type": "CONE",
+        "scale": 0.1759
+      },
+      {
+        "u": 0.4175,
+        "theta_deg": 92.83,
+        "type": "CYLINDER",
+        "scale": 0.2176
+      },
+      {
+        "u": 0.4175,
+        "theta_deg": 267.17,
+        "type": "CYLINDER",
+        "scale": 0.2176
+      }
+    ]
+  },
+  "exp1_spindle_asym_04": {
+    "body_type": "spindle",
+    "aspect_ratio": 2.7867,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "asymmetric",
+    "yoked_pair_id": "spindle_04",
+    "feature_positions": [
+      {
+        "u": 0.4358,
+        "theta_deg": 35.25,
+        "type": "CYLINDER",
+        "scale": 0.1694
+      },
+      {
+        "u": -0.129,
+        "theta_deg": 297.67,
+        "type": "CONE",
+        "scale": 0.2123
+      },
+      {
+        "u": -0.1037,
+        "theta_deg": 332.13,
+        "type": "CONE",
+        "scale": 0.1921
+      },
+      {
+        "u": 0.2051,
+        "theta_deg": 211.46,
+        "type": "CONE",
+        "scale": 0.2018
+      },
+      {
+        "u": -0.3455,
+        "theta_deg": 308.08,
+        "type": "CONE",
+        "scale": 0.1759
+      },
+      {
+        "u": 0.0017,
+        "theta_deg": 206.13,
+        "type": "CYLINDER",
+        "scale": 0.2176
+      },
+      {
+        "u": -0.5372,
+        "theta_deg": 41.36,
+        "type": "CYLINDER",
+        "scale": 0.1694
+      },
+      {
+        "u": 0.5116,
+        "theta_deg": 321.49,
+        "type": "CONE",
+        "scale": 0.2123
+      },
+      {
+        "u": -0.3603,
+        "theta_deg": 36.39,
+        "type": "CONE",
+        "scale": 0.1921
+      },
+      {
+        "u": 0.3196,
+        "theta_deg": 335.01,
+        "type": "CONE",
+        "scale": 0.2018
+      },
+      {
+        "u": 0.6313,
+        "theta_deg": 327.24,
+        "type": "CONE",
+        "scale": 0.1759
+      },
+      {
+        "u": -0.5869,
+        "theta_deg": 264.26,
+        "type": "CYLINDER",
+        "scale": 0.2176
+      }
+    ]
+  },
+  "exp1_ovoid_cylinder_sym_01": {
+    "body_type": "ovoid_cylinder",
+    "aspect_ratio": 2.6434,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "symmetric",
+    "yoked_pair_id": "ovoid_cylinder_01",
+    "feature_positions": [
+      {
+        "u": 0.3497,
+        "theta_deg": 39.27,
+        "type": "HEMISPHERE",
+        "scale": 0.1558
+      },
+      {
+        "u": 0.3497,
+        "theta_deg": 320.73,
+        "type": "HEMISPHERE",
+        "scale": 0.1558
+      },
+      {
+        "u": -0.0118,
+        "theta_deg": 75.36,
+        "type": "CONE",
+        "scale": 0.1541
+      },
+      {
+        "u": -0.0118,
+        "theta_deg": 284.64,
+        "type": "CONE",
+        "scale": 0.1541
+      },
+      {
+        "u": -0.5119,
+        "theta_deg": 31.54,
+        "type": "HEMISPHERE",
+        "scale": 0.2181
+      },
+      {
+        "u": -0.5119,
+        "theta_deg": 328.46,
+        "type": "HEMISPHERE",
+        "scale": 0.2181
+      },
+      {
+        "u": 0.0457,
+        "theta_deg": 136.42,
+        "type": "CYLINDER",
+        "scale": 0.1553
+      },
+      {
+        "u": 0.0457,
+        "theta_deg": 223.58,
+        "type": "CYLINDER",
+        "scale": 0.1553
+      },
+      {
+        "u": -0.376,
+        "theta_deg": 90.44,
+        "type": "HEMISPHERE",
+        "scale": 0.2124
+      },
+      {
+        "u": -0.376,
+        "theta_deg": 269.56,
+        "type": "HEMISPHERE",
+        "scale": 0.2124
+      },
+      {
+        "u": 0.6527,
+        "theta_deg": 68.57,
+        "type": "HEMISPHERE",
+        "scale": 0.1929
+      },
+      {
+        "u": 0.6527,
+        "theta_deg": 291.43,
+        "type": "HEMISPHERE",
+        "scale": 0.1929
+      }
+    ]
+  },
+  "exp1_ovoid_cylinder_asym_01": {
+    "body_type": "ovoid_cylinder",
+    "aspect_ratio": 2.6434,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "asymmetric",
+    "yoked_pair_id": "ovoid_cylinder_01",
+    "feature_positions": [
+      {
+        "u": 0.5913,
+        "theta_deg": 195.23,
+        "type": "HEMISPHERE",
+        "scale": 0.1558
+      },
+      {
+        "u": 0.5203,
+        "theta_deg": 268.65,
+        "type": "CONE",
+        "scale": 0.1541
+      },
+      {
+        "u": -0.188,
+        "theta_deg": 59.81,
+        "type": "HEMISPHERE",
+        "scale": 0.2181
+      },
+      {
+        "u": -0.6899,
+        "theta_deg": 12.38,
+        "type": "CYLINDER",
+        "scale": 0.1553
+      },
+      {
+        "u": 0.3323,
+        "theta_deg": 220.36,
+        "type": "HEMISPHERE",
+        "scale": 0.2124
+      },
+      {
+        "u": -0.3716,
+        "theta_deg": 169.38,
+        "type": "HEMISPHERE",
+        "scale": 0.1929
+      },
+      {
+        "u": -0.0003,
+        "theta_deg": 215.99,
+        "type": "HEMISPHERE",
+        "scale": 0.1558
+      },
+      {
+        "u": -0.2607,
+        "theta_deg": 327.87,
+        "type": "CONE",
+        "scale": 0.1541
+      },
+      {
+        "u": -0.4879,
+        "theta_deg": 259.35,
+        "type": "HEMISPHERE",
+        "scale": 0.2181
+      },
+      {
+        "u": 0.1218,
+        "theta_deg": 187.74,
+        "type": "CYLINDER",
+        "scale": 0.1553
+      },
+      {
+        "u": 0.0809,
+        "theta_deg": 334.12,
+        "type": "HEMISPHERE",
+        "scale": 0.2124
+      },
+      {
+        "u": 0.4038,
+        "theta_deg": 356.63,
+        "type": "HEMISPHERE",
+        "scale": 0.1929
+      }
+    ]
+  },
+  "exp1_ovoid_cylinder_sym_02": {
+    "body_type": "ovoid_cylinder",
+    "aspect_ratio": 2.7068,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "symmetric",
+    "yoked_pair_id": "ovoid_cylinder_02",
+    "feature_positions": [
+      {
+        "u": 0.2926,
+        "theta_deg": 74.07,
+        "type": "CYLINDER",
+        "scale": 0.1807
+      },
+      {
+        "u": 0.2926,
+        "theta_deg": 285.93,
+        "type": "CYLINDER",
+        "scale": 0.1807
+      },
+      {
+        "u": -0.3832,
+        "theta_deg": 96.79,
+        "type": "CONE",
+        "scale": 0.1719
+      },
+      {
+        "u": -0.3832,
+        "theta_deg": 263.21,
+        "type": "CONE",
+        "scale": 0.1719
+      },
+      {
+        "u": -0.1409,
+        "theta_deg": 60.19,
+        "type": "CONE",
+        "scale": 0.1927
+      },
+      {
+        "u": -0.1409,
+        "theta_deg": 299.81,
+        "type": "CONE",
+        "scale": 0.1927
+      },
+      {
+        "u": 0.5996,
+        "theta_deg": 48.42,
+        "type": "OCTAHEDRON",
+        "scale": 0.2082
+      },
+      {
+        "u": 0.5996,
+        "theta_deg": 311.58,
+        "type": "OCTAHEDRON",
+        "scale": 0.2082
+      },
+      {
+        "u": -0.6342,
+        "theta_deg": 122.75,
+        "type": "CONE",
+        "scale": 0.2168
+      },
+      {
+        "u": -0.6342,
+        "theta_deg": 237.25,
+        "type": "CONE",
+        "scale": 0.2168
+      },
+      {
+        "u": 0.0125,
+        "theta_deg": 70.41,
+        "type": "CONE",
+        "scale": 0.1575
+      },
+      {
+        "u": 0.0125,
+        "theta_deg": 289.59,
+        "type": "CONE",
+        "scale": 0.1575
+      }
+    ]
+  },
+  "exp1_ovoid_cylinder_asym_02": {
+    "body_type": "ovoid_cylinder",
+    "aspect_ratio": 2.7068,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "asymmetric",
+    "yoked_pair_id": "ovoid_cylinder_02",
+    "feature_positions": [
+      {
+        "u": -0.0724,
+        "theta_deg": 257.28,
+        "type": "CYLINDER",
+        "scale": 0.1807
+      },
+      {
+        "u": -0.5989,
+        "theta_deg": 321.58,
+        "type": "CONE",
+        "scale": 0.1719
+      },
+      {
+        "u": -0.4714,
+        "theta_deg": 184.57,
+        "type": "CONE",
+        "scale": 0.1927
+      },
+      {
+        "u": 0.4267,
+        "theta_deg": 350.72,
+        "type": "OCTAHEDRON",
+        "scale": 0.2082
+      },
+      {
+        "u": 0.62,
+        "theta_deg": 18.01,
+        "type": "CONE",
+        "scale": 0.2168
+      },
+      {
+        "u": -0.1939,
+        "theta_deg": 218.31,
+        "type": "CONE",
+        "scale": 0.1575
+      },
+      {
+        "u": 0.0953,
+        "theta_deg": 45.27,
+        "type": "CYLINDER",
+        "scale": 0.1807
+      },
+      {
+        "u": -0.4398,
+        "theta_deg": 255.49,
+        "type": "CONE",
+        "scale": 0.1719
+      },
+      {
+        "u": 0.298,
+        "theta_deg": 113.15,
+        "type": "CONE",
+        "scale": 0.1927
+      },
+      {
+        "u": 0.138,
+        "theta_deg": 71.78,
+        "type": "OCTAHEDRON",
+        "scale": 0.2082
+      },
+      {
+        "u": -0.2564,
+        "theta_deg": 226.27,
+        "type": "CONE",
+        "scale": 0.2168
+      },
+      {
+        "u": 0.5044,
+        "theta_deg": 337.82,
+        "type": "CONE",
+        "scale": 0.1575
+      }
+    ]
+  },
+  "exp1_ovoid_cylinder_sym_03": {
+    "body_type": "ovoid_cylinder",
+    "aspect_ratio": 2.722,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "symmetric",
+    "yoked_pair_id": "ovoid_cylinder_03",
+    "feature_positions": [
+      {
+        "u": 0.6759,
+        "theta_deg": 91.79,
+        "type": "CONE",
+        "scale": 0.16
+      },
+      {
+        "u": 0.6759,
+        "theta_deg": 268.21,
+        "type": "CONE",
+        "scale": 0.16
+      },
+      {
+        "u": -0.5352,
+        "theta_deg": 85.33,
+        "type": "CONE",
+        "scale": 0.1579
+      },
+      {
+        "u": -0.5352,
+        "theta_deg": 274.67,
+        "type": "CONE",
+        "scale": 0.1579
+      },
+      {
+        "u": -0.431,
+        "theta_deg": 37.0,
+        "type": "CYLINDER",
+        "scale": 0.1607
+      },
+      {
+        "u": -0.431,
+        "theta_deg": 323.0,
+        "type": "CYLINDER",
+        "scale": 0.1607
+      },
+      {
+        "u": -0.0273,
+        "theta_deg": 108.03,
+        "type": "CYLINDER",
+        "scale": 0.2036
+      },
+      {
+        "u": -0.0273,
+        "theta_deg": 251.97,
+        "type": "CYLINDER",
+        "scale": 0.2036
+      },
+      {
+        "u": 0.3934,
+        "theta_deg": 58.38,
+        "type": "CONE",
+        "scale": 0.1973
+      },
+      {
+        "u": 0.3934,
+        "theta_deg": 301.62,
+        "type": "CONE",
+        "scale": 0.1973
+      },
+      {
+        "u": 0.0558,
+        "theta_deg": 126.49,
+        "type": "CYLINDER",
+        "scale": 0.1552
+      },
+      {
+        "u": 0.0558,
+        "theta_deg": 233.51,
+        "type": "CYLINDER",
+        "scale": 0.1552
+      }
+    ]
+  },
+  "exp1_ovoid_cylinder_asym_03": {
+    "body_type": "ovoid_cylinder",
+    "aspect_ratio": 2.722,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "asymmetric",
+    "yoked_pair_id": "ovoid_cylinder_03",
+    "feature_positions": [
+      {
+        "u": -0.4581,
+        "theta_deg": 301.54,
+        "type": "CONE",
+        "scale": 0.16
+      },
+      {
+        "u": -0.1881,
+        "theta_deg": 35.79,
+        "type": "CONE",
+        "scale": 0.1579
+      },
+      {
+        "u": -0.0919,
+        "theta_deg": 37.34,
+        "type": "CYLINDER",
+        "scale": 0.1607
+      },
+      {
+        "u": 0.4879,
+        "theta_deg": 338.92,
+        "type": "CYLINDER",
+        "scale": 0.2036
+      },
+      {
+        "u": 0.2726,
+        "theta_deg": 62.85,
+        "type": "CONE",
+        "scale": 0.1973
+      },
+      {
+        "u": 0.4547,
+        "theta_deg": 314.44,
+        "type": "CYLINDER",
+        "scale": 0.1552
+      },
+      {
+        "u": -0.3086,
+        "theta_deg": 136.14,
+        "type": "CONE",
+        "scale": 0.16
+      },
+      {
+        "u": -0.5781,
+        "theta_deg": 61.45,
+        "type": "CONE",
+        "scale": 0.1579
+      },
+      {
+        "u": 0.0112,
+        "theta_deg": 113.82,
+        "type": "CYLINDER",
+        "scale": 0.1607
+      },
+      {
+        "u": -0.626,
+        "theta_deg": 102.32,
+        "type": "CYLINDER",
+        "scale": 0.2036
+      },
+      {
+        "u": 0.6007,
+        "theta_deg": 110.69,
+        "type": "CONE",
+        "scale": 0.1973
+      },
+      {
+        "u": 0.2038,
+        "theta_deg": 303.06,
+        "type": "CYLINDER",
+        "scale": 0.1552
+      }
+    ]
+  },
+  "exp1_ovoid_cylinder_sym_04": {
+    "body_type": "ovoid_cylinder",
+    "aspect_ratio": 2.7043,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "symmetric",
+    "yoked_pair_id": "ovoid_cylinder_04",
+    "feature_positions": [
+      {
+        "u": 0.6507,
+        "theta_deg": 47.32,
+        "type": "OCTAHEDRON",
+        "scale": 0.1587
+      },
+      {
+        "u": 0.6507,
+        "theta_deg": 312.68,
+        "type": "OCTAHEDRON",
+        "scale": 0.1587
+      },
+      {
+        "u": -0.1826,
+        "theta_deg": 93.74,
+        "type": "HEMISPHERE",
+        "scale": 0.1597
+      },
+      {
+        "u": -0.1826,
+        "theta_deg": 266.26,
+        "type": "HEMISPHERE",
+        "scale": 0.1597
+      },
+      {
+        "u": 0.4058,
+        "theta_deg": 60.01,
+        "type": "CYLINDER",
+        "scale": 0.1984
+      },
+      {
+        "u": 0.4058,
+        "theta_deg": 299.99,
+        "type": "CYLINDER",
+        "scale": 0.1984
+      },
+      {
+        "u": 0.1311,
+        "theta_deg": 111.58,
+        "type": "CONE",
+        "scale": 0.1593
+      },
+      {
+        "u": 0.1311,
+        "theta_deg": 248.42,
+        "type": "CONE",
+        "scale": 0.1593
+      },
+      {
+        "u": -0.2859,
+        "theta_deg": 129.37,
+        "type": "CYLINDER",
+        "scale": 0.1728
+      },
+      {
+        "u": -0.2859,
+        "theta_deg": 230.63,
+        "type": "CYLINDER",
+        "scale": 0.1728
+      },
+      {
+        "u": -0.6596,
+        "theta_deg": 139.65,
+        "type": "CYLINDER",
+        "scale": 0.2116
+      },
+      {
+        "u": -0.6596,
+        "theta_deg": 220.35,
+        "type": "CYLINDER",
+        "scale": 0.2116
+      }
+    ]
+  },
+  "exp1_ovoid_cylinder_asym_04": {
+    "body_type": "ovoid_cylinder",
+    "aspect_ratio": 2.7043,
+    "major_axis_vector": [
+      1,
+      0,
+      0
+    ],
+    "mirror_plane_normal": [
+      0,
+      1,
+      0
+    ],
+    "symmetry": "asymmetric",
+    "yoked_pair_id": "ovoid_cylinder_04",
+    "feature_positions": [
+      {
+        "u": 0.3818,
+        "theta_deg": 89.54,
+        "type": "OCTAHEDRON",
+        "scale": 0.1587
+      },
+      {
+        "u": -0.1954,
+        "theta_deg": 116.75,
+        "type": "HEMISPHERE",
+        "scale": 0.1597
+      },
+      {
+        "u": 0.2574,
+        "theta_deg": 348.8,
+        "type": "CYLINDER",
+        "scale": 0.1984
+      },
+      {
+        "u": -0.5244,
+        "theta_deg": 160.43,
+        "type": "CONE",
+        "scale": 0.1593
+      },
+      {
+        "u": -0.0646,
+        "theta_deg": 101.33,
+        "type": "CYLINDER",
+        "scale": 0.1728
+      },
+      {
+        "u": 0.4923,
+        "theta_deg": 30.63,
+        "type": "CYLINDER",
+        "scale": 0.2116
+      },
+      {
+        "u": -0.653,
+        "theta_deg": 208.55,
+        "type": "OCTAHEDRON",
+        "scale": 0.1587
+      },
+      {
+        "u": -0.3766,
+        "theta_deg": 183.39,
+        "type": "HEMISPHERE",
+        "scale": 0.1597
+      },
+      {
+        "u": 0.2001,
+        "theta_deg": 113.25,
+        "type": "CYLINDER",
+        "scale": 0.1984
+      },
+      {
+        "u": 0.6426,
+        "theta_deg": 326.21,
+        "type": "CONE",
+        "scale": 0.1593
+      },
+      {
+        "u": -0.305,
+        "theta_deg": 201.81,
+        "type": "CYLINDER",
+        "scale": 0.1728
+      },
+      {
+        "u": 0.0755,
+        "theta_deg": 146.85,
+        "type": "CYLINDER",
+        "scale": 0.2116
+      }
+    ]
+  }
+}

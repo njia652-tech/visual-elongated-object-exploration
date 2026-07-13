@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(\"/c/Program Files/Blender Foundation/Blender 5.1/blender.exe\" --background --python \"C:\\\\Users\\\\lenovo\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-lenovo-Documents-GitHub-visual-elongated-object-exploration\\\\83350795-ab71-4878-91c2-7935ce78673a\\\\scratchpad\\\\render_preview.py\")",
+      "Bash(\"/c/Program Files/Blender Foundation/Blender 5.1/blender.exe\" --background --python \"C:\\\\Users\\\\lenovo\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-lenovo-Documents-GitHub-visual-elongated-object-exploration\\\\83350795-ab71-4878-91c2-7935ce78673a\\\\scratchpad\\\\render_endon.py\")",
+      "Bash(node --check view-selection.js)",
+      "Bash(python -m py_compile server.py)",
+      "Bash(node pw_test_elevation.cjs)"
+    ]
+  }
+}

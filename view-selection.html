@@ -14,6 +14,8 @@
       cursor: pointer; border-radius: 6px; margin: 6px;
     }
     button:hover { background: #666; }
+    button:disabled { background: #333; color: #888; cursor: not-allowed; }
+    button:disabled:hover { background: #333; }
 
     /* ── Full-screen overlay modules ─────────────────────────────── */
     .module {
@@ -25,7 +27,7 @@
 
     /* ── Persistent trial overlays (transparent bg) ──────────────── */
     #instruction-banner {
-      position: fixed; top: 0; left: 0; right: 0;
+      position: fixed; top: 58px; left: 0; right: 0;
       background: rgba(0,0,0,0.60); color: #eee;
       text-align: center; padding: 10px 40px;
       font-size: 15px; z-index: 5; display: none;
@@ -35,9 +37,9 @@
     #timer-display {
       position: fixed; top: 14px; right: 14px;
       background: rgba(255,255,255,0.88); color: #111;
-      font-size: 22px; font-family: monospace;
-      padding: 6px 16px; border-radius: 6px; z-index: 15;
-      display: none; min-width: 60px; text-align: center;
+      font-size: 15px; font-family: sans-serif;
+      padding: 8px 16px; border-radius: 6px; z-index: 15;
+      display: none; max-width: 220px; text-align: center;
     }
 
     #trial-counter {
@@ -53,9 +55,9 @@
       background: rgba(0,0,0,0.82); color: #fff;
       padding: 16px 32px; border-radius: 10px;
       font-size: 18px; text-align: center; z-index: 15;
-      display: none; white-space: nowrap;
+      display: none; max-width: 90vw;
     }
-    #confirm-prompt small { display: block; margin-top: 6px; color: #aaa; font-size: 13px; }
+    #rotation-progress { display: block; font-size: 15px; color: #ddd; }
 
     /* ── Welcome ─────────────────────────────────────────────────── */
     #module-welcome .card {
@@ -73,6 +75,7 @@
       border-radius: 6px; border: 1px solid #555;
       background: #222; color: #fff; margin-top: 0.5rem;
     }
+    #start-error { color: #ff8080; min-height: 1.4em; margin-top: 0.6rem; font-size: 0.95rem; }
 
     /* ── Instruction ─────────────────────────────────────────────── */
     #module-instruction .card { max-width: 740px; padding: 2.5rem; text-align: center; }
@@ -80,6 +83,15 @@
     #instruction-text {
       font-size: 1.15rem; line-height: 1.85;
       margin: 1.2rem 0 2rem; color: #ddd;
+    }
+
+    /* ── Rest ────────────────────────────────────────────────────── */
+    #module-rest .card { max-width: 600px; padding: 2.5rem; text-align: center; }
+    #module-rest h2 { font-size: 1.6rem; margin-bottom: 1rem; }
+    #module-rest p { font-size: 1.05rem; line-height: 1.7; color: #ddd; }
+    #rest-countdown {
+      font-size: 2.4rem; font-family: monospace; margin: 1.2rem 0;
+      color: #fff;
     }
 
     /* ── Probe ───────────────────────────────────────────────────── */
@@ -106,25 +118,26 @@
     <div class="card">
       <h1>View Selection Experiment</h1>
       <p>
-        You will explore <strong>18 three-dimensional objects</strong> twice, under two different tasks.<br>
+        You will explore <strong>32 three-dimensional objects across two tasks</strong> (64 trials total).<br>
         Use the arrow keys to rotate each object and confirm your chosen view.
       </p>
       <div class="controls-box">
         <strong>Controls</strong>
         <ul>
-          <li>← → &nbsp; Rotate left / right (unlimited)</li>
-          <li>↑ ↓ &nbsp; Tilt up / down (max ±30°)</li>
-          <li>Enter &nbsp; Confirm view (available after 50 s)</li>
+          <li>← → &nbsp; Rotate left / right around the object (wraps 0–360°)</li>
+          <li>↑ ↓ &nbsp; Tilt up / down around the object (max ±30°)</li>
+          <li>Enter &nbsp; Confirm view (unlocks once you've rotated enough to inspect the object)</li>
         </ul>
       </div>
       <input id="participant-id" placeholder="Participant ID (e.g., P001)" /><br>
       <button id="btn-start" style="margin-top:1.2rem; font-size:1.05rem; padding:12px 28px;">
         Start
       </button>
+      <div id="start-error"></div>
     </div>
   </div>
 
-  <!-- ── Instruction (shown at start of each block) ────────────── -->
+  <!-- ── Instruction (shown before every block, incl. block 1) ─── -->
   <div id="module-instruction" class="module">
     <div class="card">
       <h2 id="instruction-title"></h2>
@@ -135,17 +148,26 @@
     </div>
   </div>
 
+  <!-- ── Rest (only between block 1 and block 2) ─────────────────── -->
+  <div id="module-rest" class="module">
+    <div class="card">
+      <h2>Take a short break</h2>
+      <p>Please relax and step away from the task for a moment. The next task will begin shortly.</p>
+      <div id="rest-countdown">30</div>
+      <button id="btn-continue-rest" disabled>Continue</button>
+    </div>
+  </div>
+
   <!-- ── Probe ─────────────────────────────────────────────────── -->
   <div id="module-probe" class="module">
     <div class="card">
       <p>
-        Please briefly think back to the views you selected in the previous few trials.<br>
-        <strong>How clearly can you remember the views you chose?</strong>
+        <strong>How confident are you that the view you selected best fit what the task asked for?</strong>
       </p>
       <div>
-        <button class="probe-btn" data-answer="Not clearly">Not clearly</button>
-        <button class="probe-btn" data-answer="Somewhat clearly">Somewhat clearly</button>
-        <button class="probe-btn" data-answer="Clearly">Clearly</button>
+        <button class="probe-btn" data-answer="Not confident">Not confident</button>
+        <button class="probe-btn" data-answer="Somewhat confident">Somewhat confident</button>
+        <button class="probe-btn" data-answer="Confident">Confident</button>
       </div>
     </div>
   </div>
@@ -160,10 +182,10 @@
 
   <!-- ── Persistent trial overlays ─────────────────────────────── -->
   <div id="instruction-banner"></div>
-  <div id="timer-display">50</div>
+  <div id="timer-display"></div>
   <div id="trial-counter"></div>
   <div id="confirm-prompt">
-    Press Enter to confirm your chosen view, or leave the object in that view until the timer ends.
+    <span id="rotation-progress"></span>
   </div>
 
   <script type="module" src="./view-selection.js"></script>
