@@ -616,10 +616,10 @@ document.addEventListener('keydown', e => {
       break;
     case 'ArrowUp':
       // Elevation steps intentionally do NOT count toward the rotation criterion (plan §3.3 anti-gaming requirement)
-      if (elevation < ELEV_MAX) { elevation += STEP_DEG; upDownCount++; applyRotation(); }
+      if (elevation > -ELEV_MAX) { elevation -= STEP_DEG; upDownCount++; applyRotation(); }
       break;
     case 'ArrowDown':
-      if (elevation > -ELEV_MAX) { elevation -= STEP_DEG; upDownCount++; applyRotation(); }
+      if (elevation < ELEV_MAX) { elevation += STEP_DEG; upDownCount++; applyRotation(); }
       break;
   }
 });

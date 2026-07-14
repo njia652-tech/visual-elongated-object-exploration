@@ -426,8 +426,8 @@ function applyYawPitchStep(actionId) {
   model.rotation.order = 'YXZ';
 
   switch (actionId) {
-    case 0: model.rotation.x += step; break; // Up: pitch/elevation up
-    case 1: model.rotation.x -= step; break; // Down: pitch/elevation down
+    case 0: model.rotation.x -= step; break; // Up: pitch/elevation up
+    case 1: model.rotation.x += step; break; // Down: pitch/elevation down
     case 2: model.rotation.y -= step; break; // Left: yaw/azimuth left
     case 3: model.rotation.y += step; break; // Right: yaw/azimuth right
   }
