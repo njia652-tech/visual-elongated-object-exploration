@@ -21,6 +21,9 @@ wifi_*.csv
 *.zip
 *.rar
 
+# Per-participant experiment data (view-selection experiment; HANDOFF.md §2)
+data/
+
 #backstage data
 record.csv
 

@@ -143,10 +143,12 @@ VIEW_HEADERS = [
     'participant_id', 'experiment', 'task', 'object_id', 'body_type', 'symmetry',
     'exposure_index', 'trial_index', 'task_order',
     'start_azimuth', 'final_azimuth', 'final_elevation',
-    'axis_category', 'feature_category',
+    'axis_category', 'feature_category', 'symmetry_readable',
     'confirmation_latency', 'enter_pressed', 'timeout',
     'cumulative_rotation_steps', 'criterion_met',
     'up_down_count', 'left_right_count',
+    'dwell_ratio_end_on', 'dwell_ratio_side_on', 'dwell_ratio_oblique',
+    'dwell_ratio_symmetry_readable',
     'timestamp',
 ]
 PROBE_HEADERS = [

@@ -52,11 +52,25 @@ npm run dev           # 终端 B，应显示 Local: http://localhost:5180/
 
 ### 4. 落地前 / 落地后自查
 
-- [ ] 确认 `public/Objects/` 下 GLB 数量与本次实验设计一致（当前是新旧混杂状态，正式实验前需按最终定案的 exp1/exp2 命名清点，删除无关的旧 `setA_*/setB_*` 文件）
-- [ ] 确认 `public/Objects/objects_metadata.json` 与实际 GLB 一一对应
+- [x] `public/Objects/` 已清理干净：只剩 32 个 `exp1_*.glb`（4 body type × sym/asym × 4 exemplar）+ `objects_metadata.json`，无旧 `setA_*/setB_*` 残留（2026-07-14 复核）
+- [x] `objects_metadata.json` 已核对：32 条记录，`body_type` 计数 (4,4,4,4)，`symmetry` 计数 (16,16)，字段与 `view-selection.js` 读取逻辑（`body_type`/`symmetry`/`feature_positions[].theta_deg`）一致
 - [ ] 确认端口 5180 / 5006 在实验室电脑上没有被占用（防火墙可能弹窗，需要允许访问）
-- [ ] 跑一个完整的 test session（用 `PTEST` 前缀的 participant ID），检查 `data/exp1/` 下生成的 CSV 字段是否符合预期，再清空测试数据开始正式收集
-- [ ] `node_modules/` 是原样拷贝的情况下，如果实验室电脑与开发机不是同架构/系统（例如从 Windows 拷到别的系统），需要重新 `npm install`，不能直接用拷贝的二进制
+- [ ] `node_modules/` 是原样拷贝的情况下，如果实验室电脑与开发机不是同架构/系统，需要重新 `npm install`，不能直接用拷贝的二进制
+
+### 5. ⚠️ "代码已实现" ≠ "可以直接收正式数据" —— 出发前必须确认的几件事
+
+> 2026-07-14 复核代码后发现：`view-selection.js` / `server.py` / `blender_gen_objects.py` 已经把本文件 §2–§7 的设计**基本实现完整**（配置块、40 步旋转判据、50 s 上限、休息/指导语页、probe 调度、`block_events.csv` 四文件落盘等均已在代码里），并不是 HANDOFF.md（2026-07-10 版本，已过期）里说的"什么都没实现"。但下面这些不是"代码 gap"，是**收正式数据前必须人工确认**的事项，直接影响数据能不能用：
+
+- [ ] **§8.2 的 4 项 pilot 校准（P1–P4）还没做**，这些是"必须真人跑一遍肉眼判断"的项目，无法靠读代码替代，建议**在开发机上先完整走 1–2 个 pilot session（非 TEST_MODE，真实参数）**，确认没问题再出发去实验室（现场没网/不方便临时改代码重新导出 GLB）：
+  - P1 端面视角（az≈0°/180°）下 symmetric/asymmetric 是否肉眼可辨，附件是否因主体缩小而拥挤/重叠
+  - P2 40 步旋转判据（key repeat 已禁用，每步需一次独立按键）实际操作是否过于繁琐
+  - P3 主体棱角化（faceting）粗细是否落在"可辨认切面但仍像有机物体"的区间（太光滑/太多面体都有问题，见 §2.1 末段）
+  - P4 50 s 上限下 `timeout` 触发率、`confirmation_latency` 均值是否接近预期的 28–32 s
+- [ ] **`data/exp1/` 里现有一批 `PTEST*` 测试数据（约 32 个文件）**，出发前建议整体移出该目录（例如挪到 `data/_pretest_backup/` 或直接删除），避免和正式被试数据混在一起——后端的重复 ID 检查是精确字符串匹配，不会自动区分测试数据与正式数据
+- [x] `TEST_MODE`（`view-selection.js` 第 21 行）当前为 `false`，是正式收集所需状态——**到实验室后重新确认一次**，避免拷贝/合并过程中被意外改动
+- [ ] `server.py` 的 CORS 白名单写死为 `http://localhost:5180`（server.py 第 13 行）——**必须用这个确切地址访问**（不能是 `127.0.0.1:5180`，也不能改端口），否则前端请求会被 CORS 拦截、数据传不到后端却不一定有明显报错
+- [ ] `EXPERIMENT` 常量默认 `'exp1'`，且当前只有 Exp1 的 32 个刺激物已生成——**Exp2 的刺激物尚未定稿/生成**（见 §2.4），实验室阶段只能跑 `exp1`，不要传 `?exp=2`
+- [ ] 收集当天严格走 §7 "每场次检查单"：关闭休眠/屏保、电源常插、浏览器全屏/kiosk、当日结束整目录备份一次（建议额外拷一份到云端或第二个优盘，不要只留一份在实验室电脑本地）
 
 ---
 
@@ -82,7 +96,7 @@ npm run dev           # 终端 B，应显示 Local: http://localhost:5180/
 
 | | Exp1 | Exp2 |
 |---|------|------|
-| 主体 | Elongated（2.5:1 起） | Non-elongated（≤1.2:1）|
+| 主体 | Elongated（2.5:1 起） | Non-elongated（≤1.3:1）|
 | 操纵因素 | Symmetry：symmetric vs asymmetric（feature-carried） | 同左 |
 | Task | T1（Representation）+ T2（Memory-oriented），被试内，共享物体集 | 同左 |
 | 被试 | 独立样本 | 独立样本（与 Exp1 不重叠）|
@@ -140,11 +154,47 @@ exp1_barrel_…(4) / exp1_spindle_…(4) / exp1_ovoidcyl_…(4)
 | `yoked_pair_id` | 配对编号 |
 | `feature_positions` | 全部附件柱面坐标 (u, θ) 与类型 |
 
-### 2.4 Exp2 刺激（占位，Exp1 pilot 后定稿）
+### 2.4 Exp2 刺激 ⚠️ 待确认（草案，2026-07-15 新增——路线 A：沿用 revolution + 重新参数化 4 条 profile）
 
-- Aspect ratio ≤ 1.2 : 1，与 Exp1 之间留出清晰间隔带（1.2 ↔ 2.5）。
-- ⚠️ **已知问题，届时解决**：低 aspect ratio 下四种 revolution 主体趋同（1:1 capsule ≈ sphere，ovoid-cylinder 也趋近球体），body type 族需重新设计。
-- Symmetry 操纵、feature 逻辑、命名规则与 Exp1 完全一致（`exp2_…`）。
+- Aspect ratio ≤ 1.3 : 1（2026-07-15 由 ≤1.2 上调，见下方"预览结果定稿"——用户要求确保 elongation 存在即 aspect ratio > 1，抖动区间收紧到贴近上限反而不够安全，改为 1.1–1.3），与 Exp1 之间留出清晰间隔带（1.3 ↔ 2.5）。
+- Symmetry 操纵、feature 逻辑、命名规则与 Exp1 完全一致（`exp2_…`），复用同一套判读代码（`axis_category` / `feature_category` / `symmetry_readable`）、同一套 metadata schema、同一套柱面坐标 (u, θ) 放置逻辑。
+
+**核心设计思路——不换 body 族，只重新参数化同一套 profile 生成函数**：Exp1 的四种 body_type 之所以互相可区分，靠的不只是整体长宽比，而是两组独立于长宽比的局部曲率特征：
+
+| body_type | 极点（poles）处理 | 赤道（equator）处理 |
+|---|---|---|
+| capsule | 圆顶（半球端帽） | 直筒（无鼓起） |
+| barrel | 收窄的圆顶 | 强鼓起（中段明显宽于两极） |
+| spindle | 尖点（收成锐角） | 无鼓起，两端直接锥形收尖 |
+| ovoid_cylinder | 扁平/椭球端帽（比 capsule 更扁） | 弱鼓起 |
+
+这两组特征在 aspect ratio 压到 ≤1.3:1 时**不会消失**，只是需要重新校准强度，否则会被"整体接近球形"的视觉效应平均掉：
+
+- **body_type 命名与 4 条 profile 函数保持不变**，仅将 `aspect_ratio` 目标从 2.5–2.8 降到 1.1–1.3（沿用 §2.3 的 (4,4,4,4) 均分与 yoked pair 逻辑，`EXEMPLAR_ALLOC` 无需改动）。
+- **barrel** 的鼓起系数需要在低 aspect ratio 下适当放大（否则强鼓起在整体近球形状下不明显）。
+- **spindle** 的尖点在棱角化（faceting）时不能被磨圆——低长宽比下尖点是它与其余三体的主要区分线索，faceting 分段数可能需要 body_type 特定的下限（⚠️ 注意：这与 §2.1 "四体统一棱角粗细度"的决议冲突，需要明确是否为 Exp2 单独放开这条约束，或改用其他方式保留尖点可读性）。
+- **ovoid_cylinder** 的扁平端帽需要与 capsule 的圆顶端帽保持可辨识的曲率差异（扁平 vs 圆顶）。
+- **capsule** 的直筒段在 1.1–1.3:1 下会很短，"直筒"这一识别特征主要靠该短直段与两端球冠的曲率突变（棱角化的切面跳变）来呈现，而非段长本身。
+
+**2026-07-15 用户确认（4 项均已拍板，仍待预览校准，见下）**：
+1. ✅ 认可"沿用同一 body_type 命名 + 重新参数化"路线，不引入全新 body 族。
+2. ✅ spindle 尖点问题——**核对代码后修正**：`blender_gen_objects.py` 里 spindle 的半径公式 `R*(1-|t|)` 本身就是分段线性的，`PROFILE_FACETS` 只是采样这条曲线的断点数，对已经是直线的函数不产生任何磨圆效果——**尖点在任意 facet 数下都精确保留，不存在"被棱角化磨圆"的风险**，§2.1 "四体统一棱角粗细度"决议对 Exp2 无需为 spindle 单独放宽。（此前草案里的判断有误，已订正。）真正需要重新校准的是 **capsule**：其球冠深度固定 `cap_len = R`，当 `half_L = MINOR_RADIUS × aspect_ratio` 压到 ≤1.3 时（如 aspect=1.1 → half_L≈0.715，`cap_len=0.65`），直筒段只剩 `half_L-cap_len≈0.065`，几乎不可见，capsule 会退化成近似纯球体——见下方预览脚本的 short-cap 变体。（预览与最终决策见下："预览结果定稿"最终仍选择了 A/现行公式，短直筒段的观感被判定为可接受。）
+3. ✅ 先出 Blender 预览再讨论具体参数数值——不在文档里空转拍板参数。**已产出**：`blender_preview_exp2_bodies.py`（纯预览，不导出 GLB，不改 `blender_gen_objects.py`/`public/Objects/`），在场景中按 4 (body_type) × 3 (A/B/C 变体) 摆开对比：
+   - capsule：A=现行公式（cap=R）vs B=缩短球冠（cap=0.5R，直筒段更明显）vs C=B+当前 feature 密度
+   - barrel：A=现行鼓起指数（pow=4）vs B=加强版（pow=8，肩部更平、两端收缩更陡）vs C=B+features
+   - spindle / ovoid_cylinder：现行公式已够用，A/B 相同，C=+features，仅用于对比附件拥挤度
+   - 运行方式：Blender Scripting workspace → 打开该文件 → Alt+P；控制台会打印每个 object 的 row/col 对照表
+4. ✅ 附件绝对尺寸/密度需针对 Exp2 更小主体表面积重新校准——预览脚本的 C 列（现行 `NUM_FEATURE_PAIRS=6`）用于目视判断是否拥挤，若拥挤则下调该值或收紧特征尺寸（参照 Exp1 §2.2 解耦逻辑）。
+
+**2026-07-15 预览结果定稿**：capsule 选 **A**（现行公式，`cap_len=R`，不变）；barrel 选 **A**（现行公式，`bulge_power=4`，不变）；feature 密度选 **C**（`NUM_FEATURE_PAIRS=6`，不变，此前的拥挤观感出现在"重新参数化"的 B 形状上，A 形状 + 6 对密度目视确认不拥挤）。
+
+**结论：Exp2 不需要重新参数化任何 profile 公式**——四条 body_type（capsule/barrel/spindle/ovoid_cylinder）与 `NUM_FEATURE_PAIRS`、`ATTACH_SCALE_*`、`THETA_RANGE_DEG`、`U_RANGE` 等全部沿用 Exp1 原始参数，**唯一的差异是 `aspect_ratio` 目标区间**（Exp1: 2.5–2.8，Exp2: 1.1–1.3）。`blender_preview_exp2_bodies.py` 的 B/D/E 列（重新参数化形状、5/4 对密度）**未被采用**，仅作为本轮校准的排除记录保留在预览脚本里，不影响正式生成脚本。
+
+**2026-07-15 aspect ratio 上限最终调整：≤1.2 → ≤1.3**：用户要求确保 `aspect_ratio > 1`（elongation 确实存在，不能等于 1 变成纯粹的旋转对称球），抖动区间定为 **1.1–1.3**（不再是"贴 1.2 上限只向下抖动"，而是上限本身上调至 1.3，下限 1.1 留出与 1.0 的安全边际）。本文件所有此前写 "≤1.2" 的地方均已同步改为 "≤1.3"（§一总体结构表、本节各处）。与 Exp1（2.5–2.8）之间的间隔带相应变为 1.3 ↔ 2.5，仍然清晰。
+
+**下一步**：改写 `blender_gen_objects.py`，新增 `exp2_` 分支——复用全部现有 profile 函数与参数，只将该分支的 `ASPECT_MIN`/`ASPECT_MAX` 改为 **1.1/1.3**，输出 `exp2_{body_type}_{sym|asym}_{01-04}.glb` + 对应 metadata（`experiment` 字段区分 exp1/exp2）。动代码前需用户最终确认。
+
+**已排除选项（2026-07-15）：环形/甜甜圈（torus）类主体**——曾在讨论候选形状时提及，用户否决：洞的可见性随视角剧烈变化（正对洞口 vs 侧面几乎看不出洞），本身就是新引入的、视角相关的混淆变量；且 torus 拓扑上亏格为 1（有洞），不再是简单凸面体，破坏"主体自身零对称信息、symmetry 完全由 features 承载"这条隔离逻辑的简洁性；也可能引发"戒指/甜甜圈"类物体识别联想，构成额外的语义混淆。现有 4 条 profile（capsule/barrel/spindle/ovoid_cylinder，均无穿孔）不受影响，仅作为后续候选形状讨论时的排除记录。
 
 ---
 
@@ -264,10 +314,36 @@ exp1_barrel_…(4) / exp1_spindle_…(4) / exp1_ovoidcyl_…(4)
 
 > 注：`symmetry` 是 sym/asym 的唯一权威列；旧代码若有 `condition` 输出须移除，CSV schema 不含 `condition`。
 
+**新增（2026-07-14，探索行为补充指标）— 已决议**：
+
+| 字段 | 说明 |
+|------|------|
+| `dwell_ratio_end_on` | 该 trial 全程（trial 起始至按 Enter / timeout）内，视角处于 `end_on` 的采样点占比（0–1） |
+| `dwell_ratio_side_on` | 同上，`side_on` 占比 |
+| `dwell_ratio_oblique` | 同上，`oblique` 占比 |
+
+- 三者之和 = 1（Exp1、Exp2 全部物体均适用，见下方 §4.2 的 2026-07-15 更正）。
+- **实现方式**：不新增采样基础设施，复用已有的 100 ms 轨迹采样（`trajectorySamples`，§4.3）——在 trial 确认/超时那一刻，遍历该 trial 已收集的全部采样点，用既有的 `getAxisCategory(azimuth)` 逐点分类计数，除以采样总点数得到三个比例，作为新字段随该行一起写入 `view_record.csv`（不新增文件、不改采样频率）。
+- **按键次数（up_down_count / left_right_count）— 已确认无需改动**：现有字段是整个 trial 的总按键次数，已满足"探索时左右/上下按键次数"的需求，不新增比例或分阶段字段。
+
+**新增（2026-07-15，对称可读性指标）— 已决议**：
+
+| 字段 | 说明 |
+|------|------|
+| `symmetry_readable` | 仅 symmetric 物体适用（asymmetric 记 `N/A`）：`final_azimuth` 是否落在对称可读窗口内（`true`/`false`），窗口定义见 §4.2 |
+| `dwell_ratio_symmetry_readable` | 仅 symmetric 物体适用（asymmetric 记 `N/A`）：该 trial 全程内，视角落在对称可读窗口的采样点占比（0–1） |
+
+- **实现方式**：与 `dwell_ratio_end_on` 等字段一致，复用已有的 100 ms 轨迹采样（`trajectorySamples`），不新增采样基础设施；`symmetry_readable` 基于确认/超时时刻的 `final_azimuth` 单点判定，`dwell_ratio_symmetry_readable` 基于整段轨迹逐点判定后取占比。
+
 ### 4.2 视角分类
 
-- `axis_category`（Exp1 全部物体适用；Exp2 为 N/A）：end_on ±22.5°；side_on 90°±22.5°；其余 oblique。
-- `feature_category`（asymmetric 物体适用）：视角-法向量夹角 < 60° 为 feature_revealing；沿用旧版阈值。柱面坐标下每个 feature 的法向从 metadata 的 (u, θ) + profile 导出。
+- `axis_category`（**2026-07-15 更正：Exp1、Exp2 全部物体均适用**，不再是 Exp2=N/A）：end_on ±22.5°；side_on 90°±22.5°；其余 oblique。
+  - **更正原因**：本节原写"Exp2 为 N/A"，是基于旧假设——Exp2 aspect ratio ≤1.2、接近球体，azimuth 分类没有意义。但 `view-selection.js` 的 `getAxisCategory`/`getFeatureCategory` 实际从未按 experiment 做区分，一直对两个实验都计算真实值（pilot 测试 CSV `data/exp2/PEP2_00_view_record.csv` 证实了这点）。且 Exp2 的 aspect ratio 已定稿为 **1.1–1.3**（见 §2.4，用户明确要求"确保 elongation 存在"），并非纯球体，`end_on`/`side_on`/`oblique` 分类在该长宽比下依然有意义。**决议：保留现状，两实验都计算真实值，不改代码**；本文件此前"Exp2=N/A"的表述已更正，避免文档与代码行为不一致造成误解。`feature_category`（下方，仅 asymmetric 适用）不受此项影响，其 N/A 规则（symmetric 一律 N/A）与 experiment 无关。
+- `feature_category`（**仅 asymmetric 物体适用，symmetric 一律 `N/A`**）：视角-法向量夹角 < 60° 为 feature_revealing；沿用旧版阈值。柱面坐标下每个 feature 的法向从 metadata 的 (u, θ) + profile 导出。
+  - ⚠️ **2026-07-15 修正**：pilot 数据（`PPILOT_001_view_record.csv`）发现现有实现对 symmetric 物体也套用了同一套法向量阈值计算，且由于该公式在 azimuth=0°/180°（end-on）处恒为 0，导致 symmetric 物体的 `feature_category` 在全部 64 个 trial 中无一例外都是 `feature_concealed`，即便是 end_on 视角也不例外——该字段对 symmetric 物体完全没有区分度。原因：法向量朝向相机的判据（"细节是否正对镜头"）适用于衡量单个 asymmetric 特征的可辨识度，但不适用于衡量"镜像对称是否可读"这一不同的构念（后者关心的是镜像两侧是否同时可见，而非表面朝向）。修正方案：**`feature_category` 收窄为仅对 asymmetric 物体计算**（symmetric 输出 `N/A`），对称可读性改由下方独立定义的 `symmetry_readable` / `dwell_ratio_symmetry_readable` 承载，两者不再混用同一套判据。
+- **`symmetry_readable`（新增，仅 symmetric 物体适用，asymmetric 为 `N/A`）**：定义为**对称可读窗口** = azimuth 落在长轴方向（0°/180°，即 `end_on` 朝向）左右 **±10°** 以内（即 `[350°,360°]∪[0°,10°]∪[170°,190°]`），窗口内**不限制 elevation**（±30° 全范围均计入）。
+  - **方法学定位（直接定案，不依赖 pilot 目视校准）**：采用固定角度窗口而非逐特征遮挡建模，理由是后者虽然几何上更精确，但在 azimuth 严格偏离 0°/180° 后，不同 θ 的镜像特征对会不同步地进入/退出遮挡状态（不存在一段稳定的"全部特征对同时可见"区间，只在单一临界点成立），不利于方法学部分的清晰陈述与复现；固定窗口更简单、可复现，且作为一个保守的（比 `end_on` 更窄的）子集与现有分类体系保持一致。
+  - **窗口嵌套关系**：`symmetry_readable` 的 ±10° 窗口是 `axis_category` 中 `end_on`（±22.5°）窗口的**严格子集**——落在对称可读窗口内的视角必然也是 `end_on`，反之不一定（`end_on` 但未落入 ±10° 的视角，`axis_category` 记 `end_on`，但 `symmetry_readable` 为 `false`）。
 
 ### 4.3 Per-sample log 与 view_probe.csv
 

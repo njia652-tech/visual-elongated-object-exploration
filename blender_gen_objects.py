@@ -1,5 +1,11 @@
 """
-Blender Python script — generate Exp1 stimuli for the view-selection experiment.
+Blender Python script — generate Exp1/Exp2 stimuli for the view-selection
+experiment. Set EXPERIMENT below to 'exp1' or 'exp2' and re-run; the two
+experiments share every body/feature parameter except aspect_ratio (plan
+§2.4, 2026-07-15: preview confirmed the same 4 profiles/params read as
+distinct at Exp2's lower ratio, no recalibration needed) and output naming.
+Metadata entries are merged into objects_metadata.json, not overwritten, so
+running one experiment does not erase the other's entries.
 
 Design (EXP1_EXP2_IMPLEMENTATION_PLAN.md §2, §5):
   4 surfaces-of-revolution body types (capsule, barrel, spindle,
@@ -40,9 +46,21 @@ print("=== blender_gen_objects.py starting ===", flush=True)
 
 OUTPUT_DIR = "C:/Users/lenovo/Documents/GitHub/visual-elongated-object-exploration/public/Objects"
 
+EXPERIMENT = 'exp1'           # 'exp1' | 'exp2' — only the aspect_ratio target
+                              # and output naming differ (plan §2.4); all
+                              # other body/feature parameters below are
+                              # shared unchanged between the two experiments
+
 MINOR_RADIUS     = 0.65       # R — nominal cross-section radius (diameter = 2R)
-ASPECT_MIN       = 2.5        # length : diameter, jitter upward only (plan §2.1)
-ASPECT_MAX       = 2.8
+if EXPERIMENT == 'exp1':
+    ASPECT_MIN, ASPECT_MAX = 2.5, 2.8   # elongated, jitter upward only (plan §2.1)
+elif EXPERIMENT == 'exp2':
+    ASPECT_MIN, ASPECT_MAX = 1.1, 1.3   # non-elongated (plan §2.4, 2026-07-15
+                                        # preview: same 4 profiles/params as
+                                        # Exp1 read as distinct at this ratio,
+                                        # no recalibration needed)
+else:
+    raise ValueError(f"Unknown EXPERIMENT: {EXPERIMENT}")
 
 ATTACH_SCALE_MIN = 0.15
 ATTACH_SCALE_MAX = 0.22
@@ -72,7 +90,10 @@ BODY_ROUGHNESS = 0.6
 BODY_TYPES = ['capsule', 'barrel', 'spindle', 'ovoid_cylinder']
 EXEMPLAR_ALLOC = {'capsule': 4, 'barrel': 4, 'spindle': 4, 'ovoid_cylinder': 4}  # sum = 16
 
-BASE_SEED = 2024
+BASE_SEED = 2024 if EXPERIMENT == 'exp1' else 5024  # distinct seed bases so
+                                                     # Exp2's feature layouts
+                                                     # aren't a copy of Exp1's
+                                                     # RNG sequence
 
 # ──────────────────────────────────────────────────────────────────────
 #  SCENE HELPERS
@@ -479,7 +500,13 @@ def run():
     print(f"Output directory: {OUTPUT_DIR}", flush=True)
     clear_scene()
 
+    meta_path = os.path.join(OUTPUT_DIR, "objects_metadata.json")
     metadata = {}
+    if os.path.exists(meta_path):
+        with open(meta_path, 'r') as f:
+            metadata = json.load(f)
+        print(f"Loaded {len(metadata)} existing entries from {meta_path} (merging, not overwriting)", flush=True)
+
     total = sum(EXEMPLAR_ALLOC.values()) * 2  # 16 pairs x 2 = 32
     done  = 0
 
@@ -501,7 +528,7 @@ def run():
             pair_configs = generate_feature_configs(feature_rng, NUM_FEATURE_PAIRS)
 
             for arr_label in ['sym', 'asym']:
-                object_name = f"exp1_{body_type}_{arr_label}_{exemplar_num:02d}"
+                object_name = f"{EXPERIMENT}_{body_type}_{arr_label}_{exemplar_num:02d}"
                 print(f"[{done+1}/{total}] {object_name} ...", flush=True)
 
                 try:
@@ -540,6 +567,7 @@ def run():
                     print(f"  -> {filepath}", flush=True)
 
                     metadata[object_name] = {
+                        'experiment':           EXPERIMENT,
                         'body_type':            body_type,
                         'aspect_ratio':          round(aspect_ratio, 4),
                         'major_axis_vector':     [1, 0, 0],
@@ -561,8 +589,7 @@ def run():
                     traceback.print_exc()
                     clear_scene()
 
-    # Write metadata JSON
-    meta_path = os.path.join(OUTPUT_DIR, "objects_metadata.json")
+    # Write metadata JSON (merged with any pre-existing entries loaded above)
     with open(meta_path, 'w') as f:
         json.dump(metadata, f, indent=2)
     print(f"\nMetadata written to: {meta_path}", flush=True)

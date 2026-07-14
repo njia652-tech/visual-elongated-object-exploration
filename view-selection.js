@@ -3,6 +3,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
 
 // http://localhost:5180/view-selection.html?exp=1
+// http://localhost:5180/view-selection.html?exp=2
 // 前端：npm run dev   后端：python server.py
 //
 // Implements EXP1_EXP2_IMPLEMENTATION_PLAN.md §3-§7 (Exp1/Exp2 View Selection).
@@ -174,6 +175,39 @@ function getAxisCategory(az) {
   return 'oblique';
 }
 
+// Symmetric objects only (plan §4.2): fixed azimuth window nested inside
+// end_on (±22.5°) — ±10° around the long axis (0°/180°), any elevation.
+// Chosen over a per-feature occlusion model for methods-section clarity; see
+// plan §4.2 for the derivation.
+function isSymmetryReadable(az) {
+  const a = ((az % 360) + 360) % 360;
+  return a <= 10 || a >= 350 || (a >= 170 && a <= 190);
+}
+
+// Dwell-time proportions over the trial's 100ms trajectory samples (plan
+// §4.1, 2026-07-15) — reuses the same classification functions applied to
+// the final view, just aggregated across the whole trial.
+function computeDwellRatios(samples) {
+  if (!samples || samples.length === 0) {
+    return { end_on: 0, side_on: 0, oblique: 0, symmetry_readable: 0 };
+  }
+  let endOn = 0, sideOn = 0, oblique = 0, symReadable = 0;
+  for (const s of samples) {
+    const cat = getAxisCategory(s.azimuth);
+    if (cat === 'end_on') endOn++;
+    else if (cat === 'side_on') sideOn++;
+    else oblique++;
+    if (isSymmetryReadable(s.azimuth)) symReadable++;
+  }
+  const n = samples.length;
+  return {
+    end_on:            +(endOn / n).toFixed(4),
+    side_on:           +(sideOn / n).toFixed(4),
+    oblique:           +(oblique / n).toFixed(4),
+    symmetry_readable: +(symReadable / n).toFixed(4),
+  };
+}
+
 // JUDGMENT CALL (documents a mechanical elaboration of plan §4.2, not a design
 // decision): for each attached feature we approximate its outward normal in
 // the object's local frame as (0, sin(theta), cos(theta)) — i.e. we ignore the
@@ -186,13 +220,24 @@ function getAxisCategory(az) {
 // between the rotated normal and the camera-ward direction is < 60°, matching
 // the old code's threshold. We then bucket by the FRACTION of the object's
 // features currently visible (majority vote) rather than a single feature,
-// since symmetric objects carry mirror-paired features with no single
-// "the" diagnostic feature: >50% visible => feature_revealing, <50% =>
-// feature_concealed, ==50% (common for symmetric even feature counts) =>
-// ambiguous.
+// since asymmetric objects carry several features with no single "the"
+// diagnostic one: >50% visible => feature_revealing, <50% => feature_concealed,
+// ==50% => ambiguous.
+//
+// asymmetric-only (plan §4.2, 2026-07-15 fix): this normal-facing threshold
+// measures per-feature detail visibility, which is the right construct for
+// asymmetric objects but not for symmetric ones — mirror-pair readability
+// depends on whether both paired features clear self-occlusion together, not
+// on facing the camera. Applying this same formula to symmetric objects made
+// feature_category collapse to feature_concealed at every azimuth including
+// end_on (dot = cos(theta-el)*sin(az) is exactly 0 at az=0°/180° regardless of
+// theta — confirmed in PPILOT_001_view_record.csv, 0/N end_on trials came back
+// non-concealed for symmetric objects). Symmetry readability is now its own
+// field (isSymmetryReadable / dwell_ratio_symmetry_readable) computed
+// independently of this function.
 const CAMERA_FACING_DIR = new THREE.Vector3(0, 0, 1); // camera at (0,0.3,7) looking toward origin; y-offset ignored as negligible for this angle check
 function getFeatureCategory(meta, az, el) {
-  if (!meta || !meta.feature_positions || meta.feature_positions.length === 0) return 'N/A';
+  if (!meta || meta.symmetry !== 'asymmetric' || !meta.feature_positions || meta.feature_positions.length === 0) return 'N/A';
   const euler = new THREE.Euler(
     THREE.MathUtils.degToRad(el),
     INITIAL_Y + THREE.MathUtils.degToRad(az),
@@ -451,6 +496,8 @@ function confirmTrial(source = 'enter') {
   const symmetry   = (meta && meta.symmetry)   || trial.symmetry;
   const timeoutFlag = source === 'timeout';
   const confirmLat = +Math.min(EFFECTIVE_MAX_TRIAL_SEC, (Date.now() - trialStartTimestamp()) / 1000).toFixed(2);
+  const dwellRatios = computeDwellRatios(trajectorySamples);
+  const isSymmetric = symmetry === 'symmetric';
 
   const record = {
     participant_id:            participantId,
@@ -467,6 +514,7 @@ function confirmTrial(source = 'enter') {
     final_elevation:           elevation,
     axis_category:             getAxisCategory(azimuth),
     feature_category:          getFeatureCategory(meta, azimuth, elevation),
+    symmetry_readable:         isSymmetric ? isSymmetryReadable(azimuth) : 'N/A',
     confirmation_latency:      confirmLat,
     enter_pressed:             source === 'enter',
     timeout:                   timeoutFlag,
@@ -474,6 +522,10 @@ function confirmTrial(source = 'enter') {
     criterion_met:             criterionMet,
     up_down_count:             upDownCount,
     left_right_count:          leftRightCount,
+    dwell_ratio_end_on:            dwellRatios.end_on,
+    dwell_ratio_side_on:           dwellRatios.side_on,
+    dwell_ratio_oblique:           dwellRatios.oblique,
+    dwell_ratio_symmetry_readable: isSymmetric ? dwellRatios.symmetry_readable : 'N/A',
     timestamp:                 Date.now(),
   };
 
