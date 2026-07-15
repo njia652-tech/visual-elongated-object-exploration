@@ -277,15 +277,15 @@ exp1_barrel_…(4) / exp1_spindle_…(4) / exp1_ovoidcyl_…(4)
 
 ```
 [block 1 结束]
-→ 休息页（强制最短 30 s：倒计时可见，「继续」按钮在 30 s 后才可点）
+→ 休息页（无强制时长：休息提示常驻，按 Enter 即可继续，同一界面）
 → 指导语页（呈现下一 task 的完整指导语，被试主动确认后开始；可设最短停留防止秒跳）
 → [block 2 开始]
 ```
 
-- **休息页**：画面简洁，提示放松、暂离任务；30 s 倒计时结束前「继续」不可点，结束后可随时点。
+- **休息页**（2026-07-15 变更）：取消 30 s 强制倒计时/禁用期，只保留休息提示文字；按 Enter 键即可继续（鼠标点击「Continue」按钮保留作为备用方式），仍是同一个界面，不拆分。
 - **指导语页与休息页分离**（两页）：休息=放松、指导语=装载新任务规则，目标相反，不合并——避免指导语被当作休息页说明而略读，削弱操纵。
 - **对称性要求**：**每个 block 前都要有指导语页**（含第一个 block，此时无前置休息但仍走指导语页），保证两 task 的指导语呈现方式一致；task order 反向（T2→T1）的被试流程同样对称。
-- 记录：`rest_start_ms` / `rest_end_ms`（休息实际时长）、`instruction_confirm_ms`（指导语页确认时刻），供核对被试是否真读了指导语、休息是否达最短时长。**这三个时间戳落在 `block_events.csv`（每 block 一行），不进 view_record，见 §4.4。**
+- 记录：`rest_start_ms` / `rest_end_ms`（休息实际时长，即使不再强制最短时长仍记录，供事后查看被试实际休息了多久）、`instruction_confirm_ms`（指导语页确认时刻），供核对被试是否真读了指导语。**这三个时间戳落在 `block_events.csv`（每 block 一行），不进 view_record，见 §4.4。**
 
 ⚠️ **pilot 观察项（不阻塞）**：单个 block（16/条件下约 30–34 min）是否过长——若后半段 timeout 率上升或旋转步数骤降，优先**减少物体数（16→12，即干净的 4×3）缩短 block**，而非在 block 内加中途休息（后者破坏 block 对称与 carryover 诊断）。
 
@@ -415,7 +415,7 @@ const MAX_TRIAL_SEC = 50;         // 每 trial 上限（2026-07-14：40→50）�
 const TIMER_VISIBLE = false;      // 2026-07-14 新增：探索期不显示逐秒倒计时（原 #timer-display 逐秒刷新，改为隐藏）
 const TIMER_WARNING_SEC = 8;      // 新增：剩余 ≤8 s 时，倒计时数字位置改为文字提示（"Please choose your view soon."），仍不显示具体秒数
 const KEY_REPEAT = false;         // §3.3 待确认：旋转是否启用 key repeat
-const REST_MIN_SEC = 30;         // block 间休息强制最短时长（§3.6）
+// REST_MIN_SEC 已移除（2026-07-15）：休息页不再强制最短时长，按 Enter 即可继续（§3.6）
 ```
 
 或经 URL 参数覆盖（`view-selection.html?exp=1`），避免收集期间改代码。

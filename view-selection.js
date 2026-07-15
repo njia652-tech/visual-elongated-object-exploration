@@ -18,7 +18,6 @@ const MIN_ROTATION_STEPS = 40;
 const MAX_TRIAL_SEC    = 50;            // 2026-07-14: 40 -> 50 (paired with hiding the countdown, see startTimer())
 const TIMER_WARNING_SEC = 8;            // 2026-07-14: remaining seconds at which the hidden timer switches to a text nudge
 const KEY_REPEAT       = false;
-const REST_MIN_SEC     = 30;
 const TEST_MODE        = false;         // local to view-selection.js; unrelated to main.js's TEST_MODE
 
 // ?exp=1 / ?exp=2 URL override (plan §7)
@@ -35,7 +34,6 @@ const TEST_MODE        = false;         // local to view-selection.js; unrelated
 // trial cap so a human can walk the whole flow in seconds; it must stay false
 // for real data collection (checked into the config block above).
 const EFFECTIVE_MIN_ROTATION_STEPS = TEST_MODE ? 3 : MIN_ROTATION_STEPS;
-const EFFECTIVE_REST_MIN_SEC       = TEST_MODE ? 3 : REST_MIN_SEC;
 const EFFECTIVE_MAX_TRIAL_SEC      = TEST_MODE ? 10 : MAX_TRIAL_SEC;
 
 // ── FIXED CONSTANTS (unchanged from old code) ─────────────────────────
@@ -597,33 +595,23 @@ function finishBlock() {
 }
 
 // ── REST PAGE (plan §3.6 — only between block 1 and block 2) ─────────
-const elRestCountdown = document.getElementById('rest-countdown');
 const btnContinueRest = document.getElementById('btn-continue-rest');
-let restInterval = null;
+let restPageActive = false;
 
 function showRestPage() {
   blockEvents[2].rest_start_ms = Date.now();
   showModule('rest');
-  let secLeft = EFFECTIVE_REST_MIN_SEC;
-  elRestCountdown.textContent = secLeft;
-  btnContinueRest.disabled = true;
-  clearInterval(restInterval);
-  restInterval = setInterval(() => {
-    secLeft--;
-    elRestCountdown.textContent = Math.max(secLeft, 0);
-    if (secLeft <= 0) {
-      clearInterval(restInterval);
-      btnContinueRest.disabled = false;
-      elRestCountdown.textContent = '0 — you may continue whenever you\'re ready';
-    }
-  }, 1000);
+  restPageActive = true;
 }
 
-btnContinueRest.addEventListener('click', () => {
-  if (btnContinueRest.disabled) return;
+function continueFromRest() {
+  if (!restPageActive) return;
+  restPageActive = false;
   blockEvents[2].rest_end_ms = Date.now();
   showInstructionPage(2);
-});
+}
+
+btnContinueRest.addEventListener('click', continueFromRest);
 
 // ── INSTRUCTION PAGE (plan §3.6 — precedes every block, incl. block 1) ─
 function showInstructionPage(blockIndex) {
@@ -648,7 +636,11 @@ document.addEventListener('keydown', e => {
   if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) e.preventDefault();
   if (!KEY_REPEAT && e.repeat) return; // plan §3.3/§3.5: ignore key repeat, each step is a discrete press
 
-  if (e.key === 'Enter') { confirmTrial('enter'); return; }
+  if (e.key === 'Enter') {
+    if (restPageActive) { continueFromRest(); return; }
+    confirmTrial('enter');
+    return;
+  }
   if (!inTrial || isProcessing) return;
 
   switch (e.key) {

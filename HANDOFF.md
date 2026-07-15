@@ -35,7 +35,7 @@ Task order is counterbalanced by participant ID parity (odd → T1 first, even �
 1. Participant enters an ID → ID uniqueness checked against existing CSVs → instruction page for block 1
 2. Each trial: object loads at random 30°/330° oblique azimuth → free rotation (arrow keys); Enter unlocks only after **≥40 azimuth-only rotation steps** (200° cumulative); 50 s hard cap with countdown hidden until the last 8 s ("Please choose your view soon.")
 3. Probe after every block's trial 6–8, then every 8–12 trials thereafter (confidence self-rating, 3 buttons) — independent counter per block
-4. Forced 30 s rest page + new instruction page between block 1 and block 2 (both blocks get an instruction page, including block 1)
+4. Rest page (no forced wait — press Enter or click Continue whenever ready) + new instruction page between block 1 and block 2 (both blocks get an instruction page, including block 1)
 5. **64 trials total** (32 per task)
 
 ---
@@ -156,7 +156,6 @@ const MIN_ROTATION_STEPS = 40;           // azimuth-only steps to unlock Enter (
 const MAX_TRIAL_SEC      = 50;
 const TIMER_WARNING_SEC  = 8;            // countdown hidden until this many seconds remain
 const KEY_REPEAT         = false;        // each physical keypress = one 5° step
-const REST_MIN_SEC       = 30;
 const TEST_MODE          = false;        // MUST be false for real data collection
 const STEP_DEG           = 5;
 const ELEV_MAX           = 30;
@@ -172,7 +171,7 @@ startInstructionPage(1) → participant reads T1 or T2 instructions (odd ID → 
   → startTrialAtLocal(1) … (32 trials, each: oblique start azimuth 30°/330°,
      Enter locked until ≥40 azimuth steps, 50s cap, countdown hidden till ≤8s left)
   → probe fires at block-local trial 6-8, then every 8-12 trials (independent per block)
-finishBlock() → block 1: 30s forced rest page → instruction page for block 2
+finishBlock() → block 1: rest page (press Enter to continue, no forced wait) → instruction page for block 2
              → block 2: showModule('end')
 ```
 
@@ -281,7 +280,7 @@ Test-Path "public\Objects\objects_metadata.json"                 # → True
 3. Click Begin Block → an `exp1_*` object loads at azimuth 30° or 330°
 4. Rotate with arrow keys — Enter has no effect until ~40 azimuth steps done
 5. After criterion met, press Enter → trial ends, next trial begins (or probe, if scheduled)
-6. After 32 trials → 30s rest page → instruction page for block 2 → 32 more trials → end screen
+6. After 32 trials → rest page (press Enter to continue) → instruction page for block 2 → 32 more trials → end screen
 7. `data/exp1/P{ID}_view_record.csv` → 64 rows + header; `_probe.csv`, `_samples.csv`, `_block_events.csv` (2 rows) also present
 
 ### New fields sanity check (2026-07-15 additions)
