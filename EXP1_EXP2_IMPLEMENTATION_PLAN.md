@@ -52,8 +52,8 @@ npm run dev           # 终端 B，应显示 Local: http://localhost:5180/
 
 ### 4. 落地前 / 落地后自查
 
-- [x] `public/Objects/` 已清理干净：只剩 32 个 `exp1_*.glb`（4 body type × sym/asym × 4 exemplar）+ `objects_metadata.json`，无旧 `setA_*/setB_*` 残留（2026-07-14 复核）
-- [x] `objects_metadata.json` 已核对：32 条记录，`body_type` 计数 (4,4,4,4)，`symmetry` 计数 (16,16)，字段与 `view-selection.js` 读取逻辑（`body_type`/`symmetry`/`feature_positions[].theta_deg`）一致
+- [x] `public/Objects/` 已清理干净：64 个 GLB = `exp1_*.glb` 32 个 + `exp2_*.glb` 32 个（各 4 body type × sym/asym × 4 exemplar）+ `objects_metadata.json`，无旧 `setA_*/setB_*` 残留（2026-07-15 复核，exp2 由 commit `15b1998` 新增）
+- [x] `objects_metadata.json` 已核对：64 条记录（exp1/exp2 各 32），`body_type` 计数 (16,16,16,16)，`symmetry` 计数 (32,32)，`aspect_ratio` 范围 exp1 2.54–2.79 / exp2 1.11–1.30，均落在 §2.4 拍板区间内（2026-07-15 复核）
 - [ ] 确认端口 5180 / 5006 在实验室电脑上没有被占用（防火墙可能弹窗，需要允许访问）
 - [ ] `node_modules/` 是原样拷贝的情况下，如果实验室电脑与开发机不是同架构/系统，需要重新 `npm install`，不能直接用拷贝的二进制
 
@@ -61,15 +61,15 @@ npm run dev           # 终端 B，应显示 Local: http://localhost:5180/
 
 > 2026-07-14 复核代码后发现：`view-selection.js` / `server.py` / `blender_gen_objects.py` 已经把本文件 §2–§7 的设计**基本实现完整**（配置块、40 步旋转判据、50 s 上限、休息/指导语页、probe 调度、`block_events.csv` 四文件落盘等均已在代码里），并不是 HANDOFF.md（2026-07-10 版本，已过期）里说的"什么都没实现"。但下面这些不是"代码 gap"，是**收正式数据前必须人工确认**的事项，直接影响数据能不能用：
 
-- [ ] **§8.2 的 4 项 pilot 校准（P1–P4）还没做**，这些是"必须真人跑一遍肉眼判断"的项目，无法靠读代码替代，建议**在开发机上先完整走 1–2 个 pilot session（非 TEST_MODE，真实参数）**，确认没问题再出发去实验室（现场没网/不方便临时改代码重新导出 GLB）：
-  - P1 端面视角（az≈0°/180°）下 symmetric/asymmetric 是否肉眼可辨，附件是否因主体缩小而拥挤/重叠
+- [ ] **§8.2 的 4 项 pilot 校准（P1–P4）在本清单里仍未正式勾选完成**，这些是"必须真人跑一遍肉眼判断"的项目，无法靠读代码替代。`data/exp1/{P002,PP010}_*.csv` 与 `data/exp2/{PEP2_00,PEP2_01}_*.csv` 说明两个实验都已有 dev/pilot 会话跑过，但**尚未针对 Exp2（2026-07-15 才生成，长宽比更低）专门确认过 P1（附件是否因主体缩小而拥挤）**——建议出发前至少针对 exp2 补跑一次完整 pilot session（非 TEST_MODE，真实参数）：
+  - P1 端面视角（az≈0°/180°）下 symmetric/asymmetric 是否肉眼可辨，附件是否因主体缩小而拥挤/重叠（Exp2 优先级最高）
   - P2 40 步旋转判据（key repeat 已禁用，每步需一次独立按键）实际操作是否过于繁琐
   - P3 主体棱角化（faceting）粗细是否落在"可辨认切面但仍像有机物体"的区间（太光滑/太多面体都有问题，见 §2.1 末段）
   - P4 50 s 上限下 `timeout` 触发率、`confirmation_latency` 均值是否接近预期的 28–32 s
-- [ ] **`data/exp1/` 里现有一批 `PTEST*` 测试数据（约 32 个文件）**，出发前建议整体移出该目录（例如挪到 `data/_pretest_backup/` 或直接删除），避免和正式被试数据混在一起——后端的重复 ID 检查是精确字符串匹配，不会自动区分测试数据与正式数据
+- [ ] **`data/exp1/` 和 `data/exp2/` 里现有的 dev/pilot 测试数据**（`P002`、`PP010`、`PEP2_00`、`PEP2_01`，共 10 个文件，均非正式被试 ID）出发前建议整体移出这两个目录（例如挪到 `data/_pretest_backup/` 或直接删除），避免和正式被试数据混在一起——后端的重复 ID 检查是精确字符串匹配，不会自动区分测试数据与正式数据
 - [x] `TEST_MODE`（`view-selection.js` 第 21 行）当前为 `false`，是正式收集所需状态——**到实验室后重新确认一次**，避免拷贝/合并过程中被意外改动
 - [ ] `server.py` 的 CORS 白名单写死为 `http://localhost:5180`（server.py 第 13 行）——**必须用这个确切地址访问**（不能是 `127.0.0.1:5180`，也不能改端口），否则前端请求会被 CORS 拦截、数据传不到后端却不一定有明显报错
-- [ ] `EXPERIMENT` 常量默认 `'exp1'`，且当前只有 Exp1 的 32 个刺激物已生成——**Exp2 的刺激物尚未定稿/生成**（见 §2.4），实验室阶段只能跑 `exp1`，不要传 `?exp=2`
+- [x] `EXPERIMENT` 常量默认 `'exp1'`；**Exp2 的 32 个刺激物已生成**（`exp2_*.glb` + 合并进 `objects_metadata.json`，2026-07-15，见上）——实验室阶段可以传 `?exp=2` 跑 Exp2，但建议先完成上面的 P1 校准再作为正式数据收集
 - [ ] 收集当天严格走 §7 "每场次检查单"：关闭休眠/屏保、电源常插、浏览器全屏/kiosk、当日结束整目录备份一次（建议额外拷一份到云端或第二个优盘，不要只留一份在实验室电脑本地）
 
 ---
@@ -154,7 +154,7 @@ exp1_barrel_…(4) / exp1_spindle_…(4) / exp1_ovoidcyl_…(4)
 | `yoked_pair_id` | 配对编号 |
 | `feature_positions` | 全部附件柱面坐标 (u, θ) 与类型 |
 
-### 2.4 Exp2 刺激 ⚠️ 待确认（草案，2026-07-15 新增——路线 A：沿用 revolution + 重新参数化 4 条 profile）
+### 2.4 Exp2 刺激 [已决议，2026-07-15 定稿并生成——路线 A：沿用 revolution，仅收窄 aspect_ratio 区间]
 
 - Aspect ratio ≤ 1.3 : 1（2026-07-15 由 ≤1.2 上调，见下方"预览结果定稿"——用户要求确保 elongation 存在即 aspect ratio > 1，抖动区间收紧到贴近上限反而不够安全，改为 1.1–1.3），与 Exp1 之间留出清晰间隔带（1.3 ↔ 2.5）。
 - Symmetry 操纵、feature 逻辑、命名规则与 Exp1 完全一致（`exp2_…`），复用同一套判读代码（`axis_category` / `feature_category` / `symmetry_readable`）、同一套 metadata schema、同一套柱面坐标 (u, θ) 放置逻辑。

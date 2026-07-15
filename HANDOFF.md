@@ -6,7 +6,7 @@ _Last updated: 2026-07-15. Use this as the starting point for any new Claude Cod
 
 ## 0. ⚠️ Plan documents — read this first
 
-- **`EXP1_EXP2_IMPLEMENTATION_PLAN.md`** — the current authoritative plan, **and it is what actually runs today**. Exp1 (elongated bodies: capsule / barrel / spindle / ovoid-cylinder, symmetry entirely feature-carried, rotation-criterion trial flow, rest/instruction pages, per-participant CSV files) is fully implemented and has been pilot-tested. Exp2 (non-elongated bodies) is designed but its stimuli are **not yet built** (see plan §2.4).
+- **`EXP1_EXP2_IMPLEMENTATION_PLAN.md`** — the current authoritative plan, **and it is what actually runs today**. Exp1 (elongated bodies: capsule / barrel / spindle / ovoid-cylinder, symmetry entirely feature-carried, rotation-criterion trial flow, rest/instruction pages, per-participant CSV files) is fully implemented and has been pilot-tested. Exp2 (non-elongated bodies, same 4 body types reparameterized to aspect ratio 1.1–1.3) stimuli are **now generated** (32 `exp2_*.glb`, commit `15b1998`) — but the plan's §8.2 pilot-calibration checklist (P1–P4) has not yet been confirmed specifically for Exp2's lower aspect ratio (see §7).
 - **`CURRENT_IMPLEMENTATION_PLAN.md`** — **ARCHIVED**, superseded by the file above (its own header says so). Describes the old 2×2 Set A/B box-body design that no longer runs. Kept only for historical reference to that design's decisions.
 - **`Experiment_Execution_Spec.md`** — spec for the old 2×2 design; also superseded, same caveat as above.
 
@@ -20,7 +20,7 @@ _Last updated: 2026-07-15. Use this as the starting point for any new Claude Cod
 
 **Scientific goal:** Two separate between-subjects experiments sharing the same code/flow:
 - **Exp1** — bodies are elongated (aspect ratio ~2.5:1). Manipulates **symmetry** (symmetric vs asymmetric attached features) within-subject.
-- **Exp2** — bodies are non-elongated (aspect ratio ≤1.2:1). Same symmetry manipulation. **Not yet built** — stimuli pending Exp1 pilot review (plan §2.4).
+- **Exp2** — bodies are non-elongated (aspect ratio 1.1–1.3:1). Same symmetry manipulation. Stimuli are **built** (32 `exp2_*.glb`, generated 2026-07-15) — pending a pilot walkthrough to confirm P1–P4 (plan §8.2) at this lower aspect ratio before real data collection.
 
 Within each experiment, participants do both tasks on the **same 32-object set** (no Set A/B split like the old design):
 
@@ -53,7 +53,7 @@ project root/
 ├── vite.config.js              Vite config: port 5180, proxy /api → :5006
 ├── package.json / requirements.txt   npm / pip dependencies
 │
-├── blender_gen_objects.py      Blender script — generates the 32 exp1_* GLBs (run inside Blender)
+├── blender_gen_objects.py      Blender script — generates the 32 exp1_*/exp2_* GLBs (EXPERIMENT switch, run inside Blender)
 ├── blender_preview.py          Blender script — imports GLBs for visual inspection
 │
 ├── EXP1_EXP2_IMPLEMENTATION_PLAN.md AUTHORITATIVE plan — matches the live code (see §0)
@@ -62,11 +62,12 @@ project root/
 ├── HANDOFF.md                  This file
 │
 ├── public/
-│   ├── Objects/                ← 32 GLBs (exp1_{body_type}_{sym|asym}_{01-04}.glb) + objects_metadata.json
+│   ├── Objects/                ← 64 GLBs (exp{1|2}_{body_type}_{sym|asym}_{01-04}.glb) + objects_metadata.json
 │   └── hdrs/                   HDR environment map(s)
 │
 └── data/
-    └── exp1/                   Per-participant output (git-ignored), 4 files per participant:
+    ├── exp1/                   Per-participant output (git-ignored), 4 files per participant:
+    └── exp2/                   Same layout, per-experiment directory:
           P{ID}_view_record.csv     one row per trial
           P{ID}_probe.csv           one row per probe
           P{ID}_samples.csv         one row per 100 ms trajectory sample
@@ -93,7 +94,7 @@ python server.py     # Terminal A — Flask backend, expect "Running on http://1
 npm run dev           # Terminal B — Vite frontend, expect "Local: http://localhost:5180/"
 ```
 
-Open `http://localhost:5180/view-selection.html?exp=1` (Exp2 not runnable yet — no stimuli).
+Open `http://localhost:5180/view-selection.html?exp=1` (or `?exp=2` for Exp2 — stimuli are generated, but do a pilot walkthrough first per §7).
 
 ⚠️ **`server.py` has no auto-reload** (`app.run(port=5006)`, no `debug=True`). Any edit to `server.py` requires **manually killing and restarting** that terminal's process — Vite's frontend HMR does not help here, and a stale process will silently drop any new CSV fields not in its in-memory `VIEW_HEADERS`/etc. lists (bit us in this exact way on 2026-07-15, see §8).
 
@@ -245,14 +246,15 @@ Per-participant files under `data/{experiment}/`, git-ignored. Back up the whole
 ### What is live and working
 
 - All of `EXP1_EXP2_IMPLEMENTATION_PLAN.md` §2–§7 for **Exp1** is implemented: revolution-body Blender generation (32 GLBs), rotation-criterion trial flow, rest/instruction pages, jittered probes, per-participant 4-file CSV layout, `TEST_MODE`/`beforeunload` anti-interruption guards, `EXPERIMENT`/`?exp=` config switch.
-- Verified end-to-end via pilot/test sessions (`data/exp1/PPILOT_001_*.csv`, `data/exp1/PP010_*.csv`).
+- **Exp2 stimuli are now generated** (commit `15b1998`): `blender_gen_objects.py` gained an `EXPERIMENT` switch that only changes the `aspect_ratio` target (2.5–2.8 → 1.1–1.3) and output prefix; all 4 body profiles/feature params are shared with Exp1. 32 `exp2_*.glb` + merged metadata are in `public/Objects/` (64 objects total, verified `body_type` (16,16,16,16) / `symmetry` (32,32) split, aspect ratios confirmed in-range).
+- Verified end-to-end via pilot/test sessions — current files: `data/exp1/{P002,PP010}_*.csv`, `data/exp2/{PEP2_00,PEP2_01}_*.csv` (the latter includes a `_block_events.csv` and `_probe.csv`, i.e. a full 2-block run).
 - **2026-07-15 session**: fixed `feature_category` (was incorrectly computed for symmetric objects, collapsing to `feature_concealed` at every azimuth including end_on — see §8) and added `symmetry_readable` + four `dwell_ratio_*` fields. Verified working in `PP010_view_record.csv` after restarting `server.py`.
 
 ### What is NOT done
 
-- **Exp2 stimuli** are not built (plan §2.4) — low-aspect-ratio bodies need a redesigned body-type family since the four revolution shapes converge toward spheres at aspect ratio ≤1.2:1. Do not pass `?exp=2` until this exists.
-- **Pilot calibration items P1–P4** (plan §8.2) — end-on symmetry legibility, rotation key-repeat ergonomics, profile faceting coarseness, timeout rate at the 50s cap — are default-implemented but not yet visually/empirically calibrated by a real run-through.
-- **Lab deployment checklist** (plan §0, items 4–5) — several pre-departure checks (clearing `PTEST*` files from `data/exp1/`, confirming `TEST_MODE=false` post-copy, port/firewall check on the lab machine) are still open.
+- **Pilot calibration items P1–P4** (plan §8.2) — end-on symmetry legibility, rotation key-repeat ergonomics, profile faceting coarseness, timeout rate at the 50s cap — have not been formally confirmed as done in the plan checklist. Existing pilot data (above) suggests walkthroughs happened, but **P1 in particular (feature crowding at low aspect ratio) needs a dedicated look at Exp2** specifically, since its stimuli are much newer than Exp1's and were generated the same day.
+- **Test/pilot data cleanup**: `data/exp1/` and `data/exp2/` currently hold dev-session files (`P002`, `PP010`, `PEP2_00`, `PEP2_01` — 10 files total, none of which are real participant data). These must be moved out or backed up separately before real collection starts, or they'll sit alongside real participant CSVs (the backend's duplicate-ID check is an exact string match and won't distinguish test IDs from real ones).
+- **Lab deployment checklist** (plan §0, items 4–5) — several pre-departure checks (confirming `TEST_MODE=false` post-copy, port/firewall check on the lab machine, architecture check for `node_modules/`) are still open and can only be confirmed on-site.
 
 ---
 
@@ -324,25 +326,30 @@ code. CURRENT_IMPLEMENTATION_PLAN.md / Experiment_Execution_Spec.md are ARCHIVED
 box-body design, no longer runs) — historical reference only, do not use for new work.
 
 Key files:
-- view-selection.js      LIVE experiment logic — Exp1 (elongated bodies) fully implemented
+- view-selection.js      LIVE experiment logic — Exp1 + Exp2 both implemented
 - view-selection.html    UI structure
 - server.py              Flask backend (port 5006); NO auto-reload — restart manually after edits
 - blender_gen_objects.py stimulus generation — run inside Blender, not from terminal;
-                         generates the 32 exp1_* surfaces-of-revolution GLBs
+                         EXPERIMENT switch generates the 32 exp1_* or 32 exp2_*
+                         surfaces-of-revolution GLBs (same profiles, different aspect ratio)
 - vite.config.js         proxy config (port 5180 → 5006)
 
 Current situation (as of 2026-07-15):
 - Exp1 (elongated bodies, symmetry entirely feature-carried) is fully implemented and
   pilot-verified end-to-end: 32 GLBs generated, rotation-criterion trial flow, rest/
   instruction pages, jittered probes, per-participant CSV files under data/exp1/.
-- Exp2 (non-elongated bodies) is designed but stimuli are NOT built yet — do not pass
-  ?exp=2 until that's done (plan §2.4).
+- Exp2 (non-elongated bodies) stimuli are now generated too (32 exp2_*.glb, commit
+  15b1998) — pass ?exp=2 to run it. Not yet pilot-walked-through specifically at this
+  lower aspect ratio (plan §8.2 P1-P4), so don't treat it as ready for real data
+  collection until that's done.
 - 2026-07-15: fixed feature_category (was wrongly computed for symmetric objects, always
   collapsed to feature_concealed even at end_on) and added symmetry_readable +
   dwell_ratio_end_on/side_on/oblique/symmetry_readable fields. See HANDOFF.md §8 for the
   root-cause writeup and the server.py-needs-manual-restart gotcha.
 - Pilot calibration items P1-P4 (plan §8.2) and the lab-deployment checklist (plan §0)
-  are still open before this is ready for real data collection.
+  are still open before this is ready for real data collection. data/exp1/ and data/exp2/
+  currently hold dev-session files (P002, PP010, PEP2_00, PEP2_01) that need clearing
+  out before real participants run.
 
 IMPORTANT constraints on the LIVE code (do NOT change without reason):
 - INITIAL_Y = -π/2, ELEV_MAX = 30, MIN_ROTATION_STEPS = 40 (azimuth-only), MAX_TRIAL_SEC = 50
