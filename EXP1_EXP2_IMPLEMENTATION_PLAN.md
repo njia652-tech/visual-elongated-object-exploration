@@ -1,6 +1,6 @@
 # Implementation Plan — Experiment 1 & Experiment 2（View Selection）
 
-> 本文件为当前实验的唯一权威参考，取代旧版 `CURRENT_IMPLEMENTATION_PLAN.md`（单实验 2×2 版本，已废弃）。
+> 本文件为当前实验的唯一权威参考，本文件所述设计已完整落地实现（实现状态与验证细节见 `HANDOFF.md`）。
 >
 > ⚠️ **工作流规则（必须始终执行）：任何实验调整，先更新本文件，询问用户确认后，再执行代码修改。**
 >
@@ -71,24 +71,6 @@ npm run dev           # 终端 B，应显示 Local: http://localhost:5180/
 - [ ] `server.py` 的 CORS 白名单写死为 `http://localhost:5180`（server.py 第 13 行）——**必须用这个确切地址访问**（不能是 `127.0.0.1:5180`，也不能改端口），否则前端请求会被 CORS 拦截、数据传不到后端却不一定有明显报错
 - [x] `EXPERIMENT` 常量默认 `'exp1'`；**Exp2 的 32 个刺激物已生成**（`exp2_*.glb` + 合并进 `objects_metadata.json`，2026-07-15，见上）——实验室阶段可以传 `?exp=2` 跑 Exp2，但建议先完成上面的 P1 校准再作为正式数据收集
 - [ ] 收集当天严格走 §7 "每场次检查单"：关闭休眠/屏保、电源常插、浏览器全屏/kiosk、当日结束整目录备份一次（建议额外拷一份到云端或第二个优盘，不要只留一份在实验室电脑本地）
-
----
-
-## ⚠️ 与旧版计划的重大变更摘要
-
-| 维度 | 旧版（已废弃） | 新版（本文件） |
-|------|--------------|--------------|
-| 总体结构 | 单实验 2×2（Global Shape × Feature Arrangement） | **两个实验**：Exp1 = elongated（sym vs asym）；Exp2 = non-elongated（sym vs asym）；elongation 为 between-experiment 因素 |
-| Set A/B | Set A → T1，Set B → T2，物体不重叠 | **取消 Set 结构**。每个实验内 T1、T2 共享同一物体集；Task order 被试间平衡；carryover 通过 Task × Order 与 exposure 相关性诊断 |
-| Task 统计地位 | 分开分析，Task 不作统计变量 | Task 与 Task Order 进入分析（Order 为 between-subjects 因素） |
-| 主体形状 | Box（长方体） | **Surfaces of revolution（全部前后对称、凸面族）**：capsule / barrel / spindle / ovoid-cylinder（2026-07-14 移除 ellipsoid，见 §2.1）|
-| Symmetry 承载 | 主体面上镜像放置附件 | 主体旋转对称、自身不提供 azimuth 信息；symmetry **完全由 attached features 承载**（柱面坐标 ±θ 镜像） |
-| Elongated 比例 | 2.5–3 : 1 | **2.5 : 1**（抖动只向上，2.5–2.8 : 1）⚠️ 见 §2 |
-| 物体数（Exp1） | — | **16/条件**（sym + asym = 32 物体 = 16 yoked pairs），4 body types 按 (4,4,4,4) 均分 exemplar |
-| Trial 计时 | 50 s 探索 + 10 s 确认窗口（上限 60 s/trial）| **旋转达标解锁 Enter（≥40 步 ≈200°）+ 50 s 上限超时自动记录（倒计时不可见，临近上限才提示）**，见 §3.3 |
-| Trial 数/被试 | 40（每 task 20，物体不重叠） | 物体共享后 = 32 × 2 = **64 trials**（每 task 32）|
-| 命名 | `set{A|B}_{NE|E}_{sym|asym}_{id}` | `exp{1|2}_{bodytype}_{sym|asym}_{id}` |
-| Blender 脚本 | box + 按面放置 | 需重写：revolution profile + 柱面坐标放置，删除 Set A/B 与 NE 分支 |
 
 ---
 

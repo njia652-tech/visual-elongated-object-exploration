@@ -7,8 +7,6 @@ _Last updated: 2026-07-15. Use this as the starting point for any new Claude Cod
 ## 0. ⚠️ Plan documents — read this first
 
 - **`EXP1_EXP2_IMPLEMENTATION_PLAN.md`** — the current authoritative plan, **and it is what actually runs today**. Exp1 (elongated bodies: capsule / barrel / spindle / ovoid-cylinder, symmetry entirely feature-carried, rotation-criterion trial flow, rest/instruction pages, per-participant CSV files) is fully implemented and has been pilot-tested. Exp2 (non-elongated bodies, same 4 body types reparameterized to aspect ratio 1.1–1.3) stimuli are **now generated** (32 `exp2_*.glb`, commit `15b1998`) — but the plan's §8.2 pilot-calibration checklist (P1–P4) has not yet been confirmed specifically for Exp2's lower aspect ratio (see §7).
-- **`CURRENT_IMPLEMENTATION_PLAN.md`** — **ARCHIVED**, superseded by the file above (its own header says so). Describes the old 2×2 Set A/B box-body design that no longer runs. Kept only for historical reference to that design's decisions.
-- **`Experiment_Execution_Spec.md`** — spec for the old 2×2 design; also superseded, same caveat as above.
 
 **Workflow rule (still in force): before any experiment adjustment, update `EXP1_EXP2_IMPLEMENTATION_PLAN.md` and get user confirmation before touching code.**
 
@@ -57,8 +55,6 @@ project root/
 ├── blender_preview.py          Blender script — imports GLBs for visual inspection
 │
 ├── EXP1_EXP2_IMPLEMENTATION_PLAN.md AUTHORITATIVE plan — matches the live code (see §0)
-├── CURRENT_IMPLEMENTATION_PLAN.md   ARCHIVED — old 2×2 design, historical reference only
-├── Experiment_Execution_Spec.md     ARCHIVED — spec for the old 2×2 design
 ├── HANDOFF.md                  This file
 │
 ├── public/
@@ -322,8 +318,7 @@ Please read HANDOFF.md first — it has the full project state, file map, and ne
 Then read EXP1_EXP2_IMPLEMENTATION_PLAN.md — this is the AUTHORITATIVE plan AND matches
 what's actually running (Exp1 fully implemented and pilot-tested). Workflow rule: any
 experiment adjustment must update this plan file and get user confirmation before touching
-code. CURRENT_IMPLEMENTATION_PLAN.md / Experiment_Execution_Spec.md are ARCHIVED (old 2x2
-box-body design, no longer runs) — historical reference only, do not use for new work.
+code.
 
 Key files:
 - view-selection.js      LIVE experiment logic — Exp1 + Exp2 both implemented
