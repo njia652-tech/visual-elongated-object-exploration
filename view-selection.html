@@ -27,19 +27,11 @@
 
     /* ── Persistent trial overlays (transparent bg) ──────────────── */
     #instruction-banner {
-      position: fixed; top: 58px; left: 0; right: 0;
-      background: rgba(0,0,0,0.60); color: #eee;
+      position: fixed; top: 12vh; left: 0; right: 0;
+      background: rgba(0,0,0,0.65); color: #eee;
       text-align: center; padding: 10px 40px;
-      font-size: 15px; z-index: 5; display: none;
+      font-size: 18px; z-index: 5; display: none;
       border-bottom: 1px solid rgba(255,255,255,0.15);
-    }
-
-    #timer-display {
-      position: fixed; top: 14px; right: 14px;
-      background: rgba(255,255,255,0.88); color: #111;
-      font-size: 15px; font-family: sans-serif;
-      padding: 8px 16px; border-radius: 6px; z-index: 15;
-      display: none; max-width: 220px; text-align: center;
     }
 
     #trial-counter {
@@ -51,13 +43,13 @@
     }
 
     #confirm-prompt {
-      position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%);
+      position: fixed; bottom: 7vh; left: 50%; transform: translateX(-50%);
       background: rgba(0,0,0,0.82); color: #fff;
-      padding: 16px 32px; border-radius: 10px;
+      padding: 14px 30px; border-radius: 10px;
       font-size: 18px; text-align: center; z-index: 15;
       display: none; max-width: 90vw;
     }
-    #rotation-progress { display: block; font-size: 15px; color: #ddd; }
+    #rotation-progress { display: block; font-size: 18px; color: #eee; }
 
     /* ── Welcome ─────────────────────────────────────────────────── */
     #module-welcome .card {
@@ -70,12 +62,24 @@
       padding: 14px 24px; text-align: left; margin: 1rem 0;
     }
     .controls-box li { margin: 6px 0; }
+    #participant-id-row {
+      display: flex; align-items: stretch; justify-content: center;
+      margin-top: 0.5rem;
+    }
+    #participant-id-prefix {
+      padding: 10px 0 10px 14px; font-size: 16px;
+      border-radius: 6px 0 0 6px; border: 1px solid #555; border-right: none;
+      background: #2a2a3e; color: #aaa; display: flex; align-items: center;
+    }
     #participant-id {
-      padding: 10px 14px; font-size: 16px; width: 280px;
-      border-radius: 6px; border: 1px solid #555;
-      background: #222; color: #fff; margin-top: 0.5rem;
+      padding: 10px 14px 10px 4px; font-size: 16px; width: 140px;
+      border-radius: 0 6px 6px 0; border: 1px solid #555;
+      background: #222; color: #fff;
     }
     #start-error { color: #ff8080; min-height: 1.4em; margin-top: 0.6rem; font-size: 0.95rem; }
+
+    /* ── Practice intro ──────────────────────────────────────────── */
+    #module-practice-intro .card { max-width: 740px; padding: 2.5rem; text-align: center; }
 
     /* ── Instruction ─────────────────────────────────────────────── */
     #module-instruction .card { max-width: 740px; padding: 2.5rem; text-align: center; }
@@ -125,11 +129,26 @@
           <li>Enter &nbsp; Confirm view (unlocks once you've rotated enough to inspect the object)</li>
         </ul>
       </div>
-      <input id="participant-id" placeholder="Participant ID (e.g., P001)" /><br>
+      <div id="participant-id-row">
+        <span id="participant-id-prefix"></span>
+        <input id="participant-id" placeholder="000" inputmode="numeric" pattern="[0-9]*" />
+      </div>
       <button id="btn-start" style="margin-top:1.2rem; font-size:1.05rem; padding:12px 28px;">
         Start
       </button>
       <div id="start-error"></div>
+    </div>
+  </div>
+
+  <!-- ── Practice round intro (once per session, before block 1) ── -->
+  <div id="module-practice-intro" class="module">
+    <div class="card">
+      <h2>Quick Practice Round</h2>
+      <p>Before you begin, try a quick practice round to get familiar with the controls. This round will not be recorded.</p>
+      <p>You'll need to rotate the object left/right at least 40 times before you can confirm a view — this makes sure you've seen its full structure before choosing.</p>
+      <button id="btn-begin-practice" style="font-size:1.05rem; padding:12px 32px;">
+        Begin Practice
+      </button>
     </div>
   </div>
 
@@ -148,8 +167,9 @@
   <div id="module-rest" class="module">
     <div class="card">
       <h2>Take a short break</h2>
-      <p>Please relax and step away from the task for a moment. Press Enter when you're ready to continue.</p>
-      <button id="btn-continue-rest">Continue</button>
+      <p>Please relax and step away from the task for a moment.</p>
+      <p id="rest-countdown"></p>
+      <button id="btn-continue-rest" disabled>Continue</button>
     </div>
   </div>
 
@@ -177,7 +197,6 @@
 
   <!-- ── Persistent trial overlays ─────────────────────────────── -->
   <div id="instruction-banner"></div>
-  <div id="timer-display"></div>
   <div id="trial-counter"></div>
   <div id="confirm-prompt">
     <span id="rotation-progress"></span>

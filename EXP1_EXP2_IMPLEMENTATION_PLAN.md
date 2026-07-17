@@ -4,6 +4,12 @@
 >
 > ⚠️ **工作流规则（必须始终执行）：任何实验调整，先更新本文件，询问用户确认后，再执行代码修改。**
 >
+> ⚠️ **代码规范（源自 `CLAUDE.md`，必须始终遵守）：**
+> 1. **先想清楚再动手**——不假设、不隐藏疑惑、主动暴露权衡：不确定就先问，而非直接实现；存在多种理解方式时需摊开说明，不擅自选定；有更简单的方案要主动指出。
+> 2. **最简优先**——只写解决问题所需的最少代码：不做未被要求的功能/抽象/可配置项；不为不会发生的场景写错误处理；200 行能写成 50 行就重写。
+> 3. **外科手术式修改**——只改必须改的地方：不顺手"优化"或重构无关代码，不改动无关的格式/注释；保持现有代码风格；改动导致的孤儿 import/变量/函数要清理，但不擅自删除改动之外发现的既有死代码（只提出）。
+> 4. **目标驱动执行**——把任务转成可验证的成功标准再动手（如"修 bug"→"先写复现测试，再让它通过"）；多步任务先列出 步骤→验证方式 再执行，直到验证通过为止。
+>
 > **文件结构说明**
 > - 标注 **[固定]** 的内容为已定案设计，不可更改。
 > - 标注 **⚠️ 待确认** 的内容需用户决策后方可实现。
@@ -31,8 +37,9 @@
 - `node_modules/`（约 74 MB）— 如果实验室电脑能联网，也可以不拷、改为到实验室后跑 `npm install`（见下）
 - `.venv/`（约 12 MB，如果开发机用了虚拟环境）— 同上，联网的话可以改跑 `pip install -r requirements.txt`
 - `public/hdrs/`（约 88 MB，HDR 环境贴图，渲染必需）
-- `public/Objects/`（约 2.4 MB，全部刺激物 GLB + `objects_metadata.json`，**目前有一批新的 `exp1_*.glb` 是 untracked 状态，git 里也没有**）
 - `data/`（现有的测试数据，如 `PTEST*` 系列 CSV；可选，主要是防止实验室新建的 `data/exp1/` 与本地测试数据混在一起搞混，建议**清空或改名后再带过去**，避免正式数据和测试数据混淆）
+
+**2026-07-18 更正**：`public/Objects/`（全部 64 个刺激物 GLB + `objects_metadata.json`）**实际已提交进 git，不在 `.gitignore` 里**（核对 `.gitignore` 只排除 `node_modules/`、`.venv/`、`public/hdrs/`、`data/` 四项）——`git clone`/正常拉取即可获得，不需要单独优盘拷贝。本节此前误写"是 untracked 状态"，已订正；上面清单已去掉这一条。
 
 最省心的做法：**直接把整个项目文件夹（`.git` 也带上）复制进优盘，到实验室整个拷回硬盘**，不要用 `git clone` + 重新安装依赖的方式，除非确认实验室电脑能连外网装包。
 
@@ -59,13 +66,12 @@ npm run dev           # 终端 B，应显示 Local: http://localhost:5180/
 
 ### 5. ⚠️ "代码已实现" ≠ "可以直接收正式数据" —— 出发前必须确认的几件事
 
-> 2026-07-14 复核代码后发现：`view-selection.js` / `server.py` / `blender_gen_objects.py` 已经把本文件 §2–§7 的设计**基本实现完整**（配置块、40 步旋转判据、50 s 上限、休息/指导语页、probe 调度、`block_events.csv` 四文件落盘等均已在代码里），并不是 HANDOFF.md（2026-07-10 版本，已过期）里说的"什么都没实现"。但下面这些不是"代码 gap"，是**收正式数据前必须人工确认**的事项，直接影响数据能不能用：
+> 2026-07-14 复核代码后发现：`view-selection.js` / `server.py` / `blender_gen_objects.py` 已经把本文件 §2–§7 的设计**基本实现完整**（配置块、40 步旋转判据、休息/指导语页、probe 调度、`block_events.csv` 四文件落盘等均已在代码里），并不是 HANDOFF.md（2026-07-10 版本，已过期）里说的"什么都没实现"。但下面这些不是"代码 gap"，是**收正式数据前必须人工确认**的事项，直接影响数据能不能用：
 
-- [ ] **§8.2 的 4 项 pilot 校准（P1–P4）在本清单里仍未正式勾选完成**，这些是"必须真人跑一遍肉眼判断"的项目，无法靠读代码替代。`data/exp1/{P002,PP010}_*.csv` 与 `data/exp2/{PEP2_00,PEP2_01}_*.csv` 说明两个实验都已有 dev/pilot 会话跑过，但**尚未针对 Exp2（2026-07-15 才生成，长宽比更低）专门确认过 P1（附件是否因主体缩小而拥挤）**——建议出发前至少针对 exp2 补跑一次完整 pilot session（非 TEST_MODE，真实参数）：
+- [ ] **§8.2 的 pilot 校准清单在本清单里仍未正式勾选完成**，这些是"必须真人跑一遍肉眼判断"的项目，无法靠读代码替代。`data/exp1/{P002,PP010}_*.csv` 与 `data/exp2/{PEP2_00,PEP2_01}_*.csv` 说明两个实验都已有 dev/pilot 会话跑过，但**尚未针对 Exp2（2026-07-15 才生成，长宽比更低）专门确认过 P1（附件是否因主体缩小而拥挤）**——建议出发前至少针对 exp2 补跑一次完整 pilot session（非 TEST_MODE，真实参数）：
   - P1 端面视角（az≈0°/180°）下 symmetric/asymmetric 是否肉眼可辨，附件是否因主体缩小而拥挤/重叠（Exp2 优先级最高）
   - P2 40 步旋转判据（key repeat 已禁用，每步需一次独立按键）实际操作是否过于繁琐
   - P3 主体棱角化（faceting）粗细是否落在"可辨认切面但仍像有机物体"的区间（太光滑/太多面体都有问题，见 §2.1 末段）
-  - P4 50 s 上限下 `timeout` 触发率、`confirmation_latency` 均值是否接近预期的 28–32 s
 - [ ] **`data/exp1/` 和 `data/exp2/` 里现有的 dev/pilot 测试数据**（`P002`、`PP010`、`PEP2_00`、`PEP2_01`，共 10 个文件，均非正式被试 ID）出发前建议整体移出这两个目录（例如挪到 `data/_pretest_backup/` 或直接删除），避免和正式被试数据混在一起——后端的重复 ID 检查是精确字符串匹配，不会自动区分测试数据与正式数据
 - [x] `TEST_MODE`（`view-selection.js` 第 21 行）当前为 `false`，是正式收集所需状态——**到实验室后重新确认一次**，避免拷贝/合并过程中被意外改动
 - [ ] `server.py` 的 CORS 白名单写死为 `http://localhost:5180`（server.py 第 13 行）——**必须用这个确切地址访问**（不能是 `127.0.0.1:5180`，也不能改端口），否则前端请求会被 CORS 拦截、数据传不到后端却不一定有明显报错
@@ -199,41 +205,47 @@ exp1_barrel_…(4) / exp1_spindle_…(4) / exp1_ovoidcyl_…(4)
 
 ### 3.2 物体数量与单次时长 [已决议：16/条件 — 2026-07-14 由 18/条件下调]
 
-**变更背景**：原 18/条件 + 40 s 可见倒计时上限，被反馈"倒计时可见会让被试感到催促"。改为**倒计时不可见**（探索期不显示读秒数字，只在临近上限前给出文字提示，见 §3.3）后，为了在同一 ~60 min 会话上限内留出上限从 40 s 提到 50 s 的余量，物体数从 18/条件降至 **16/条件**。
+物体数固定为 **16/条件**（32 物体，共享物体集后 trial 数 = 物体数 × 2 = 64）。移除 ellipsoid 后剩 4 种主体，16/条件恰好整除，按 (4,4,4,4) 均分（见 §2.3），原先 5 体不整除导致的分配不平衡问题已消失。
 
-共享物体集后，trial 数 = 物体数 × 2。每 trial 上限 50 s（达旋转判据后被试通常提前确认，均值预计仍 ~25–30 s，倒计时隐藏后实际均值可能略有上浮，需 pilot 验证）：
+**2026-07-16：取消 trial 的 50 s 硬性时间上限**。原上限是为了在"倒计时不可见"设计下，把会话总时长的极端情况控制在可接受范围而设的保守上限；pilot 实测显示 trial 实际耗时远低于该上限，且硬性 cutoff 有打断已完成探索、正准备确认的被试的风险。**决议：trial 不再有时间上限**，被试可以不受时间压力地探索，直到旋转判据（§3.3）达标后自行按 Enter 确认。相应地，`timeout` 字段、`MAX_TRIAL_SEC`、`TIMER_WARNING_SEC` 及临近上限的文字提示一并移除（见 §3.3 / §4.1 / §7）。会话总时长因此不再需要"最坏情况撞满上限"的估算——单个 trial 时长完全取决于被试自身节奏。
 
-| 方案 | 物体数（sym+asym）| Trials | 纯 trial 时间（均值 ~28–32 s / 上限 50 s）| 总时长（含指导语/probe/休息，开销约 11–12 min）|
-|------|-------|--------|--------------|------------|
-| **已选：16/条件 + 50 s 上限** | 32 | 64 | ~30–34 min / 最坏情况上限 **53.3 min** | ~41–65 min |
-| （对照）原 18/条件 + 40 s 上限 | 36 | 72 | ~34 min / 最坏情况上限 48 min | ~45–60 min |
-| （参考，若改 45 s 上限）16/条件 | 32 | 64 | — / 最坏情况上限 48 min | ~41–60 min（与原方案打平）|
-| （参考，若维持 55–60 s 上限）16/条件 | 32 | 64 | — / 最坏情况上限 58.7–64 min | ~59.7–76 min（超一小时风险高）|
-
-⚠️ **已知并接受的风险（2026-07-14 用户已确认选择 50 s）**：50 s 上限下，"每个 trial 都撞上限"的最坏情况总时长约 **65.3 min**，比原设计的 60 min 硬性上限多出约 5 min。这是小概率尾部情形——隐藏倒计时后，均值预计仍主要由 40 步旋转判据（而非倒计时可见性）驱动，多数被试仍会在判据达标后不久确认。**pilot 时需重点监控 `timeout` 触发率**：若某位被试连续多个 trial 触发 timeout（提示均值偏离预期、时长失控），应在正式收集前重新评估上限或物体数；若 timeout 率维持低位（个位数百分比），维持现状即可。
-
-**2026-07-14 更新**：移除 ellipsoid 后剩 4 种主体，16/条件恰好整除，按 (4,4,4,4) 均分（见 §2.3），原先 5 体不整除导致的分配不平衡问题已消失。若 pilot 实测仍偏紧，可进一步退到 12/条件（干净的 4×3），退路见 §3.6 pilot 观察项。
-
-### 3.3 Trial 流程 [已更新——旋转达标解锁 + 50 s 上限（倒计时不可见）]
+### 3.3 Trial 流程 [已更新——旋转达标解锁 Enter，无时间上限]
 
 每个 trial：novel object 以 **initial oblique viewpoint** 呈现（实现：azimuth 30° 或 330°、elevation 0°，随机其一——oblique in azimuth，既非 end-on 亦非 side-on）。被试自由旋转寻找 preferred view。
 
-**最小旋转达标解锁 Enter**：为确保被试在确认前充分 inspect 物体，Enter 键**仅在累计旋转达到最小判据后**才可用。判据 = **40 rotation steps**（step size 5° → 200° cumulative rotation）。**累计步数仅计 azimuth（←→ / left_right）触发的步数，elevation（↑↓ / up_down）步数不计入判据**——原因：elevation 被限制在 ±30°（单向最多 6 步），若与 azimuth 合并计数，被试可仅靠上下振荡凑够 40 步而从未环绕物体，架空"充分 inspect"的设计意图；只算 azimuth 步数才能保证 40 步确实对应 200° 的环绕探索。达标后被试可随时按 Enter 确认，**final viewpoint = 按 Enter 时刻的 azimuth 与 elevation**。
+**最小旋转达标解锁 Enter**：为确保被试在确认前充分 inspect 物体，Enter 键**仅在累计旋转达到最小判据后**才可用。判据 = **40 rotation steps**（step size 5° → 200° cumulative rotation），**按原始按键次数计（raw count），不去重**。**累计步数仅计 azimuth（←→ / left_right）触发的步数，elevation（↑↓ / up_down）步数不计入判据**——原因：elevation 被限制在 ±30°（单向最多 6 步），若与 azimuth 合并计数，被试可仅靠上下振荡凑够 40 步而从未环绕物体，架空"充分 inspect"的设计意图；只算 azimuth 步数才能保证 40 步确实对应 200° 的环绕探索。达标后被试可随时按 Enter 确认，**final viewpoint = 按 Enter 时刻的 azimuth 与 elevation**。
 
-**上限与超时（2026-07-14 变更：40 s → 50 s，倒计时改为不可见）**：每 trial 最长 **50 s**；若 50 s 内未按 Enter，则**自动记录当前视角并标记为 timeout**。
+**2026-07-16 决策记录——判据计数方式维持原始按键次数，不改为"去重覆盖度"**：曾考虑把判据从"按键次数"改为"访问过的不同 5° 方位格子数"（回访同一角度不计入新进度，只有转到从未去过的角度才算数），动机是防止被试在小范围内来回摇摆凑够按键数、却从未真正环绕物体。**已否决**：本设计的 `dwell_ratio_end_on` / `_side_on` / `_oblique` / `_symmetry_readable`（§4.1）本身就是在衡量"探索过程中在各视角类别停留的比例"，这是核心数据而非噪音——被试在判据达标前就已形成初步偏好、之后仍继续探索/在某些角度反复停留，这正是判据刻意制造出的探索时长与轨迹，不是需要消除的"污染"。若改用去重覆盖度计数，会**反向激励被试避免回访/停留**（回访不计入进度，被试为了尽快解锁会倾向单向扫过、不重新审视已看过的角度），恰好压制了 dwell 数据本身要捕捉的行为，还可能让不同条件下的 dwell 比例都收敛到"匀速扫一遍"的几何基线附近、削弱组间差异。**结论：维持原始按键计数**，回访/摇摆/反复停留和真正探索新角度权重相同，判据本身对被试策略保持中性。
+- **残留风险（不用机制解决，事后诊断）**：raw count 判据下，理论上存在"40 次按键全挤在一段很窄的方位角范围内、从未看到物体另一侧"的退化情形。不额外引入机制卡这种情况（会重新带回上面否决的反向激励问题），改为：完整轨迹本已逐 100ms 记录，新增一个纯诊断用的 `azimuth_coverage_deg` 字段（该 trial 访问过的不同 5° 方位格子数 × 5，不参与 Enter 解锁判断，见 §4.1），分析阶段用它筛查/标记覆盖过窄的异常 trial。
 
-- **变更原因**：现有实现（`view-selection.js`，`#timer-display`）在整个探索期持续显示逐秒倒数的数字，被认为会让被试感到"被催促"，可能干扰其自然探索节奏。
-- **新行为 — 倒计时不可见**：探索期**不显示**任何数字读秒；界面提示文字维持现状（"Use the arrow keys to explore…" / 达标后 "Press Enter to confirm your chosen view."）。
-- **临近上限的文字提示**：仅在剩余时间 ≤ **8 s** 时，在原倒计时数字的位置改为显示简短文字提示（暂定 "Please choose your view soon."），不显示具体秒数——目的是保留"快到上限"的软提示，同时不引入贯穿全程的可见倒计时压力。此阈值（8 s）与提示文案为 pilot 待校准项，见 §8.2。
-- `timeout` 标记与数据记录逻辑不变，仅上限数值由 40 s 改为 50 s。
+**2026-07-16 决策记录——不采用"标记选择 / 结束 trial"两阶段拆分**：曾考虑让 Enter 在判据达标前也能生效，用于"随时保存当前朝向为暂定选择"，判据达标后再按一次才真正结束 trial 并采用最后一次保存的朝向作为 `final_azimuth`/`final_elevation`（而非解锁那一刻的实时朝向）。**已否决**：这个方案的前提是"判据达标前形成的偏好是真实答案，之后被迫的探索是要隔离掉的污染"——但如上一条决策记录所述，这个前提本身不成立（继续探索本身就是数据的一部分）；且两阶段语义（同一个键在不同内部状态下做不同的事）会引入新的交互复杂度与"什么时候是真的结束"的困惑，成本大于收益。**结论：Enter 语义维持单一**——判据达标前完全锁定，达标后按下即用当前实时朝向结束 trial，不做二段式。
 
-英文 methods 定稿措辞（可直接引用，已按 50 s 更新）：
+**2026-07-16：新增探索期实时数字进度提示，解决"Enter 锁定但无任何反馈"的困惑**：此前判据未达标时按 Enter 完全静默无响应，被试反馈不知道是操作错误还是程序卡住（50 s 时间上限取消后，没有超时兜底，这个困惑会被无限放大，因为卡住的被试没有任何自动脱困机制）。改为：
+- 判据未达标时，提示文案改为**带具体数字的实时进度**：`Explore the object from different angles — {n}/40`（n = 当前已完成的 azimuth 按键次数，随每次左右转动实时刷新）。
+- 判据达标后文案不变：`Press Enter to confirm your chosen view.`
+- **2026-07-17 决策记录（一）——不在指导语页加说明句**：曾在两个 block 指导语文本末尾加一句解释 Enter 锁定机制的话（理由是没有练习试次、trial 1 就是正式数据，怕被试靠试错搞懂机制污染该 trial）。**已否决**：这句话太长、放在 task instruction 后面显得累赘，干扰被试对任务本身指导语的阅读——指导语的核心任务是让被试理解 T1/T2 的任务目标，不应该被交互机制说明稀释注意力。**结论：指导语文本维持任务原文，不加交互机制说明**。
+- **2026-07-17 决策记录（二）——数字进度提示改回静态文案，教学功能转交给新增的练习试次**：实时数字（`{n}/40`）虽然解决了"无反馈"的困惑，但活跃跳动的数字本身可能诱导被试盯着数字凑数、而非专注探索物体——与当初隐藏时间倒计时数字的顾虑同一逻辑（不想让被试为了数字而不是为了 task 要求去转动物体）。**已否决**：判据未达标时的提示文案改为**静态、不带数字**：`Explore the object mainly by left/right rotation before you can confirm your view.`（判据达标后文案不变：`Press Enter to confirm your chosen view.`）——不暴露具体门槛数值，但保留"现在还不能确认"这一关键信息，不做到完全静默。
+  - 这句静态文案本身不足以让被试第一次遇到锁定时就理解整个机制的存在与运作方式（不解释判据、不解释门槛多高）——但这不再是问题，因为**新增了练习试次**（见 §3.3b），机制已在正式 trial 1 之前被体验过一遍；提示文案不再需要承担教学功能，只需在被试忘记时提醒探索方向即可。
 
-> On each trial, a novel object was presented from an initial oblique viewpoint. Participants freely rotated the object until they found the view they preferred. To ensure that participants inspected the object before making a selection, the Enter key became available only after a minimum cumulative azimuthal rotation criterion had been met. This criterion was set at 40 rotation steps (left/right key presses only, changes in elevation not counted), corresponding to 200° of cumulative rotation around the object's vertical axis with a 5° step size. Once this criterion was met, participants could confirm their selected view by pressing Enter. The final viewpoint was defined as the azimuth and elevation of the object at the moment of confirmation. Each trial had a maximum duration of 50 s; a numeric countdown was not displayed during the trial, and a brief on-screen prompt appeared only in the final seconds to encourage a timely response. If no response was made within the 50 s window, the current viewpoint was automatically recorded and the trial was marked as a timeout.
+- **提示文字位置/字号（2026-07-17 定稿）**：曾尝试把底部提示贴近物体（`bottom: 30vh`、24px），实跑发现会与物体重叠，**已否决**。最终以"物体及旋转操作是主任务、文字提示只需在被试查看时可读"为原则重新校准三者布局：底部提示 `#confirm-prompt` 下移至 `bottom: 7vh`、内文 `#rotation-progress` 缩小为 18px（内边距同步收窄为 14px 30px）；顶部任务提示条 `#instruction-banner` 下移至 `top: 12vh`（脱离左上角试次计数徽章）、字号放大为 18px、底色加深至 rgba(0,0,0,0.65) 保证天空背景下可读。上下提示同为 18px、对称框住物体，中段留给物体的净空经 Playwright 截图实测（多个不同轮廓物体 × 仰角 ±30° 极值）均无重叠。
 
-无练习试次。指导语沿用旧版 T1/T2 原文。
+英文 methods 定稿措辞（可直接引用，已按无时间上限更新）：
 
-⚠️ **需注意——旋转判据 × key repeat 交互**：§3.5 现定"忽略 key repeat"，即每步需一次独立按键。据此 40 steps = **40 次独立的 azimuth 按键**（←→，不含 ↑↓）才解锁 Enter，可能偏繁琐并挤占 40 s 预算。两个选项：(a) 保持忽略 key repeat（40 次离散按键，强制 deliberate inspection）；(b) 对旋转启用 key repeat（按住连续转，达 200° 更快）——但需重新校准 step 计数（连续步仍按 5°/step 累计）。**默认 (a)。招募前确认，见 §8。**
+> On each trial, a novel object was presented from an initial oblique viewpoint. Participants freely rotated the object until they found the view they preferred. To ensure that participants inspected the object before making a selection, the Enter key became available only after a minimum cumulative azimuthal rotation criterion had been met. This criterion was set at 40 rotation steps (left/right key presses only, changes in elevation not counted), corresponding to 200° of cumulative rotation around the object's vertical axis with a 5° step size. Once this criterion was met, participants could confirm their selected view by pressing Enter, with no imposed time limit. The final viewpoint was defined as the azimuth and elevation of the object at the moment of confirmation.
+
+⚠️ **需注意——旋转判据 × key repeat 交互**：§3.5 现定"忽略 key repeat"，即每步需一次独立按键。据此 40 steps = **40 次独立的 azimuth 按键**（←→，不含 ↑↓）才解锁 Enter，可能偏繁琐。两个选项：(a) 保持忽略 key repeat（40 次离散按键，强制 deliberate inspection）；(b) 对旋转启用 key repeat（按住连续转，达 200° 更快）——但需重新校准 step 计数（连续步仍按 5°/step 累计）。**默认 (a)。招募前确认，见 §8。**
+
+### 3.3b 练习试次 [新增，2026-07-17]
+
+**决议：增加一次练习 trial，位置在录入 Participant ID 之后、block 1 指导语页之前，整个会话仅此一次**（block 2 前不重复出现，机制已经学会）。
+
+- **目的**：本设计原先"无练习试次"，trial 1 即正式数据；若被试靠试错搞懂 Enter 锁定机制，会污染正式 trial 1 的旋转轨迹/反应时数据。此前尝试过用指导语加说明句、实时数字进度等界面文案手段缓解，但都有各自副作用（说明句干扰任务阅读、数字进度诱导盯数字凑数，均已否决，见上）。练习试次直接从根源解决——让被试在一次不计入数据的试跑里体验完整的"旋转 → 判据解锁 → 按 Enter 确认"流程，之后正式 trial 1 的提示文案就不必再承担教学功能。
+- **刺激物（2026-07-17 修正，2026-07-18 配色调整）**：不使用该被试所在实验的 32 个正式物体（会破坏 novelty）。**也不复用另一实验的物体**（最初考虑过 Exp1↔Exp2 互借，已否决——练习物体最好和正式刺激的生成谱系完全无关，避免任何潜在的"练习物体其实是某实验正式刺激同款"式混淆，独立性优先于省事）。**改为专门新做一个简单椭球体**：不经过 `blender_gen_objects.py` 的 profile/棱角化/features 流程，直接在 `view-selection.js` 里用 Three.js 原生 `SphereGeometry` 非等比缩放程序化生成（例如 scale `(1, 0.65, 1.3)`），不生成 GLB、不进 `public/Objects/`、不进 `objects_metadata.json`，与两个实验的刺激生成体系彻底无交集。**材质配色**：最初用中性灰蓝色强化"这只是练习道具"的区分，实跑发现灰蓝色和 HDR 天空背景对比度太低、不够醒目，**已改为和正式物体同色系的金色**（`0xc9a227`），优先保证在背景前清晰可辨。
+- **流程与呈现（2026-07-18 更新）**：练习页面先给一句独立于 T1/T2 任务措辞的通用说明（"Before you begin, try a quick practice round to get familiar with the controls. This round will not be recorded."），**紧接着 concise 说明旋转判据本身**（"You'll need to rotate the object left/right at least 40 times before you can confirm a view — this makes sure you've seen its full structure before choosing."）——这句话点明 40 步、强调左右转、并解释理由（确保被试在选定 preferred view 前先看过物体的完整结构），确认后进入与正式 trial 完全相同的旋转/判据/确认交互（复用同一套代码路径），仅 `#trial-counter` 显示 "Practice" 而非 "Task N — Trial X / 32"。按 Enter 确认后**直接跳转到 block 1 指导语页**，不经过 probe、不经过 rest。
+  - 这条说明**只出现在练习页面，不进 T1/T2 指导语**——和 §3.3 决策记录（一）"不在指导语页加说明句"并不矛盾：那条否决的是把机制说明塞进*任务*指导语（干扰阅读任务目标），这里是在专门、独立的练习页面上说明机制，两者场景不同，互不冲突。
+- **数据处理**：练习 trial **不写入任何 CSV**（不调用 `/api/record_view`、`/api/sample_log`）——这条数据没有分析价值，从源头不生成，好过生成后还要在下游分析脚本里过滤。
+- **会话时长影响**：可忽略不计（一次 trial，多数被试几十秒内即可达标确认），§3.2 的时长估算不单独调整。
+- **对 §7 检查单的影响**：新增一条核对项——练习 trial 出现在 ID 录入之后、block 1 指导语页之前，Enter 确认后正确跳转到指导语页，且 `data/{exp}/` 目录下没有因练习 trial 多出任何一行数据。
 
 ### 3.4 Probe
 
@@ -259,17 +271,17 @@ exp1_barrel_…(4) / exp1_spindle_…(4) / exp1_ovoidcyl_…(4)
 
 ```
 [block 1 结束]
-→ 休息页（无强制时长：休息提示常驻，按 Enter 即可继续，同一界面）
+→ 休息页（强制 30 秒倒计时，倒计时期间 Enter/Continue 均无效；倒计时归零后解锁，同一界面显示"可随时按 Enter 或点击 Continue 继续"）
 → 指导语页（呈现下一 task 的完整指导语，被试主动确认后开始；可设最短停留防止秒跳）
 → [block 2 开始]
 ```
 
-- **休息页**（2026-07-15 变更）：取消 30 s 强制倒计时/禁用期，只保留休息提示文字；按 Enter 键即可继续（鼠标点击「Continue」按钮保留作为备用方式），仍是同一个界面，不拆分。
+- **休息页**（2026-07-17 更新，推翻 2026-07-15 的"取消强制倒计时"决议）：重新引入**强制 30 秒倒计时**——休息页打开后显示倒计时（30s → 0s），倒计时期间 Enter 键与「Continue」按钮均**不生效**（按钮禁用）；倒计时归零后自动解锁，页面文字切换为"You can press Enter or click Continue at any time"，此后 Enter/点击均可继续。仍是同一个界面，不拆分为"倒计时页"+"可继续页"两页。
 - **指导语页与休息页分离**（两页）：休息=放松、指导语=装载新任务规则，目标相反，不合并——避免指导语被当作休息页说明而略读，削弱操纵。
 - **对称性要求**：**每个 block 前都要有指导语页**（含第一个 block，此时无前置休息但仍走指导语页），保证两 task 的指导语呈现方式一致；task order 反向（T2→T1）的被试流程同样对称。
 - 记录：`rest_start_ms` / `rest_end_ms`（休息实际时长，即使不再强制最短时长仍记录，供事后查看被试实际休息了多久）、`instruction_confirm_ms`（指导语页确认时刻），供核对被试是否真读了指导语。**这三个时间戳落在 `block_events.csv`（每 block 一行），不进 view_record，见 §4.4。**
 
-⚠️ **pilot 观察项（不阻塞）**：单个 block（16/条件下约 30–34 min）是否过长——若后半段 timeout 率上升或旋转步数骤降，优先**减少物体数（16→12，即干净的 4×3）缩短 block**，而非在 block 内加中途休息（后者破坏 block 对称与 carryover 诊断）。
+⚠️ **pilot 观察项（不阻塞）**：单个 block（16/条件下约 30–34 min）是否过长——若后半段旋转步数骤降，优先**减少物体数（16→12，即干净的 4×3）缩短 block**，而非在 block 内加中途休息（后者破坏 block 对称与 carryover 诊断）。
 
 ---
 
@@ -284,15 +296,17 @@ exp1_barrel_…(4) / exp1_spindle_…(4) / exp1_ovoidcyl_…(4)
 | 新增 | `experiment` | `exp1` / `exp2` |
 | 新增 | `body_type` | 四种主体之一（stimulus-level 分析用）|
 | 新增 | `exposure_index` | 1 / 2（该物体全程第几次出现，carryover 诊断）|
-| 新增 | `timeout` | true = 50 s 上限自动记录、未按 Enter；false = 主动确认 |
 | 新增 | `cumulative_rotation_steps` | 该 trial 累计 **azimuth（left_right）** 步数，判据为 ≥40（对齐 §3.3，此前本表曾误写 ≥50，已修正）；elevation（up_down）步数不计入此字段，`up_down_count` 单独记录 |
-| 新增 | `criterion_met` | azimuth 步数达标（≥40）后才解锁 Enter；诊断极少数 timeout 前未达标的 trial |
 | 改名 | `symmetry` | 原 `feature_arrangement`（已定案，见 §2.2）|
 | 删除 | `object_set` | Set 结构已取消 |
 | 删除 | `global_shape` | elongation 为 between-experiment，由 `experiment` 字段承载 |
 | 删除 | `condition` | 旧版为 `${shape}_${arr}`（如 `E_asym`）；shape 维度已删，剩余信息与 `symmetry` 完全同义。**只留 `symmetry`，不设别名列**，避免两列同义在分析时混淆 |
+| 删除 | `timeout` | 2026-07-16：trial 时间上限取消（§3.3），不再有 timeout 场景，字段随之移除 |
+| 删除 | `enter_pressed` | 2026-07-16：同上——没有 timeout 场景后，凡有记录的 trial 必然是主动按 Enter 确认的，该字段恒为 true、无区分度，移除 |
+| 删除 | `criterion_met` | 2026-07-16：同上——Enter 本就锁定到旋转判据达标才可用，没有 timeout 场景后该字段恒为 true、无区分度，移除 |
+| 新增 | `azimuth_coverage_deg` | 2026-07-16：该 trial 访问过的不同 5° 方位格子数 × 5（0–360，去重）。**纯诊断用途，不参与 Enter 解锁判断**（判据仍是 §3.3 的 raw count `cumulative_rotation_steps`）——分析阶段用于筛查/标记"按键数够但实际转动范围很窄"的退化 trial |
 
-保留（`confirmation_latency` 语义 = trial 起始到按 Enter 的时长；timeout 时 = 50 s）：`participant_id, task, object_id, symmetry(sym/asym), trial_index, task_order, start_azimuth, final_azimuth, final_elevation, axis_category, feature_category, confirmation_latency, enter_pressed, up_down_count, left_right_count, timestamp`。
+保留（`confirmation_latency` 语义 = trial 起始到按 Enter 的时长，2026-07-16 起无上限）：`participant_id, task, object_id, symmetry(sym/asym), trial_index, task_order, start_azimuth, final_azimuth, final_elevation, axis_category, feature_category, confirmation_latency, up_down_count, left_right_count, timestamp`。
 
 > 注：`symmetry` 是 sym/asym 的唯一权威列；旧代码若有 `condition` 输出须移除，CSV schema 不含 `condition`。
 
@@ -300,12 +314,12 @@ exp1_barrel_…(4) / exp1_spindle_…(4) / exp1_ovoidcyl_…(4)
 
 | 字段 | 说明 |
 |------|------|
-| `dwell_ratio_end_on` | 该 trial 全程（trial 起始至按 Enter / timeout）内，视角处于 `end_on` 的采样点占比（0–1） |
+| `dwell_ratio_end_on` | 该 trial 全程（trial 起始至按 Enter）内，视角处于 `end_on` 的采样点占比（0–1） |
 | `dwell_ratio_side_on` | 同上，`side_on` 占比 |
 | `dwell_ratio_oblique` | 同上，`oblique` 占比 |
 
 - 三者之和 = 1（Exp1、Exp2 全部物体均适用，见下方 §4.2 的 2026-07-15 更正）。
-- **实现方式**：不新增采样基础设施，复用已有的 100 ms 轨迹采样（`trajectorySamples`，§4.3）——在 trial 确认/超时那一刻，遍历该 trial 已收集的全部采样点，用既有的 `getAxisCategory(azimuth)` 逐点分类计数，除以采样总点数得到三个比例，作为新字段随该行一起写入 `view_record.csv`（不新增文件、不改采样频率）。
+- **实现方式**：不新增采样基础设施，复用已有的 100 ms 轨迹采样（`trajectorySamples`，§4.3）——在 trial 确认那一刻，遍历该 trial 已收集的全部采样点，用既有的 `getAxisCategory(azimuth)` 逐点分类计数，除以采样总点数得到三个比例，作为新字段随该行一起写入 `view_record.csv`（不新增文件、不改采样频率）。
 - **按键次数（up_down_count / left_right_count）— 已确认无需改动**：现有字段是整个 trial 的总按键次数，已满足"探索时左右/上下按键次数"的需求，不新增比例或分阶段字段。
 
 **新增（2026-07-15，对称可读性指标）— 已决议**：
@@ -315,7 +329,7 @@ exp1_barrel_…(4) / exp1_spindle_…(4) / exp1_ovoidcyl_…(4)
 | `symmetry_readable` | 仅 symmetric 物体适用（asymmetric 记 `N/A`）：`final_azimuth` 是否落在对称可读窗口内（`true`/`false`），窗口定义见 §4.2 |
 | `dwell_ratio_symmetry_readable` | 仅 symmetric 物体适用（asymmetric 记 `N/A`）：该 trial 全程内，视角落在对称可读窗口的采样点占比（0–1） |
 
-- **实现方式**：与 `dwell_ratio_end_on` 等字段一致，复用已有的 100 ms 轨迹采样（`trajectorySamples`），不新增采样基础设施；`symmetry_readable` 基于确认/超时时刻的 `final_azimuth` 单点判定，`dwell_ratio_symmetry_readable` 基于整段轨迹逐点判定后取占比。
+- **实现方式**：与 `dwell_ratio_end_on` 等字段一致，复用已有的 100 ms 轨迹采样（`trajectorySamples`），不新增采样基础设施；`symmetry_readable` 基于确认时刻的 `final_azimuth` 单点判定，`dwell_ratio_symmetry_readable` 基于整段轨迹逐点判定后取占比。
 
 ### 4.2 视角分类
 
@@ -333,7 +347,7 @@ exp1_barrel_…(4) / exp1_spindle_…(4) / exp1_ovoidcyl_…(4)
 
 ### 4.4 block_events.csv（每 block 一行，安置 §3.6 时间戳）
 
-休息/指导语时间戳是 **block 切换时发生一次**的事件，不是每 trial 都有——塞进 `view_record.csv`（每 trial 一行）会产生大量空列，挂在"该 block 第一个 trial 行"则语义别扭。故单开一个每被试的小文件 `data/exp{1,2}/P00X_block_events.csv`，每个 block 一行：
+休息/指导语时间戳是 **block 切换时发生一次**的事件，不是每 trial 都有——塞进 `view_record.csv`（每 trial 一行）会产生大量空列，挂在"该 block 第一个 trial 行"则语义别扭。故单开一个每被试的小文件 `data/exp{1,2}/Exp{1,2}_00X_block_events.csv`（命名规则见 §7），每个 block 一行：
 
 | 字段 | 说明 |
 |------|------|
@@ -370,7 +384,7 @@ Exp2 生成逻辑复用同一脚本，配置切换（body 参数表 + `exp2_` �
 ⚠️ **工作量说明（勿低估）**：本计划的多数功能是**从零实现**，不是"改一下现有开关"。核对实际代码库现状——`view-selection.js` 中 `EXEMPLAR_ALLOC` / `PROBE_MIN_GAP` / `MIN_ROTATION_STEPS` / `REST_MIN_SEC` 等配置常量**均不存在**；`beforeunload` 拦截不存在；`TEST_MODE` 在 `main.js`（约 L375）而非 view-selection.js；`blender_gen_objects.py` **仍是纯 box body 逻辑**（约 L114），四种 revolution body 一个都还没写。因此以下均为新建/重写，不是配置微调：
 
 1. **Blender 四体重写**（§5）：四个前后对称 revolution profile + 柱面坐标 ±θ 放置 + profile 棱角化（facet，替代已否决的环状 ripple） + 新元数据——`blender_gen_objects.py` 基本重写。
-2. **旋转判据逻辑**（§3.3）：40 步解锁 Enter + 50 s 上限超时（倒计时不可见，剩余 ≤8 s 才转为文字提示） + oblique 起点 + elevation 夹紧 + azimuth 零点锚 end-on。
+2. **旋转判据逻辑**（§3.3）：40 步解锁 Enter（无时间上限）+ oblique 起点 + elevation 夹紧 + azimuth 零点锚 end-on。
 3. **休息页 / 指导语页**（§3.6）：新页面与流程、强制最短时长、两 block 对称。
 4. **probe 调度与呈现**（§3.4）：block 内 8–12 抖动、独立计数、confidence probe UI。
 5. **移除旧再认测验**：`renderMemoryTest` / `showModelList` 那套 "I have seen this" 客观再认整体删除。
@@ -393,18 +407,22 @@ const PROBE_MIN_GAP = 8;          // probe 间隔随机区间 [8,12]，平均 ~1
 const PROBE_MAX_GAP = 12;
 const PROBE_FIRST = 6;            // 每 block 首个 probe 落在第 6–8 trial
 const MIN_ROTATION_STEPS = 40;    // 累计 azimuth 步数达标解锁 Enter（40 × 5° = 200°；elevation 步数不计入）
-const MAX_TRIAL_SEC = 50;         // 每 trial 上限（2026-07-14：40→50），超时自动记录并标记 timeout
-const TIMER_VISIBLE = false;      // 2026-07-14 新增：探索期不显示逐秒倒计时（原 #timer-display 逐秒刷新，改为隐藏）
-const TIMER_WARNING_SEC = 8;      // 新增：剩余 ≤8 s 时，倒计时数字位置改为文字提示（"Please choose your view soon."），仍不显示具体秒数
+const REST_COUNTDOWN_SEC = 30;    // 休息页强制倒计时（2026-07-17 重新引入，见 §3.6 / §8.1 #9），期间 Enter/Continue 均无效
 const KEY_REPEAT = false;         // §3.3 待确认：旋转是否启用 key repeat
-// REST_MIN_SEC 已移除（2026-07-15）：休息页不再强制最短时长，按 Enter 即可继续（§3.6）
+// MAX_TRIAL_SEC / TIMER_VISIBLE / TIMER_WARNING_SEC 已移除（2026-07-16）：trial 时间上限取消，见 §3.2 / §3.3
 ```
 
 或经 URL 参数覆盖（`view-selection.html?exp=1`），避免收集期间改代码。
 
-**开场输入页做三件事**：录入 Participant ID → 自动按末位奇偶显示本场 task 顺序（主试无需人工判断）→ 校验 ID 格式与重复（后端查 CSV 中已有 ID，防止串号）。
+**开场输入页做三件事（2026-07-17 更新——被试编号改为纯数字输入）**：
 
-**数据文件按被试落盘**：`data/exp1/P001_view_record.csv`、`P001_probe.csv`、`P001_samples.csv`、`P001_block_events.csv`（§4.4）——每被试独立文件，天然完成备份粒度，无需收集后手工拆分追加式大 CSV；汇总分析时脚本合并。
+- 输入框旁静态显示 `Exp1_` 或 `Exp2_` 前缀（随当前 `EXPERIMENT` 配置切换，不随参与者输入变化），**输入框本身只接受数字**（非数字字符被过滤，不显示、不可输入）。参与者不再需要自己拼 "P001" 这种完整 ID，只需输入编号数字。
+- 数字编号**固定补零到 3 位**（如输入 `7` → `007`，输入 `23` → `023`；超过 3 位不截断，如 `1000` 保持 `1000`），拼接前缀后得到最终 `participant_id`（如 `Exp1_007`）——补零是为了保证文件名按字典序排序与数值序一致（`Exp1_010` 排在 `Exp1_002` 之后，而非 `Exp1_10` 排在 `Exp1_2` 之前）。
+- Task 顺序奇偶判定（§3.1，末位奇偶决定 T1/T2 先后）基于**补零前的数字编号本身**（取最后一位数字），不基于拼接前缀后的完整字符串——避免前缀 `Exp1` 中的数字 `1` 混入奇偶判定。
+- 自动按末位奇偶显示本场 task 顺序（主试无需人工判断）→ 校验编号重复（后端按完整 `participant_id`——即含 `Exp1_`/`Exp2_` 前缀——查该实验目录下已有 CSV，防止串号）。
+- 旧的 `P` 前缀命名（如 `P001`、`PP010`）废弃，不再使用；已有的 `P002`/`PP010`/`PEP2_00`/`PEP2_01` 等 pilot 测试数据不受影响（历史文件不重命名），但均为非正式数据，仍按 §0/§7 建议在正式收集前移出 `data/exp{1,2}/`。
+
+**数据文件按被试落盘（前缀改为 `Exp1_`/`Exp2_`，替代旧的 `P` 前缀）**：`data/exp1/Exp1_007_view_record.csv`、`Exp1_007_probe.csv`、`Exp1_007_samples.csv`、`Exp1_007_block_events.csv`（§4.4）——每被试独立文件，天然完成备份粒度，无需收集后手工拆分追加式大 CSV；汇总分析时脚本合并。文件名前缀直接标明所属实验，即使文件被移出 `data/exp{1,2}/` 子目录（如汇总备份时）也不会和另一实验的数据混淆。
 
 **每场次检查单（打印贴在主试机旁）**：
 
@@ -412,9 +430,10 @@ const KEY_REPEAT = false;         // §3.3 待确认：旋转是否启用 key re
 2. **收集前确认**：代码 `TEST_MODE = false`；机器休眠/屏保已关、电源常插；浏览器全屏/kiosk 已开
 3. 打开 `http://localhost:5180/view-selection.html?exp=1`
 4. 录入 ID → 核对页面显示的 task 顺序
-5. block 1 结束后确认出现休息页（30 s 倒计时）→ 指导语页 → block 2；两 block 前均有指导语页
-6. 结束后确认 `data/exp1/` 出现该 ID 的四个文件（view_record / probe / samples / block_events）且行数正确（view_record 行数 = trial 数；block_events = 2 行）
-7. 当日结束整目录备份一次（含日期）
+5. **确认出现练习 trial**（§3.3b，`#trial-counter` 显示 "Practice"）→ Enter 确认后正确跳转到 block 1 指导语页，`data/exp1/` 不应因这次练习多出任何数据
+6. block 1 结束后确认出现休息页（无强制时长，按 Enter 继续）→ 指导语页 → block 2；两 block 前均有指导语页
+7. 结束后确认 `data/exp1/` 出现该 ID 的四个文件（view_record / probe / samples / block_events）且行数正确（view_record 行数 = trial 数，不含练习 trial；block_events = 2 行）
+8. 当日结束整目录备份一次（含日期）
 
 **中断预案**：若会话中途崩溃/意外中断——**作废该 ID、换新 ID 重招下一个被试，切勿让原被试重做**（novelty 已污染）。崩前的 per-trial 数据仍在 `data/exp1/`，可留作诊断，不进分析。
 
@@ -449,7 +468,9 @@ const KEY_REPEAT = false;         // §3.3 待确认：旋转是否启用 key re
 | 5 | Probe 频率 | §3.4 | 平均每 10（block 内 8–12 随机抖动，独立计数，首个第 6–8）|
 | 5b | Probe 内容/措辞 | §3.4 | confidence 版（Not/Somewhat/Confident），对两 task 中性的统一 probe |
 | 6 | 断点续跑是否实现 | §7 | 不做续跑，采用防中断措施（在场受控收集）|
-| 7 | Trial 上限倒计时是否可见 + 上限秒数 | §3.3 / §3.2 | 2026-07-14：倒计时改为**不可见**（探索期不显示逐秒数字，剩余 ≤8 s 才转文字提示）；上限由 40 s 提到 **50 s**；为把最坏情况总时长控制在可接受范围，物体数同步由 18/条件降至 16/条件（见 #1）。已知代价：50 s × 64 trials 的理论最坏情况总时长约 65 min，比原 60 min 硬上限多约 5 min，接受为低概率尾部风险，**pilot 时须监控 `timeout` 触发率**（§3.2）|
+| 7 | Trial 是否有时间上限 | §3.3 / §3.2 | 2026-07-16：**取消时间上限**。pilot 实测 trial 耗时远低于此前设的 50 s 上限，硬性 cutoff 反而有打断已完成探索被试的风险；trial 时长完全由旋转判据（40 步）+ 被试自主确认决定，不再设超时自动提交 |
+| 8 | 被试编号输入 / 数据文件命名前缀 | §7 | 2026-07-17：参与者只输入数字编号（输入框只接受数字），前端自动补零到 3 位并拼接 `Exp1_`/`Exp2_` 前缀（随 `EXPERIMENT` 切换）作为 `participant_id` 与 CSV 文件名前缀，废弃旧的手动输入 `P` 前缀方案（曾产生 `P002`/`PP010` 这类不一致命名）；task 顺序奇偶判定基于补零前的数字本身，不受前缀数字干扰 |
+| 9 | 休息页倒计时 | §3.6 | 2026-07-17：推翻 2026-07-15"取消强制倒计时"的决议，重新引入**强制 30 秒倒计时**——期间 Enter/Continue 均无效（按钮禁用），归零后自动解锁并显示"随时可继续"提示 |
 
 数据收集前需拍板的核心设计决定已全部锁定，可进入代码实现。
 
@@ -460,6 +481,5 @@ const KEY_REPEAT = false;         // §3.3 待确认：旋转是否启用 key re
 | # | 待验事项 | 位置 | 检查动作 / 默认 |
 |---|------|------|------|
 | P1 | 端面视角 symmetry 可读性 | §2.1 / §2.2 | 已应用一版校准：`MINOR_RADIUS` 1.0→0.65（缩小约35%），附件尺寸解耦为固定绝对值（不再随 `MINOR_RADIUS` 缩放）。仍需 pilot 目视确认：端面视角（az 0°）下对称关系是否清晰、附件是否因主体变小而在圆周上拥挤/重叠。仍不理想则按校准优先级继续动参数——先减少 `NUM_FEATURE_PAIRS` 或收紧特征尺寸，再考虑 |θ| 范围收紧至 [45°,135°]，最后才放宽 aspect ratio |
-| P2 | 旋转 key repeat 操作体验 | §3.3 | pilot 观察达 40 步的离散按键是否过繁琐/挤占 40 s。默认忽略 key repeat（40 次离散按键）；过繁琐则改为对旋转启用 key repeat 并重校步计数 |
+| P2 | 旋转 key repeat 操作体验 | §3.3 | pilot 观察达 40 步的离散按键是否过繁琐。默认忽略 key repeat（40 次离散按键）；过繁琐则改为对旋转启用 key repeat 并重校步计数 |
 | P3 | profile 棱角粗细校准 | §2.1 | pilot 目视确认棱角粗细是否落在"可辨识切面、仍读作有机物体"区间——过细趋近光滑（解剖学联想风险回升）、过粗趋近多面体/钻石切割（风格混淆，物体被归类为人工几何体）。默认取中等分段数，四体统一，据 pilot 观感调整 |
-| P4 | 50 s 上限下的 timeout 触发率 / 临近上限文字提示校准 | §3.2 / §3.3 | pilot 时统计 `timeout` 触发率与实际均值 confirmation_latency，确认是否接近文档预期（均值 ~28–32 s）；若 timeout 率明显偏高或均值明显上浮，需重新评估 50 s 上限或物体数（见 §3.2 已知风险）。同时目视/口头确认剩余 ≤8 s 时的文字提示（"Please choose your view soon."）时机与措辞是否合适，阈值与文案可据 pilot 调整 |

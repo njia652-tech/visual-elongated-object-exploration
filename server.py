@@ -128,11 +128,12 @@ def memory_result():
 #  Exp1/Exp2 View Selection endpoints (EXP1_EXP2_IMPLEMENTATION_PLAN.md)
 #
 #  Data layout (plan §7 / §4.4): one directory per experiment, four files
-#  per participant —
-#    data/{experiment}/P{id}_view_record.csv
-#    data/{experiment}/P{id}_probe.csv
-#    data/{experiment}/P{id}_samples.csv
-#    data/{experiment}/P{id}_block_events.csv
+#  per participant. participant_id already carries the Exp1_/Exp2_ prefix
+#  (assigned client-side from the numeric code the participant types) —
+#    data/{experiment}/{participant_id}_view_record.csv
+#    data/{experiment}/{participant_id}_probe.csv
+#    data/{experiment}/{participant_id}_samples.csv
+#    data/{experiment}/{participant_id}_block_events.csv
 #  (Replaces the old single shared view_record.csv / view_probe.csv /
 #  view_trajectory.csv files from the pre-redesign 40-trial Set A/B version.)
 # ────────────────────────────────────────────────────────────────────
@@ -144,8 +145,8 @@ VIEW_HEADERS = [
     'exposure_index', 'trial_index', 'task_order',
     'start_azimuth', 'final_azimuth', 'final_elevation',
     'axis_category', 'feature_category', 'symmetry_readable',
-    'confirmation_latency', 'enter_pressed', 'timeout',
-    'cumulative_rotation_steps', 'criterion_met',
+    'confirmation_latency',
+    'cumulative_rotation_steps', 'azimuth_coverage_deg',
     'up_down_count', 'left_right_count',
     'dwell_ratio_end_on', 'dwell_ratio_side_on', 'dwell_ratio_oblique',
     'dwell_ratio_symmetry_readable',
@@ -177,10 +178,10 @@ def _safe_experiment(exp):
 
 def _participant_csv_path(experiment, participant_id, kind):
     experiment = _safe_experiment(experiment)
-    pid = _safe_participant_id(participant_id)
+    pid = _safe_participant_id(participant_id)  # client sends the full Exp1_/Exp2_-prefixed id (plan §7)
     directory = os.path.join(DATA_ROOT, experiment)
     os.makedirs(directory, exist_ok=True)
-    return os.path.join(directory, f'P{pid}_{kind}.csv')
+    return os.path.join(directory, f'{pid}_{kind}.csv')
 
 def _append_row(path, headers, row):
     file_exists = os.path.exists(path)

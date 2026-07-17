@@ -15,8 +15,7 @@ const PROBE_MIN_GAP    = 8;
 const PROBE_MAX_GAP    = 12;
 const PROBE_FIRST      = 6;             // first probe lands at trial 6-8 (PROBE_FIRST .. PROBE_FIRST+2)
 const MIN_ROTATION_STEPS = 40;
-const MAX_TRIAL_SEC    = 50;            // 2026-07-14: 40 -> 50 (paired with hiding the countdown, see startTimer())
-const TIMER_WARNING_SEC = 8;            // 2026-07-14: remaining seconds at which the hidden timer switches to a text nudge
+const REST_COUNTDOWN_SEC = 30;          // forced rest before Continue/Enter unlock (plan §3.6, 2026-07-17)
 const KEY_REPEAT       = false;
 const TEST_MODE        = false;         // local to view-selection.js; unrelated to main.js's TEST_MODE
 
@@ -30,11 +29,10 @@ const TEST_MODE        = false;         // local to view-selection.js; unrelated
 
 // JUDGMENT CALL: the plan doesn't specify what TEST_MODE should relax (it only
 // says it exists, local to this file, unrelated to main.js's flag). For a fast
-// dev smoke-test path we let it shrink the rotation criterion / rest timer /
-// trial cap so a human can walk the whole flow in seconds; it must stay false
-// for real data collection (checked into the config block above).
+// dev smoke-test path we let it shrink the rotation criterion so a human can
+// walk the whole flow in seconds; it must stay false for real data collection
+// (checked into the config block above).
 const EFFECTIVE_MIN_ROTATION_STEPS = TEST_MODE ? 3 : MIN_ROTATION_STEPS;
-const EFFECTIVE_MAX_TRIAL_SEC      = TEST_MODE ? 10 : MAX_TRIAL_SEC;
 
 // ── FIXED CONSTANTS (unchanged from old code) ─────────────────────────
 const STEP_DEG  = 5;
@@ -153,10 +151,15 @@ let upDownCount    = 0;
 let leftRightCount = 0;   // == cumulative_rotation_steps (azimuth-only, plan §3.3)
 let criterionMet   = false;
 
-let timerInterval    = null;
-let trialTimeLeft    = EFFECTIVE_MAX_TRIAL_SEC;
+// Diagnostic-only (plan §3.3/§4.1): distinct 5°-azimuth bins visited this
+// trial. NOT used to gate criterionMet — that stays raw-count so revisiting/
+// dwelling on an angle costs nothing (see plan's 2026-07-16 decision record
+// on why a dedup'd coverage criterion would perversely penalize dwelling).
+let visitedAzimuthBins = new Set();
+
 let inTrial          = false;
 let isProcessing     = false;
+let isPracticeTrial  = false; // plan §3.3b: one-off, unrecorded trial before block 1
 
 // trajectory sampling (100 ms during entire trial)
 let trajectorySamples   = [];
@@ -356,6 +359,21 @@ function loadTrialModel(trial) {
   });
 }
 
+// Plan §3.3b: the practice trial uses a plain ellipsoid, generated in-code
+// (not a GLB) so it shares zero lineage with either experiment's stimulus
+// set. Colored to match the real objects (rather than a neutral tone) since
+// it needs to read clearly against the HDR sky background, not blend into it.
+function loadPracticeModel() {
+  scene.children.filter(o => o.userData.isModel).forEach(o => scene.remove(o));
+  const geometry = new THREE.SphereGeometry(1, 32, 24);
+  const material = new THREE.MeshStandardMaterial({ color: 0xc9a227, roughness: 0.6, metalness: 0.1 });
+  model = new THREE.Mesh(geometry, material);
+  model.scale.set(1, 0.65, 1.3);
+  model.userData.isModel = true;
+  scene.add(model);
+  applyRotation();
+}
+
 // ── ROTATION ENGINE ─────────────────────────────────────────────────────
 // Order must be 'XYZ' (elevation applied last/outermost, in world space),
 // not 'YXZ'. With 'YXZ' the effective transform is Ry(azimuth)*Rx(elevation),
@@ -377,8 +395,7 @@ function applyRotation() {
   model.rotation.z = 0;
 }
 
-// ── TIMER & TRAJECTORY ────────────────────────────────────────────────
-const elTimer   = document.getElementById('timer-display');
+// ── TRAJECTORY ──────────────────────────────────────────────────────
 const elConfirm = document.getElementById('confirm-prompt');
 const elRotProgress = document.getElementById('rotation-progress');
 
@@ -392,24 +409,18 @@ function updateConfirmPrompt() {
   if (criterionMet) {
     elRotProgress.textContent = 'Press Enter to confirm your chosen view.';
   } else {
-    elRotProgress.textContent = 'Use the arrow keys to explore the object from different angles.';
+    elRotProgress.textContent =
+      'Explore the object mainly by left/right rotation before you can confirm your view.';
   }
 }
 
-function startTimer() {
-  trialTimeLeft = EFFECTIVE_MAX_TRIAL_SEC;
+function startTrialSampling() {
   criterionMet  = false;
   trajectorySamples = [];
   trajectoryStartTime = Date.now();
 
-  // 2026-07-14 (plan §3.3): no numeric countdown during exploration — the
-  // visible per-second readout was reported to feel rushed. elTimer stays
-  // hidden until trialTimeLeft <= TIMER_WARNING_SEC, then shows a plain-text
-  // nudge (no digits) instead of a countdown.
-  elTimer.style.display   = 'none';
   elConfirm.style.display = 'block';
   updateConfirmPrompt();
-  clearInterval(timerInterval);
   stopTrajectory();
 
   // Sample azimuth + elevation every 100 ms throughout the entire trial
@@ -420,35 +431,22 @@ function startTimer() {
       elevation,
     });
   }, 100);
-
-  timerInterval = setInterval(() => {
-    trialTimeLeft--;
-    if (trialTimeLeft <= TIMER_WARNING_SEC && trialTimeLeft > 0) {
-      elTimer.textContent   = 'Please choose your view soon.';
-      elTimer.style.display = 'block';
-    }
-    if (trialTimeLeft <= 0) {
-      clearInterval(timerInterval);
-      confirmTrial('timeout');
-    }
-  }, 1000);
 }
 
 // ── MODULE SWITCHING ──────────────────────────────────────────────────
-const elBanner  = document.getElementById('instruction-banner');
-const elCounter = document.getElementById('trial-counter');
+const elBanner        = document.getElementById('instruction-banner');
+const elCounter       = document.getElementById('trial-counter');
+const elModuleWelcome = document.getElementById('module-welcome');
 
 function showModule(name) {
-  ['welcome', 'instruction', 'rest', 'probe', 'end'].forEach(m => {
+  ['welcome', 'practice-intro', 'instruction', 'rest', 'probe', 'end'].forEach(m => {
     document.getElementById(`module-${m}`).style.display = m === name ? 'flex' : 'none';
   });
   const active = name === 'trial';
   elBanner.style.display  = active ? 'block' : 'none';
   elCounter.style.display = active ? 'block' : 'none';
   if (!active) {
-    clearInterval(timerInterval);
     stopTrajectory();
-    elTimer.style.display   = 'none';
     elConfirm.style.display = 'none';
   }
   inTrial = active;
@@ -472,28 +470,55 @@ function startTrialAtLocal(localIdx) {
   startAzimuth = Math.random() < 0.5 ? 30 : 330;
   azimuth      = startAzimuth;
   elevation    = 0;
+  visitedAzimuthBins = new Set([startAzimuth]);
 
   elBanner.textContent  = TASKS[blockTask[currentBlock]].banner;
   elCounter.textContent = `Task ${currentBlock} (${TASKS[blockTask[currentBlock]].title}) — Trial ${localIdx} / ${blockSize}`;
   showModule('trial');
   loadTrialModel(trial);
-  startTimer();
+  startTrialSampling();
 }
 
-function confirmTrial(source = 'enter') {
+// Plan §3.3b: same rotation/criterion/confirm interaction as a real trial,
+// but on a throwaway ellipsoid, with no CSV writes and no block/probe/rest
+// bookkeeping — confirmTrial() special-cases isPracticeTrial to skip all that.
+function startPracticeTrial() {
+  isPracticeTrial = true;
+  isProcessing    = false;
+  upDownCount     = 0;
+  leftRightCount  = 0;
+  criterionMet    = false;
+
+  startAzimuth = Math.random() < 0.5 ? 30 : 330;
+  azimuth      = startAzimuth;
+  elevation    = 0;
+  visitedAzimuthBins = new Set([startAzimuth]);
+
+  elBanner.textContent  = 'Practice round — this round will not be recorded.';
+  elCounter.textContent = 'Practice';
+  showModule('trial');
+  loadPracticeModel();
+  startTrialSampling();
+}
+
+function confirmTrial() {
   if (isProcessing || !inTrial) return;
-  if (source === 'enter' && !criterionMet) return; // Enter locked until rotation criterion met (plan §3.3)
+  if (!criterionMet) return; // Enter locked until rotation criterion met (plan §3.3)
   isProcessing = true;
   inTrial      = false;
-  clearInterval(timerInterval);
   stopTrajectory();
+
+  if (isPracticeTrial) {
+    isPracticeTrial = false;
+    showInstructionPage(1); // straight to block 1, no probe/rest, no CSV writes (plan §3.3b)
+    return;
+  }
 
   const trial      = blockObjects[currentBlock][currentLocalIdx - 1];
   const meta       = objectsMetadata[trial.name] || null;
   const bodyType   = (meta && meta.body_type) || trial.body_type;
   const symmetry   = (meta && meta.symmetry)   || trial.symmetry;
-  const timeoutFlag = source === 'timeout';
-  const confirmLat = +Math.min(EFFECTIVE_MAX_TRIAL_SEC, (Date.now() - trialStartTimestamp()) / 1000).toFixed(2);
+  const confirmLat = +((Date.now() - trialStartTimestamp()) / 1000).toFixed(2);
   const dwellRatios = computeDwellRatios(trajectorySamples);
   const isSymmetric = symmetry === 'symmetric';
 
@@ -514,10 +539,8 @@ function confirmTrial(source = 'enter') {
     feature_category:          getFeatureCategory(meta, azimuth, elevation),
     symmetry_readable:         isSymmetric ? isSymmetryReadable(azimuth) : 'N/A',
     confirmation_latency:      confirmLat,
-    enter_pressed:             source === 'enter',
-    timeout:                   timeoutFlag,
     cumulative_rotation_steps: leftRightCount,
-    criterion_met:             criterionMet,
+    azimuth_coverage_deg:      visitedAzimuthBins.size * STEP_DEG,
     up_down_count:             upDownCount,
     left_right_count:          leftRightCount,
     dwell_ratio_end_on:            dwellRatios.end_on,
@@ -595,18 +618,41 @@ function finishBlock() {
 }
 
 // ── REST PAGE (plan §3.6 — only between block 1 and block 2) ─────────
-const btnContinueRest = document.getElementById('btn-continue-rest');
+const btnContinueRest  = document.getElementById('btn-continue-rest');
+const elRestCountdown  = document.getElementById('rest-countdown');
 let restPageActive = false;
+let restUnlocked = false;
+let restCountdownInterval = null;
 
 function showRestPage() {
   blockEvents[2].rest_start_ms = Date.now();
   showModule('rest');
   restPageActive = true;
+  restUnlocked = false;
+  btnContinueRest.disabled = true;
+
+  // Forced 30 s countdown (plan §3.6, 2026-07-17): Enter/Continue are inert
+  // until it reaches zero, then both unlock.
+  let secondsLeft = REST_COUNTDOWN_SEC;
+  elRestCountdown.textContent = `Suggested rest time remaining: ${secondsLeft}s`;
+  clearInterval(restCountdownInterval);
+  restCountdownInterval = setInterval(() => {
+    secondsLeft--;
+    if (secondsLeft > 0) {
+      elRestCountdown.textContent = `Suggested rest time remaining: ${secondsLeft}s`;
+    } else {
+      clearInterval(restCountdownInterval);
+      restUnlocked = true;
+      btnContinueRest.disabled = false;
+      elRestCountdown.textContent = 'You can press Enter or click Continue at any time.';
+    }
+  }, 1000);
 }
 
 function continueFromRest() {
-  if (!restPageActive) return;
+  if (!restPageActive || !restUnlocked) return;
   restPageActive = false;
+  clearInterval(restCountdownInterval);
   blockEvents[2].rest_end_ms = Date.now();
   showInstructionPage(2);
 }
@@ -637,8 +683,9 @@ document.addEventListener('keydown', e => {
   if (!KEY_REPEAT && e.repeat) return; // plan §3.3/§3.5: ignore key repeat, each step is a discrete press
 
   if (e.key === 'Enter') {
+    if (elModuleWelcome.style.display !== 'none') { startSession(); return; }
     if (restPageActive) { continueFromRest(); return; }
-    confirmTrial('enter');
+    confirmTrial();
     return;
   }
   if (!inTrial || isProcessing) return;
@@ -647,6 +694,7 @@ document.addEventListener('keydown', e => {
     case 'ArrowLeft':
       azimuth = (azimuth - STEP_DEG + 360) % 360;
       leftRightCount++;
+      visitedAzimuthBins.add(azimuth);
       if (leftRightCount >= EFFECTIVE_MIN_ROTATION_STEPS) criterionMet = true;
       applyRotation();
       updateConfirmPrompt();
@@ -654,6 +702,7 @@ document.addEventListener('keydown', e => {
     case 'ArrowRight':
       azimuth = (azimuth + STEP_DEG) % 360;
       leftRightCount++;
+      visitedAzimuthBins.add(azimuth);
       if (leftRightCount >= EFFECTIVE_MIN_ROTATION_STEPS) criterionMet = true;
       applyRotation();
       updateConfirmPrompt();
@@ -710,14 +759,25 @@ document.addEventListener('keydown', (e) => {
 
 // ── START BUTTON ──────────────────────────────────────────────────────
 const elStartError = document.getElementById('start-error');
+const elPidInput    = document.getElementById('participant-id');
+const elPidPrefix   = document.getElementById('participant-id-prefix');
 
-document.getElementById('btn-start').addEventListener('click', async () => {
-  const raw = (document.getElementById('participant-id').value || '').trim();
-  if (!raw) {
-    if (elStartError) elStartError.textContent = 'Please enter a participant ID.';
+// Participant ID = "Exp1_"/"Exp2_" (auto, from EXPERIMENT) + zero-padded numeric
+// code (plan §7, 2026-07-17). The prefix is display-only; the input itself only
+// ever holds digits.
+const PID_PREFIX = EXPERIMENT === 'exp1' ? 'Exp1_' : 'Exp2_';
+elPidPrefix.textContent = PID_PREFIX;
+elPidInput.addEventListener('input', () => {
+  elPidInput.value = elPidInput.value.replace(/\D/g, '');
+});
+
+async function startSession() {
+  const rawDigits = (elPidInput.value || '').replace(/\D/g, '');
+  if (!rawDigits) {
+    if (elStartError) elStartError.textContent = 'Please enter a participant number (digits only).';
     return;
   }
-  const candidateId = raw.toUpperCase();
+  const candidateId = `${PID_PREFIX}${rawDigits.padStart(3, '0')}`;
 
   // Duplicate-ID guard (plan §7: "校验 ID 格式与重复")
   try {
@@ -733,11 +793,13 @@ document.getElementById('btn-start').addEventListener('click', async () => {
   }
 
   participantId = candidateId;
-  const digits    = participantId.replace(/\D/g, '');
-  const lastDigit = digits.length > 0 ? parseInt(digits.slice(-1), 10) : 0;
+  const lastDigit = parseInt(rawDigits.slice(-1), 10); // from the numeric code, not the Exp1_/Exp2_ prefix
   taskOrder = lastDigit % 2 === 1 ? 'T1T2' : 'T2T1'; // odd = T1 first, even = T2 first (plan §3.1)
 
   await metadataReady; // make sure objects_metadata.json has resolved before building blocks
   buildBlocks(taskOrder);
-  showInstructionPage(1); // every block (including block 1) is preceded by an instruction page (plan §3.6)
-});
+  showModule('practice-intro'); // one-off practice trial precedes block 1's instruction page (plan §3.3b)
+}
+
+document.getElementById('btn-start').addEventListener('click', startSession);
+document.getElementById('btn-begin-practice').addEventListener('click', startPracticeTrial);
